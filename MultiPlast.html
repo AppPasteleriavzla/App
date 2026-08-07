@@ -134,11 +134,10 @@
         }
         .product-card:active { transform: scale(0.99); background: #F8FAFC; }
         
-        /* Modificación para soportar fotos */
         .product-img { 
             width: 68px; height: 68px; background: #F1F5F9; border-radius: 16px; 
             display: flex; align-items: center; justify-content: center; margin-right: 16px; 
-            border: 1px solid #E2E8F0; overflow: hidden; /* Oculta lo que se sale del borde redondo */
+            border: 1px solid #E2E8F0; overflow: hidden;
         }
         .product-img img { width: 100%; height: 100%; object-fit: cover; }
         .product-img i { font-size: 28px; color: var(--text-light); }
@@ -155,7 +154,7 @@
         
         .price { font-size: 16px; font-weight: 800; color: var(--primary-dark); }
 
-        /* Estilo para subir foto en el formulario */
+        /* Subir foto */
         .img-upload-box {
             width: 100%; height: 140px; background: #F8FAFC; border: 2px dashed #CBD5E1; 
             border-radius: 16px; display: flex; flex-direction: column; align-items: center; 
@@ -166,6 +165,18 @@
         .img-upload-box i { font-size: 32px; color: var(--text-light); margin-bottom: 8px; }
         .img-upload-box span { font-size: 13px; font-weight: 600; }
         .img-upload-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; }
+
+        /* Contenedor de Filtros */
+        .filters-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filters-row {
+            display: flex;
+            gap: 10px;
+        }
 
         /* FINANCE CARD */
         .finance-card {
@@ -353,7 +364,35 @@
 
         <!-- PRODUCTOS -->
         <section id="view-products" class="view-section">
-            <div class="form-group"><input type="text" id="search-product" class="form-control" placeholder="🔍 Buscar por nombre o código..." onkeyup="renderProducts(this.value)"></div>
+            <!-- Barra de Filtros Integrada -->
+            <div class="filters-wrapper">
+                <input type="text" id="search-product" class="form-control" placeholder="🔍 Buscar por nombre o SKU..." onkeyup="filterProducts()">
+                
+                <div class="filters-row">
+                    <select id="filter-cat" class="form-control" onchange="filterProducts()" style="flex: 1;">
+                        <option value="">Todas las Calidades</option>
+                        <option value="Primera">1ª Primera</option>
+                        <option value="Segunda">2ª Segunda</option>
+                        <option value="Tercera">3ª Tercera</option>
+                        <option value="Cuarta">4ª Cuarta</option>
+                    </select>
+
+                    <select id="filter-medida" class="form-control" onchange="filterProducts()" style="flex: 1;">
+                        <option value="">Todas las Medidas</option>
+                        <option value="1 cm">1 cm</option>
+                        <option value="2 cm">2 cm</option>
+                        <option value="3 cm">3 cm</option>
+                        <option value="4 cm">4 cm</option>
+                        <option value="5 cm">5 cm</option>
+                        <option value="6 cm">6 cm</option>
+                        <option value="7 cm">7 cm</option>
+                        <option value="8 cm">8 cm</option>
+                        <option value="9 cm">9 cm</option>
+                        <option value="10 cm">10 cm</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="admin-only" style="margin-bottom:20px;">
                 <button class="btn-secondary" onclick="openModal('modal-cost-adjust')" style="background:var(--primary-light); border:none; color:var(--primary-dark); width:100%; padding:16px; display:flex; justify-content:center; align-items:center; gap:10px;">
                     <i class="fa-solid fa-dollar-sign"></i> Ajustar costos por tipo de cambio
@@ -428,7 +467,7 @@
         </div>
     </div>
 
-    <!-- Modal Producto (crear/editar) CON FOTO -->
+    <!-- Modal Producto (crear/editar) CON FOTO Y MEDIDAS -->
     <div class="modal-overlay" id="modal-product">
         <div class="modal-content">
             <div class="modal-header"><h3 id="modal-product-title">Agregar Producto</h3><button class="btn-close" onclick="closeModal('modal-product')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -443,13 +482,39 @@
                 </div>
                 <input type="file" id="prod-image" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
             </div>
-            <!-- FIN SECCIÓN FOTO -->
 
-            <div class="form-group"><label>Nombre (Calidad)</label><input type="text" id="prod-name" class="form-control" placeholder="Ej: Plastoformo Alta Densidad"></div>
+            <div class="form-group"><label>Nombre del Producto</label><input type="text" id="prod-name" class="form-control" placeholder="Ej: Esfera o Lámina de Plastoformo"></div>
+            
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                <div class="form-group"><label>SKU</label><input type="text" id="prod-sku" class="form-control" placeholder="P-001"></div>
-                <div class="form-group"><label>Categoría</label><select id="prod-cat" class="form-control"><option>Primera</option><option>Segunda</option><option>Tercera</option><option>Cuarta</option></select></div>
+                <div class="form-group"><label>SKU / Código</label><input type="text" id="prod-sku" class="form-control" placeholder="P-001"></div>
+                <div class="form-group">
+                    <label>Calidad</label>
+                    <select id="prod-cat" class="form-control">
+                        <option value="Primera">1ª Primera</option>
+                        <option value="Segunda">2ª Segunda</option>
+                        <option value="Tercera">3ª Tercera</option>
+                        <option value="Cuarta">4ª Cuarta</option>
+                    </select>
+                </div>
             </div>
+
+            <div class="form-group">
+                <label>Medida / Tamaño</label>
+                <input type="text" id="prod-medida" class="form-control" list="medidas-list" placeholder="Ej: 5 cm">
+                <datalist id="medidas-list">
+                    <option value="1 cm">
+                    <option value="2 cm">
+                    <option value="3 cm">
+                    <option value="4 cm">
+                    <option value="5 cm">
+                    <option value="6 cm">
+                    <option value="7 cm">
+                    <option value="8 cm">
+                    <option value="9 cm">
+                    <option value="10 cm">
+                </datalist>
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
                 <div class="form-group"><label>Costo (Bs)</label><input type="number" id="prod-cost" class="form-control" placeholder="0"></div>
                 <div class="form-group"><label>Precio (Bs)</label><input type="number" id="prod-price" class="form-control" placeholder="0"></div>
@@ -525,7 +590,7 @@
         document.getElementById('current-date').innerHTML = `<i class="fa-solid fa-calendar-day" style="margin-right:4px;"></i> ${displayDate}`;
 
         let editingProductId = null;
-        let currentUploadedImage = null; // Variable para guardar la foto temporalmente
+        let currentUploadedImage = null;
         let financeChartInstance = null;
 
         function saveDB() {
@@ -536,7 +601,6 @@
                 localStorage.setItem('mp_payroll', JSON.stringify(db.payroll));
                 populateSaleSelect();
             } catch (e) {
-                // Si la memoria del navegador se llena por las fotos
                 if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
                     alert("¡Memoria llena! El navegador ya no permite guardar más datos. Intenta borrar productos viejos.");
                 }
@@ -550,11 +614,10 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Comprimir la imagen para que no llene la memoria del celular
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 300; // Tamaño máximo reducido para ahorrar memoria
+                    const MAX_SIZE = 300;
                     let width = img.width;
                     let height = img.height;
 
@@ -568,10 +631,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Convertir a JPEG con calidad 0.7 (comprimido)
                     currentUploadedImage = canvas.toDataURL('image/jpeg', 0.7);
                     
-                    // Mostrar vista previa
                     const preview = document.getElementById('prod-img-preview');
                     preview.src = currentUploadedImage;
                     preview.style.display = 'block';
@@ -682,10 +743,11 @@
                 <div class="action-icon admin-only" onclick="deleteProduct(${prod.id})" title="Eliminar"><i class="fa-solid fa-trash-can" style="color:var(--danger);font-size:16px;"></i></div>
             `;
 
-            // Decidir si mostrar foto o icono por defecto
             let imageHtml = prod.image 
                 ? `<img src="${prod.image}" alt="Foto producto">` 
                 : `<i class="fa-solid fa-cube"></i>`;
+
+            let medidaBadge = prod.medida ? ` | <i class="fa-solid fa-ruler-combined"></i> ${prod.medida}` : '';
 
             return `
             <div class="product-card">
@@ -693,7 +755,7 @@
                 <div class="product-details">
                     <h3>${prod.name}</h3>
                     <div class="product-meta">
-                        <span><i class="fa-solid fa-barcode"></i> SKU: ${prod.sku} | ${prod.cat}</span>
+                        <span><i class="fa-solid fa-barcode"></i> SKU: ${prod.sku} | ${prod.cat}${medidaBadge}</span>
                         ${costHtml}
                     </div>
                     <div style="display:flex;gap:4px;margin-top:10px;margin-left:-8px;">${actionsHtml}</div>
@@ -727,20 +789,40 @@
             document.getElementById('recent-products-list').innerHTML = recentHTML || '<p style="text-align:center;color:var(--text-light);font-weight:500;">No hay productos en inventario.</p>';
         }
 
-        function renderProducts(filter='') {
+        // ---------- FILTRADO AVANZADO DE PRODUCTOS ----------
+        function filterProducts() {
+            const searchVal = document.getElementById('search-product').value.toLowerCase();
+            const catVal = document.getElementById('filter-cat').value;
+            const medidaVal = document.getElementById('filter-medida').value;
+            renderProducts(searchVal, catVal, medidaVal);
+        }
+
+        function renderProducts(search='', catFilter='', medidaFilter='') {
             const list = document.getElementById('all-products-list');
             let html = '';
+            
             db.products.forEach(p => {
-                if(p.name.toLowerCase().includes(filter.toLowerCase()) || p.sku.toLowerCase().includes(filter.toLowerCase()))
+                const matchesSearch = (p.name || '').toLowerCase().includes(search) || 
+                                      (p.sku || '').toLowerCase().includes(search) ||
+                                      (p.medida || '').toLowerCase().includes(search);
+                const matchesCat = catFilter === '' || p.cat === catFilter;
+                const matchesMedida = medidaFilter === '' || (p.medida && p.medida.toLowerCase() === medidaFilter.toLowerCase());
+
+                if (matchesSearch && matchesCat && matchesMedida) {
                     html += createProductCard(p);
+                }
             });
+            
             list.innerHTML = html || '<p style="text-align:center;color:var(--text-light);margin-top:20px;font-weight:500;">No se encontraron resultados.</p>';
         }
 
         function saveProduct() {
             const name = document.getElementById('prod-name').value, sku = document.getElementById('prod-sku').value;
-            const cat = document.getElementById('prod-cat').value, cost = parseFloat(document.getElementById('prod-cost').value);
-            const price = parseFloat(document.getElementById('prod-price').value), stock = parseInt(document.getElementById('prod-stock').value);
+            const cat = document.getElementById('prod-cat').value;
+            const medida = document.getElementById('prod-medida').value;
+            const cost = parseFloat(document.getElementById('prod-cost').value);
+            const price = parseFloat(document.getElementById('prod-price').value);
+            const stock = parseInt(document.getElementById('prod-stock').value);
             
             if(!name||!sku||isNaN(cost)||isNaN(price)||isNaN(stock)) return alert('Por favor, completa todos los campos correctamente.');
             
@@ -748,20 +830,19 @@
                 const idx = db.products.findIndex(p=>p.id===editingProductId);
                 if(idx!==-1) {
                     db.products[idx].name = name; db.products[idx].sku = sku; db.products[idx].cat = cat;
-                    db.products[idx].cost = cost; db.products[idx].price = price; db.products[idx].stock = stock;
-                    // Si subió nueva foto, se actualiza. Si no, conserva la vieja.
+                    db.products[idx].medida = medida; db.products[idx].cost = cost; db.products[idx].price = price; db.products[idx].stock = stock;
                     if(currentUploadedImage) db.products[idx].image = currentUploadedImage;
                 }
                 showToast('Inventario actualizado');
             } else {
                 db.products.unshift({
-                    id: Date.now(), name, sku, cat, cost, price, stock,
-                    image: currentUploadedImage // Guardar la foto
+                    id: Date.now(), name, sku, cat, medida, cost, price, stock,
+                    image: currentUploadedImage
                 });
                 showToast('Producto añadido con éxito');
             }
             
-            saveDB(); closeModal('modal-product'); renderDashboard(); renderProducts();
+            saveDB(); closeModal('modal-product'); renderDashboard(); filterProducts();
         }
 
         function openEditProduct(id) {
@@ -771,11 +852,11 @@
             document.getElementById('prod-name').value = p.name;
             document.getElementById('prod-sku').value = p.sku;
             document.getElementById('prod-cat').value = p.cat;
+            document.getElementById('prod-medida').value = p.medida || '';
             document.getElementById('prod-cost').value = p.cost;
             document.getElementById('prod-price').value = p.price;
             document.getElementById('prod-stock').value = p.stock;
             
-            // Cargar la foto si tiene
             const preview = document.getElementById('prod-img-preview');
             if(p.image) {
                 preview.src = p.image;
@@ -796,20 +877,19 @@
         function deleteProduct(id) {
             if(confirm('¿Confirmas la eliminación permanente de este registro?')) { 
                 db.products = db.products.filter(p=>p.id!==id); 
-                saveDB(); renderDashboard(); renderProducts(); showToast('Registro eliminado'); 
+                saveDB(); renderDashboard(); filterProducts(); showToast('Registro eliminado'); 
             }
         }
 
         function resetProductForm() {
             editingProductId=null; 
-            currentUploadedImage = null; // Limpiar la variable de la foto
+            currentUploadedImage = null;
             
             document.getElementById('modal-product-title').innerText='Agregar Producto';
             document.getElementById('modal-product-btn').innerText='Guardar en Inventario';
             
-            ['prod-name','prod-sku','prod-cost','prod-price','prod-stock','prod-image'].forEach(id=>document.getElementById(id).value='');
+            ['prod-name','prod-sku','prod-medida','prod-cost','prod-price','prod-stock','prod-image'].forEach(id=>document.getElementById(id).value='');
             
-            // Restaurar la caja de subir foto a su estado original
             document.getElementById('prod-img-preview').style.display = 'none';
             document.getElementById('prod-img-preview').src = '';
             document.getElementById('upload-icon').style.display = 'block';
@@ -821,7 +901,8 @@
             const sel = document.getElementById('sale-product');
             sel.innerHTML = '<option value="">Seleccione producto a vender...</option>';
             db.products.filter(p=>p.stock>0).forEach(p => {
-                sel.innerHTML += `<option value="${p.id}">${p.name} - ${formatMoney(p.price)} (Stock: ${p.stock})</option>`;
+                const medLabel = p.medida ? ` (${p.medida})` : '';
+                sel.innerHTML += `<option value="${p.id}">${p.name}${medLabel} - ${formatMoney(p.price)} (Stock: ${p.stock})</option>`;
             });
         }
 
@@ -842,11 +923,13 @@
             const totalRev = prod.price*qty, totalCost = prod.cost*qty, profit = totalRev-totalCost;
             const now = new Date(), fullDate = now.toLocaleDateString('es-ES')+' '+now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
             
-            db.sales.push({id:Date.now(),productId:prod.id,productName:prod.name,unitPrice:prod.price,qty,date:todayStr,fullDate,revenue:totalRev,cost:totalCost,profit});
+            const pNameLabel = prod.medida ? `${prod.name} (${prod.medida})` : prod.name;
+
+            db.sales.push({id:Date.now(),productId:prod.id,productName:pNameLabel,unitPrice:prod.price,qty,date:todayStr,fullDate,revenue:totalRev,cost:totalCost,profit});
             db.products[idx].stock -= qty;
             
             saveDB(); closeModal('modal-sale'); showToast('Venta registrada con éxito'); 
-            renderDashboard(); renderProducts(); renderFinances(); renderReports();
+            renderDashboard(); filterProducts(); renderFinances(); renderReports();
             document.getElementById('sale-qty').value='1'; updateSaleTotal();
         }
 
@@ -974,7 +1057,7 @@
                 showToast(`Costos ajustados exitosamente (Factor: ${factor})`);
                 
                 renderDashboard();
-                renderProducts();
+                filterProducts();
             }
         }
 
