@@ -196,6 +196,11 @@
             background-color: #EF4444;
             color: #FFFFFF;
         }
+        
+        .btn-excel {
+            background-color: #10B981;
+            color: #FFFFFF;
+        }
 
         /* -------------------------------------
            DISEÑO DE TARJETA DE PRODUCTO
@@ -385,15 +390,15 @@
 
         .grid-resumen {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
             margin-bottom: 12px;
         }
 
         .caja-resumen {
             background-color: #F9FAFB;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 12px 8px;
+            border-radius: 12px;
             border: 1px solid #E5E7EB;
             display: flex;
             flex-direction: column;
@@ -416,17 +421,17 @@
         }
 
         .caja-resumen p {
-            font-size: 11px;
+            font-size: 10px;
             color: #6B7280;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             margin-top: 0;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .caja-resumen .monto {
-            font-size: 22px;
+            font-size: 16px;
             font-weight: 800;
             color: #111827;
             letter-spacing: -0.5px;
@@ -434,6 +439,20 @@
 
         .monto.verde {
             color: #059669;
+        }
+        
+        .caja-resumen.costo {
+            background-color: #FEF3C7;
+            border-color: #FDE68A;
+        }
+        
+        .caja-resumen.costo .monto {
+            color: #D97706;
+        }
+        
+        .caja-resumen.ganancia {
+            background-color: #D1FAE5;
+            border-color: #A7F3D0;
         }
 
         .caja-unidades-hoy {
@@ -447,6 +466,7 @@
             font-size: 13px;
             color: #4B5563;
             font-weight: 600;
+            margin-top: 15px;
         }
 
         .caja-unidades-hoy strong {
@@ -866,11 +886,15 @@
             
             <div class="grid-resumen">
                 <div class="caja-resumen destacada">
-                    <p>Vendido Hoy</p>
+                    <p>Vendido</p>
                     <div class="monto" id="total-vendido">$0.00</div>
                 </div>
-                <div class="caja-resumen">
-                    <p>Ganancia Neta</p>
+                <div class="caja-resumen costo">
+                    <p>Costo Total</p>
+                    <div class="monto" id="total-costo">$0.00</div>
+                </div>
+                <div class="caja-resumen ganancia">
+                    <p>Ganancia</p>
                     <div class="monto verde" id="total-ganancia">$0.00</div>
                 </div>
             </div>
@@ -1006,7 +1030,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE REPORTE DIARIO -->
+    <!-- MODAL DE REPORTE DIARIO CON BOTÓN EXCEL -->
     <div id="modal-reporte-dia" class="modal-overlay" style="align-items: flex-end;">
         <div class="modal-content">
             <div class="talla-header" style="border-bottom: 1px solid #E5E7EB; padding-bottom: 15px; margin-bottom: 15px;">
@@ -1018,18 +1042,34 @@
             </div>
             
             <div class="grid-resumen" style="margin-bottom: 20px;">
-                <div class="caja-resumen destacada" style="padding: 12px;">
-                    <p style="font-size:10px;">Vendido</p>
-                    <div class="monto" id="modal-reporte-vendido" style="font-size:18px;">$0.00</div>
+                <div class="caja-resumen destacada">
+                    <p>Vendido</p>
+                    <div class="monto" id="modal-reporte-vendido">$0.00</div>
                 </div>
-                <div class="caja-resumen" style="padding: 12px;">
-                    <p style="font-size:10px;">Ganancia</p>
-                    <div class="monto verde" id="modal-reporte-ganancia" style="font-size:18px;">$0.00</div>
+                <div class="caja-resumen costo">
+                    <p>Costo</p>
+                    <div class="monto" id="modal-reporte-costo">$0.00</div>
+                </div>
+                <div class="caja-resumen ganancia">
+                    <p>Ganancia</p>
+                    <div class="monto verde" id="modal-reporte-ganancia">$0.00</div>
                 </div>
             </div>
 
             <h4 style="font-size: 12px; color: #6B7280; text-transform: uppercase; margin-bottom: 10px; margin-top: 0;">Productos Vendidos</h4>
             <div id="modal-reporte-lista"></div>
+            
+            <!-- Botón Exportar Excel -->
+            <button class="btn btn-excel" style="margin-top: 20px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="exportarExcelDia(document.getElementById('modal-reporte-fecha').innerText)">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Exportar a Excel (.csv)
+            </button>
         </div>
     </div>
 
@@ -1054,7 +1094,7 @@
                 currentRole = 'vendedor';
                 document.body.classList.add('role-vendedor');
                 document.getElementById('btn-admin-toggle').innerText = 'Entrar Admin';
-                cambiarPantalla('inventario'); // Forzar vuelta al inventario por seguridad
+                cambiarPantalla('inventario');
             }
         }
 
@@ -1293,7 +1333,7 @@
         }
 
         // ==========================================
-        // GUARDAR PRODUCTO NUEVO (Actualizado con Foto Picker)
+        // GUARDAR PRODUCTO NUEVO 
         // ==========================================
         document.getElementById('form-producto').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -1382,7 +1422,7 @@
         });
 
         // ==========================================
-        // RENDERIZAR INVENTARIO (Tarjeta Reducida)
+        // RENDERIZAR INVENTARIO 
         // ==========================================
         function renderizarInventario(listaRender = productos) {
             const contenedor = document.getElementById('contenedor-productos');
@@ -1565,7 +1605,7 @@
         }
 
         // ==========================================
-        // MODAL DE EDICIÓN, AJUSTES +/- Y ELIMINACIÓN
+        // MODAL DE EDICIÓN Y ELIMINACIÓN CON CASCADA
         // ==========================================
         function abrirModalEdicion(indexProd) {
             productoEnEdicionIndex = indexProd;
@@ -1697,15 +1737,21 @@
             if (productoEnEdicionIndex === null) return;
             let prod = productos[productoEnEdicionIndex];
 
-            if (!confirm(`¿Estás seguro de eliminar por completo el modelo "${prod.nombre}" del inventario? Esta acción no se puede deshacer.`)) {
+            // Añadí una advertencia por lo de la llave foránea
+            if (!confirm(`¿Estás seguro de eliminar el modelo "${prod.nombre}" del inventario?\n\n⚠️ ADVERTENCIA: Esta acción también eliminará el registro de las ventas previas de este zapato en los reportes.`)) {
                 return;
             }
 
-            mostrarLoader("Eliminando modelo...");
+            mostrarLoader("Eliminando referencias y modelo...");
 
             try {
+                // 1. Solución a la Foreign Key: Eliminar primero las ventas (sale_items) asociadas al zapato
+                await supabaseClient.from('sale_items').delete().eq('shoe_id', prod.id);
+
+                // 2. Eliminar el stock asociado
                 await supabaseClient.from('shoe_stock').delete().eq('shoe_id', prod.id);
                 
+                // 3. Eliminar el zapato principal
                 const { error: errorDel } = await supabaseClient
                     .from('shoes')
                     .delete()
@@ -1718,10 +1764,13 @@
                 ocultarLoader();
             } catch (err) {
                 ocultarLoader();
-                alert("Error al eliminar el modelo: " + err.message + "\nNota: Si tiene ventas asociadas, es posible que el sistema requiera mantener el registro.");
+                alert("Error al eliminar el modelo: " + err.message);
             }
         }
 
+        // ==========================================
+        // FINANZAS Y EXPORTACIÓN EXCEL
+        // ==========================================
         async function actualizarUIFinanzasSupabase() {
             try {
                 const { data: itemsData, error: itemsError } = await supabaseClient
@@ -1761,7 +1810,9 @@
                             talla: item.size,
                             cantidad: item.quantity,
                             total: totalItem,
-                            ganancia: gananciaItem
+                            ganancia: gananciaItem,
+                            costo: item.unit_cost,
+                            precio: item.unit_price
                         });
                     }
 
@@ -1778,11 +1829,17 @@
                         talla: item.size,
                         cantidad: item.quantity,
                         total: totalItem,
-                        ganancia: gananciaItem
+                        ganancia: gananciaItem,
+                        costo: item.unit_cost,
+                        precio: item.unit_price
                     });
                 });
 
+                // Calculamos el costo sumando o restando (Vendido - Ganancia)
+                let costoHoy = vendidoHoy - gananciaHoy;
+
                 document.getElementById('total-vendido').innerText = `$${vendidoHoy.toFixed(2)}`;
+                document.getElementById('total-costo').innerText = `$${costoHoy.toFixed(2)}`;
                 document.getElementById('total-ganancia').innerText = `$${gananciaHoy.toFixed(2)}`;
                 document.getElementById('cantidad-vendida').innerText = cantidadHoy;
                 document.getElementById('lista-ventas-hoy').innerHTML = generarHTMLListaProductos(detalleHoy);
@@ -1838,14 +1895,58 @@
         function abrirModalReporteSupabase(fechaStr) {
             let dia = window._historialGlobal.find(d => d.fecha === fechaStr);
             if (!dia) return;
+            
+            let costoDia = dia.ventas - dia.ganancias;
+
             document.getElementById('modal-reporte-fecha').innerText = dia.fecha;
             document.getElementById('modal-reporte-vendido').innerText = `$${dia.ventas.toFixed(2)}`;
+            document.getElementById('modal-reporte-costo').innerText = `$${costoDia.toFixed(2)}`;
             document.getElementById('modal-reporte-ganancia').innerText = `$${dia.ganancias.toFixed(2)}`;
             document.getElementById('modal-reporte-lista').innerHTML = generarHTMLListaProductos(dia.detalle);
             document.getElementById('modal-reporte-dia').style.display = 'flex';
         }
 
         function cerrarModalReporte() { document.getElementById('modal-reporte-dia').style.display = 'none'; }
+
+        // Función para Exportar a CSV (Excel)
+        function exportarExcelDia(fechaStr) {
+            if (!window._historialGlobal) return;
+            let dia = window._historialGlobal.find(d => d.fecha === fechaStr);
+            if (!dia) return;
+
+            // Se usa el formato con BOM (\uFEFF) para que Excel identifique correctamente los acentos UTF-8
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            csvContent += "Producto,Talla,Cantidad Vendida,Costo Unitario ($),Precio Unitario ($),Costo Total ($),Ingreso Total ($),Ganancia Neta ($)\r\n";
+
+            dia.detalle.forEach(v => {
+                let costoTotal = v.costo * v.cantidad;
+                let row = [
+                    `"${v.nombre}"`, 
+                    v.talla,
+                    v.cantidad,
+                    v.costo.toFixed(2),
+                    v.precio.toFixed(2),
+                    costoTotal.toFixed(2),
+                    v.total.toFixed(2),
+                    v.ganancia.toFixed(2)
+                ];
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            let costoGlobalDia = dia.ventas - dia.ganancias;
+            csvContent += `\r\nTOTALES DEL DIA,,${dia.cantidad},,,${costoGlobalDia.toFixed(2)},${dia.ventas.toFixed(2)},${dia.ganancias.toFixed(2)}\r\n`;
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            
+            let nombreArchivo = `Reporte_Ventas_${fechaStr.replace(/\//g, '-')}.csv`;
+            link.setAttribute("download", nombreArchivo);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         function dibujarGrafica(etiquetas, ventas, ganancias) {
             const ctx = document.getElementById('graficaHistorial').getContext('2d');
