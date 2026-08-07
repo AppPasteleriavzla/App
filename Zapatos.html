@@ -55,7 +55,7 @@
             align-items: center;
         }
 
-        .btn-search-toggle {
+        .btn-icon-action {
             background: none;
             border: none;
             color: #4B5563;
@@ -67,7 +67,7 @@
             transition: color 0.2s;
         }
         
-        .btn-search-toggle:active {
+        .btn-icon-action:active {
             color: #111827;
         }
 
@@ -200,6 +200,26 @@
         .btn-excel {
             background-color: #10B981;
             color: #FFFFFF;
+        }
+
+        .btn-revertir {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-revertir:active {
+            background-color: #FCA5A5;
         }
 
         /* -------------------------------------
@@ -520,6 +540,10 @@
 
         .item-venta-finanzas {
             text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
         }
 
         .item-venta-total {
@@ -765,6 +789,10 @@
         body.role-vendedor .btn-editar-admin {
             display: none !important;
         }
+        
+        body.role-vendedor .item-venta-ganancia {
+            display: none !important;
+        }
 
         body.role-vendedor .bottom-nav {
             justify-content: center;
@@ -789,8 +817,17 @@
     <header class="app-header">
         <h1 id="titulo-header">Mi Inventario</h1>
         <div class="header-actions">
+            <!-- Botón Exportar Inventario (Solo Admin o Ambos según prefieras, aquí visible para facilitar) -->
+            <button class="btn-icon-action" onclick="exportarInventarioExcel()" aria-label="Exportar Inventario" title="Exportar Inventario a Excel">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <polyline points="9 15 12 18 15 15"></polyline>
+                </svg>
+            </button>
             <!-- Botón Buscar (Lupa) -->
-            <button id="btn-search-toggle" class="btn-search-toggle" onclick="toggleSearch()" aria-label="Buscar">
+            <button id="btn-search-toggle" class="btn-icon-action" onclick="toggleSearch()" aria-label="Buscar">
                 <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -845,7 +882,7 @@
                             <circle cx="12" cy="13" r="4"></circle>
                         </svg>
                         Cámara
-                        <!-- El atributo capture="environment" fuerza abrir la cámara trasera del dispositivo -->
+                        <!-- El atributo capture="environment" fuerza abrir la cámara trasera -->
                         <input type="file" accept="image/*" capture="environment" style="display: none;" onchange="seleccionarFotoUI(this)">
                     </label>
                     <label class="btn btn-secundario" style="flex: 1; margin: 0; padding: 12px; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;">
@@ -906,6 +943,7 @@
 
             <div style="margin-top: 20px; border-top: 1px dashed #E5E7EB; padding-top: 15px;">
                 <h4 style="font-size: 12px; color: #6B7280; text-transform: uppercase; margin-bottom: 10px; margin-top: 0;">Detalle de Ventas de Hoy</h4>
+                <!-- Lista con botón de revertir activado para el día actual -->
                 <div id="lista-ventas-hoy"></div>
             </div>
         </div>
@@ -964,7 +1002,7 @@
             </div>
             
             <div id="contenedor-seleccionar-talla" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                <!-- Aquí se inyectan las tallas del modelo seleccionado -->
+                <!-- Aquí se inyectan las tallas -->
             </div>
         </div>
     </div>
@@ -1030,7 +1068,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE REPORTE DIARIO CON BOTÓN EXCEL -->
+    <!-- MODAL DE REPORTE DIARIO CON EXCEL Y REVERTIR -->
     <div id="modal-reporte-dia" class="modal-overlay" style="align-items: flex-end;">
         <div class="modal-content">
             <div class="talla-header" style="border-bottom: 1px solid #E5E7EB; padding-bottom: 15px; margin-bottom: 15px;">
@@ -1068,7 +1106,7 @@
                     <line x1="16" y1="17" x2="8" y2="17"></line>
                     <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
-                Exportar a Excel (.csv)
+                Exportar Día a Excel
             </button>
         </div>
     </div>
@@ -1172,9 +1210,6 @@
             document.getElementById('loader-overlay').style.display = 'none';
         }
 
-        // ==========================================
-        // FUNCIÓN PARA COMPRIMIR IMÁGENES
-        // ==========================================
         function comprimirImagen(file, maxWidth, maxHeight, quality) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -1398,7 +1433,6 @@
 
                 if (stockError) throw stockError;
 
-                // Resetear Formulario
                 document.getElementById('form-producto').reset();
                 archivoFotoSeleccionado = null;
                 document.getElementById('preview-foto-container').style.display = 'none';
@@ -1430,6 +1464,9 @@
             document.getElementById('estado-vacio').style.display = listaRender.length > 0 ? 'none' : 'block';
 
             listaRender.forEach((prod) => {
+                // Filtro para ocultar los productos archivados del catálogo principal
+                if (prod.nombre.startsWith('[ARCHIVADO]')) return;
+
                 const indexProd = productos.findIndex(p => p.id === prod.id);
                 if (indexProd === -1) return;
 
@@ -1460,6 +1497,43 @@
                 `;
                 contenedor.appendChild(card);
             });
+        }
+
+        // ==========================================
+        // EXPORTAR INVENTARIO GENERAL A EXCEL
+        // ==========================================
+        function exportarInventarioExcel() {
+            if (productos.length === 0) return alert("El inventario está vacío.");
+            
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            csvContent += "Producto,Talla,Cantidad en Stock,Costo Unitario ($),Precio Venta ($),Valor Inventario Total ($)\r\n";
+
+            productos.forEach(prod => {
+                if (prod.nombre.startsWith('[ARCHIVADO]')) return; // No exportamos los archivados
+
+                prod.tallas.forEach(talla => {
+                    if (talla.cantidad > 0) {
+                        let valorTotalTalla = talla.cantidad * talla.costo;
+                        let row = [
+                            `"${prod.nombre}"`,
+                            talla.talla,
+                            talla.cantidad,
+                            talla.costo.toFixed(2),
+                            talla.precio.toFixed(2),
+                            valorTotalTalla.toFixed(2)
+                        ];
+                        csvContent += row.join(",") + "\r\n";
+                    }
+                });
+            });
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Inventario_General_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // ==========================================
@@ -1605,13 +1679,52 @@
         }
 
         // ==========================================
-        // MODAL DE EDICIÓN Y ELIMINACIÓN CON CASCADA
+        // REVERTIR VENTA 
+        // ==========================================
+        async function revertirVentaSupabase(saleItemId, saleId, shoeId, size) {
+            if (!confirm("¿Estás seguro de REVERTIR esta venta? El dinero se restará de las ganancias y el zapato regresará a tu stock.")) return;
+            
+            mostrarLoader("Revirtiendo venta...");
+            try {
+                // 1. Verificamos si existe el registro de stock para sumarle 1
+                const { data: stockData } = await supabaseClient.from('shoe_stock').select('id, quantity').eq('shoe_id', shoeId).eq('size', size).single();
+
+                // 2. Borramos el artículo vendido (sale_item)
+                await supabaseClient.from('sale_items').delete().eq('id', saleItemId);
+
+                // 3. Devolvemos el zapato al stock
+                if (stockData) {
+                    await supabaseClient.from('shoe_stock').update({ quantity: stockData.quantity + 1 }).eq('id', stockData.id);
+                } else {
+                    await supabaseClient.from('shoe_stock').insert([{ shoe_id: shoeId, size: size, quantity: 1 }]);
+                }
+
+                // 4. Si la venta principal (sales) ya no tiene más items, la borramos para mantener limpia la DB
+                const { data: otherItems } = await supabaseClient.from('sale_items').select('id').eq('sale_id', saleId);
+                if (!otherItems || otherItems.length === 0) {
+                    await supabaseClient.from('sales').delete().eq('id', saleId);
+                }
+
+                await cargarDatosDesdeSupabase();
+                
+                // Si el modal de reporte estaba abierto, lo cerramos para evitar errores visuales
+                cerrarModalReporte(); 
+                ocultarLoader();
+                
+            } catch(e) {
+                ocultarLoader();
+                alert("Error al revertir la venta: " + e.message);
+            }
+        }
+
+        // ==========================================
+        // MODAL DE EDICIÓN Y ELIMINACIÓN (CON ARCHIVADO PARA PROTEGER FINANZAS)
         // ==========================================
         function abrirModalEdicion(indexProd) {
             productoEnEdicionIndex = indexProd;
             let prod = productos[indexProd];
 
-            document.getElementById('edit-nombre-zapato').value = prod.nombre;
+            document.getElementById('edit-nombre-zapato').value = prod.nombre.replace('[ARCHIVADO] ', '');
             
             const contenedorTallasEdit = document.getElementById('contenedor-editar-tallas');
             contenedorTallasEdit.innerHTML = '';
@@ -1677,14 +1790,9 @@
             mostrarLoader("Actualizando producto...");
 
             try {
-                let nuevoCostoBase = prod.costo_base;
-                let nuevoPrecioBase = prod.precio_base;
-                
                 const { error: errorZapato } = await supabaseClient
                     .from('shoes')
-                    .update({ 
-                        description: nuevoNombre
-                    })
+                    .update({ description: nuevoNombre })
                     .eq('id', prod.id);
 
                 if (errorZapato) throw errorZapato;
@@ -1710,11 +1818,7 @@
                     } else if (nuevaCant > 0) {
                         const { error: errorStockIns } = await supabaseClient
                             .from('shoe_stock')
-                            .insert([{
-                                shoe_id: prod.id,
-                                size: i,
-                                quantity: nuevaCant
-                            }]);
+                            .insert([{ shoe_id: prod.id, size: i, quantity: nuevaCant }]);
                             
                         if (errorStockIns) throw errorStockIns;
                         
@@ -1737,34 +1841,34 @@
             if (productoEnEdicionIndex === null) return;
             let prod = productos[productoEnEdicionIndex];
 
-            // Añadí una advertencia por lo de la llave foránea
-            if (!confirm(`¿Estás seguro de eliminar el modelo "${prod.nombre}" del inventario?\n\n⚠️ ADVERTENCIA: Esta acción también eliminará el registro de las ventas previas de este zapato en los reportes.`)) {
-                return;
-            }
+            if (!confirm(`¿Estás seguro de querer eliminar "${prod.nombre}"?`)) return;
 
-            mostrarLoader("Eliminando referencias y modelo...");
+            mostrarLoader("Verificando historial y eliminando...");
 
             try {
-                // 1. Solución a la Foreign Key: Eliminar primero las ventas (sale_items) asociadas al zapato
-                await supabaseClient.from('sale_items').delete().eq('shoe_id', prod.id);
+                // VERIFICACIÓN CLAVE: Buscamos si el producto tiene ventas
+                const { data: ventasPrevias } = await supabaseClient.from('sale_items').select('id').eq('shoe_id', prod.id);
 
-                // 2. Eliminar el stock asociado
-                await supabaseClient.from('shoe_stock').delete().eq('shoe_id', prod.id);
-                
-                // 3. Eliminar el zapato principal
-                const { error: errorDel } = await supabaseClient
-                    .from('shoes')
-                    .delete()
-                    .eq('id', prod.id);
-
-                if (errorDel) throw errorDel;
+                if (ventasPrevias && ventasPrevias.length > 0) {
+                    // TIENE VENTAS: Lo archivamos para no dañar las finanzas (Soft Delete)
+                    alert(`¡Atención! Este producto tiene ventas asociadas. Para no arruinar tus reportes de ganancias, el sistema lo ha "Archivado". \n\nSu stock pasará a 0 y desaparecerá de tu catálogo principal, pero el dinero ganado seguirá en tus reportes.`);
+                    
+                    // Cambiamos el nombre para identificarlo y evitar confusiones en BD
+                    await supabaseClient.from('shoes').update({ description: '[ARCHIVADO] ' + prod.nombre }).eq('id', prod.id);
+                    // Vaciamos su stock
+                    await supabaseClient.from('shoe_stock').update({ quantity: 0 }).eq('shoe_id', prod.id);
+                } else {
+                    // NO TIENE VENTAS: Borrado limpio (Hard Delete)
+                    await supabaseClient.from('shoe_stock').delete().eq('shoe_id', prod.id);
+                    await supabaseClient.from('shoes').delete().eq('id', prod.id);
+                }
 
                 cerrarModalEdicion();
                 await cargarDatosDesdeSupabase();
                 ocultarLoader();
             } catch (err) {
                 ocultarLoader();
-                alert("Error al eliminar el modelo: " + err.message);
+                alert("Error al procesar: " + err.message);
             }
         }
 
@@ -1804,8 +1908,10 @@
                         gananciaHoy += gananciaItem;
                         cantidadHoy += item.quantity;
                         detalleHoy.push({
+                            idItem: item.id, // ID del sale_item para poder revertir
+                            idVenta: item.sale_id, // ID de la venta principal
                             idProducto: item.shoe_id,
-                            nombre: item.shoes.description,
+                            nombre: item.shoes.description.replace('[ARCHIVADO] ', ''), // Limpiamos nombre si fue archivado
                             foto: item.shoes.photo_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
                             talla: item.size,
                             cantidad: item.quantity,
@@ -1823,8 +1929,10 @@
                     historialAgrupado[fechaStr].ganancias += gananciaItem;
                     historialAgrupado[fechaStr].cantidad += item.quantity;
                     historialAgrupado[fechaStr].detalle.push({
+                        idItem: item.id,
+                        idVenta: item.sale_id,
                         idProducto: item.shoe_id,
-                        nombre: item.shoes.description,
+                        nombre: item.shoes.description.replace('[ARCHIVADO] ', ''),
                         foto: item.shoes.photo_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
                         talla: item.size,
                         cantidad: item.quantity,
@@ -1835,14 +1943,15 @@
                     });
                 });
 
-                // Calculamos el costo sumando o restando (Vendido - Ganancia)
                 let costoHoy = vendidoHoy - gananciaHoy;
 
                 document.getElementById('total-vendido').innerText = `$${vendidoHoy.toFixed(2)}`;
                 document.getElementById('total-costo').innerText = `$${costoHoy.toFixed(2)}`;
                 document.getElementById('total-ganancia').innerText = `$${gananciaHoy.toFixed(2)}`;
                 document.getElementById('cantidad-vendida').innerText = cantidadHoy;
-                document.getElementById('lista-ventas-hoy').innerHTML = generarHTMLListaProductos(detalleHoy);
+                
+                // Le pasamos 'true' para que se habilite el botón Revertir en las ventas de hoy
+                document.getElementById('lista-ventas-hoy').innerHTML = generarHTMLListaProductos(detalleHoy, true);
 
                 let arrayHistorial = Object.values(historialAgrupado);
                 const tbody = document.getElementById('tabla-historial-body');
@@ -1875,7 +1984,8 @@
             }
         }
 
-        function generarHTMLListaProductos(lista) {
+        // Parámetro extra para activar o desactivar el botón de revertir
+        function generarHTMLListaProductos(lista, permitirRevertir = false) {
             if (!lista || lista.length === 0) return `<p style="text-align:center; color:#9CA3AF; font-size:13px; padding:15px;">No hay ventas registradas.</p>`;
             return lista.map(v => `
                 <div class="item-venta">
@@ -1887,6 +1997,15 @@
                     <div class="item-venta-finanzas">
                         <div class="item-venta-total">$${v.total.toFixed(2)}</div>
                         <div class="item-venta-ganancia">+$${v.ganancia.toFixed(2)}</div>
+                        ${permitirRevertir ? `
+                            <button class="btn-revertir" onclick="revertirVentaSupabase('${v.idItem}', '${v.idVenta}', '${v.idProducto}', ${v.talla})">
+                                <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                </svg>
+                                Revertir
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
             `).join('');
@@ -1902,19 +2021,20 @@
             document.getElementById('modal-reporte-vendido').innerText = `$${dia.ventas.toFixed(2)}`;
             document.getElementById('modal-reporte-costo').innerText = `$${costoDia.toFixed(2)}`;
             document.getElementById('modal-reporte-ganancia').innerText = `$${dia.ganancias.toFixed(2)}`;
-            document.getElementById('modal-reporte-lista').innerHTML = generarHTMLListaProductos(dia.detalle);
+            
+            // Pasamos "true" para que también desde el historial de otros días puedan revertir ventas si se equivocaron
+            document.getElementById('modal-reporte-lista').innerHTML = generarHTMLListaProductos(dia.detalle, true);
             document.getElementById('modal-reporte-dia').style.display = 'flex';
         }
 
         function cerrarModalReporte() { document.getElementById('modal-reporte-dia').style.display = 'none'; }
 
-        // Función para Exportar a CSV (Excel)
+        // Función para Exportar a CSV (Excel) - REPORTE DIARIO
         function exportarExcelDia(fechaStr) {
             if (!window._historialGlobal) return;
             let dia = window._historialGlobal.find(d => d.fecha === fechaStr);
             if (!dia) return;
 
-            // Se usa el formato con BOM (\uFEFF) para que Excel identifique correctamente los acentos UTF-8
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
             csvContent += "Producto,Talla,Cantidad Vendida,Costo Unitario ($),Precio Unitario ($),Costo Total ($),Ingreso Total ($),Ganancia Neta ($)\r\n";
 
