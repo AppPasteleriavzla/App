@@ -316,6 +316,74 @@
             padding: 8px; border-radius: 8px; transition: var(--transition); cursor: pointer; display: inline-flex;
         }
         .action-icon:active { background: #F1F5F9; }
+
+        /* NUEVO: ESTILOS PARA LA CUADRÍCULA DE VENTAS */
+        .sale-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+        .sale-card {
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .sale-card:active {
+            border-color: var(--primary);
+            transform: scale(0.96);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.15);
+        }
+        .sale-card img {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 4px;
+        }
+        .sale-card .icon-placeholder {
+            width: 54px;
+            height: 54px;
+            background: #E2E8F0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        .sale-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0;
+            line-height: 1.2;
+        }
+        .sale-card p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 0;
+            font-weight: 600;
+        }
+        .sale-card .sale-price {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -364,10 +432,8 @@
 
         <!-- PRODUCTOS -->
         <section id="view-products" class="view-section">
-            <!-- Barra de Filtros Integrada -->
             <div class="filters-wrapper">
                 <input type="text" id="search-product" class="form-control" placeholder="🔍 Buscar por nombre o SKU..." onkeyup="filterProducts()">
-                
                 <div class="filters-row">
                     <select id="filter-cat" class="form-control" onchange="filterProducts()" style="flex: 1;">
                         <option value="">Todas las Calidades</option>
@@ -376,19 +442,11 @@
                         <option value="Tercera">3ª Tercera</option>
                         <option value="Cuarta">4ª Cuarta</option>
                     </select>
-
                     <select id="filter-medida" class="form-control" onchange="filterProducts()" style="flex: 1;">
                         <option value="">Todas las Medidas</option>
-                        <option value="1 cm">1 cm</option>
-                        <option value="2 cm">2 cm</option>
-                        <option value="3 cm">3 cm</option>
-                        <option value="4 cm">4 cm</option>
-                        <option value="5 cm">5 cm</option>
-                        <option value="6 cm">6 cm</option>
-                        <option value="7 cm">7 cm</option>
-                        <option value="8 cm">8 cm</option>
-                        <option value="9 cm">9 cm</option>
-                        <option value="10 cm">10 cm</option>
+                        <option value="1 cm">1 cm</option><option value="2 cm">2 cm</option><option value="3 cm">3 cm</option>
+                        <option value="4 cm">4 cm</option><option value="5 cm">5 cm</option><option value="6 cm">6 cm</option>
+                        <option value="7 cm">7 cm</option><option value="8 cm">8 cm</option><option value="9 cm">9 cm</option><option value="10 cm">10 cm</option>
                     </select>
                 </div>
             </div>
@@ -442,7 +500,8 @@
         <div class="nav-item fab-container">
             <button class="fab-button" id="fab-btn" onclick="toggleFabMenu()"><i class="fa-solid fa-plus"></i></button>
             <div class="fab-menu" id="fab-menu">
-                <button class="fab-menu-item" onclick="openModal('modal-sale')"><i class="fa-solid fa-cart-arrow-down"></i> Registrar Venta</button>
+                <!-- AQUI CAMBIAMOS LA FUNCION A openSaleProductSelector() -->
+                <button class="fab-menu-item" onclick="openSaleProductSelector()"><i class="fa-solid fa-cart-arrow-down"></i> Registrar Venta</button>
                 <button class="fab-menu-item admin-only" id="fab-new-product" onclick="openModal('modal-product')"><i class="fa-solid fa-boxes-stacked"></i> Nuevo Producto</button>
             </div>
         </div>
@@ -467,12 +526,10 @@
         </div>
     </div>
 
-    <!-- Modal Producto (crear/editar) CON FOTO Y MEDIDAS -->
+    <!-- Modal Producto -->
     <div class="modal-overlay" id="modal-product">
         <div class="modal-content">
             <div class="modal-header"><h3 id="modal-product-title">Agregar Producto</h3><button class="btn-close" onclick="closeModal('modal-product')"><i class="fa-solid fa-xmark"></i></button></div>
-            
-            <!-- SECCIÓN DE SUBIDA DE FOTO -->
             <div class="form-group">
                 <label>Foto del Producto (Opcional)</label>
                 <div class="img-upload-box" onclick="document.getElementById('prod-image').click()">
@@ -482,39 +539,21 @@
                 </div>
                 <input type="file" id="prod-image" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
             </div>
-
             <div class="form-group"><label>Nombre del Producto</label><input type="text" id="prod-name" class="form-control" placeholder="Ej: Esfera o Lámina de Plastoformo"></div>
-            
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div class="form-group"><label>SKU / Código</label><input type="text" id="prod-sku" class="form-control" placeholder="P-001"></div>
                 <div class="form-group">
                     <label>Calidad</label>
                     <select id="prod-cat" class="form-control">
-                        <option value="Primera">1ª Primera</option>
-                        <option value="Segunda">2ª Segunda</option>
-                        <option value="Tercera">3ª Tercera</option>
-                        <option value="Cuarta">4ª Cuarta</option>
+                        <option value="Primera">1ª Primera</option><option value="Segunda">2ª Segunda</option><option value="Tercera">3ª Tercera</option><option value="Cuarta">4ª Cuarta</option>
                     </select>
                 </div>
             </div>
-
             <div class="form-group">
                 <label>Medida / Tamaño</label>
                 <input type="text" id="prod-medida" class="form-control" list="medidas-list" placeholder="Ej: 5 cm">
-                <datalist id="medidas-list">
-                    <option value="1 cm">
-                    <option value="2 cm">
-                    <option value="3 cm">
-                    <option value="4 cm">
-                    <option value="5 cm">
-                    <option value="6 cm">
-                    <option value="7 cm">
-                    <option value="8 cm">
-                    <option value="9 cm">
-                    <option value="10 cm">
-                </datalist>
+                <datalist id="medidas-list"><option value="1 cm"><option value="2 cm"><option value="3 cm"><option value="4 cm"><option value="5 cm"><option value="6 cm"><option value="7 cm"><option value="8 cm"><option value="9 cm"><option value="10 cm"></datalist>
             </div>
-
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
                 <div class="form-group"><label>Costo (Bs)</label><input type="number" id="prod-cost" class="form-control" placeholder="0"></div>
                 <div class="form-group"><label>Precio (Bs)</label><input type="number" id="prod-price" class="form-control" placeholder="0"></div>
@@ -524,16 +563,54 @@
         </div>
     </div>
 
-    <!-- Modal Venta -->
+    <!-- NUEVO: MODAL PARA SELECCIONAR PRODUCTO (TARJETAS) -->
+    <div class="modal-overlay" id="modal-select-product">
+        <div class="modal-content" style="max-height: 85vh;">
+            <div class="modal-header">
+                <h3>Elige un producto</h3>
+                <button class="btn-close" onclick="closeModal('modal-select-product')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:-10px; margin-bottom:16px; font-weight:500;">Solo se muestran productos con stock disponible.</p>
+            
+            <div id="sale-product-grid" class="sale-grid">
+                <!-- Las tarjetas se generan aquí vía JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODIFICADO: MODAL CONFIRMAR VENTA -->
     <div class="modal-overlay" id="modal-sale">
         <div class="modal-content">
-            <div class="modal-header"><h3>Punto de Venta</h3><button class="btn-close" onclick="closeModal('modal-sale')"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="form-group"><label>Seleccionar Producto</label><select id="sale-product" class="form-control" onchange="updateSaleTotal()"></select></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                <div class="form-group"><label>Cantidad</label><input type="number" id="sale-qty" class="form-control" value="1" min="1" oninput="updateSaleTotal()"></div>
-                <div class="form-group"><label>Total</label><input type="text" id="sale-total" class="form-control" style="background:var(--success-bg);color:var(--success);font-weight:800;border:none;" readonly></div>
+            <div class="modal-header">
+                <h3>Confirmar Venta</h3>
+                <button class="btn-close" onclick="closeModal('modal-sale')"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <button class="btn-primary" onclick="processSale()">Confirmar Venta</button>
+            
+            <!-- TARJETA DEL PRODUCTO SELECCIONADO -->
+            <div style="background:#F8FAFC; padding:16px; border-radius:16px; margin-bottom:20px; border:1px solid #E2E8F0; display:flex; align-items:center; gap:16px;">
+                <div id="sale-display-img"></div>
+                <div>
+                    <h4 id="sale-display-name" style="font-size:16px; font-weight:800; margin-bottom:4px; color:var(--text-dark);"></h4>
+                    <p id="sale-display-meta" style="font-size:12px; color:var(--text-muted); font-weight:600;"></p>
+                    <p id="sale-display-stock" style="font-size:12px; color:var(--success); font-weight:700; margin-top:4px;"></p>
+                </div>
+            </div>
+
+            <!-- Datos ocultos para lógica JS -->
+            <input type="hidden" id="sale-active-product-id">
+            <input type="hidden" id="sale-active-product-price">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                    <label>Cantidad</label>
+                    <input type="number" id="sale-qty" class="form-control" value="1" min="1" oninput="updateSaleTotal()">
+                </div>
+                <div class="form-group">
+                    <label>Total</label>
+                    <input type="text" id="sale-total" class="form-control" style="background:var(--success-bg);color:var(--success);font-weight:800;border:none;" readonly>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="processSale()">Completar Venta</button>
         </div>
     </div>
 
@@ -599,7 +676,6 @@
                 localStorage.setItem('mp_sales', JSON.stringify(db.sales));
                 localStorage.setItem('mp_workers', JSON.stringify(db.workers));
                 localStorage.setItem('mp_payroll', JSON.stringify(db.payroll));
-                populateSaleSelect();
             } catch (e) {
                 if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
                     alert("¡Memoria llena! El navegador ya no permite guardar más datos. Intenta borrar productos viejos.");
@@ -611,31 +687,20 @@
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
                     const MAX_SIZE = 300;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-                    } else {
-                        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
+                    let width = img.width; let height = img.height;
+                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                     currentUploadedImage = canvas.toDataURL('image/jpeg', 0.7);
-                    
                     const preview = document.getElementById('prod-img-preview');
-                    preview.src = currentUploadedImage;
-                    preview.style.display = 'block';
+                    preview.src = currentUploadedImage; preview.style.display = 'block';
                     document.getElementById('upload-icon').style.display = 'none';
                     document.getElementById('upload-text').style.display = 'none';
                 };
@@ -669,55 +734,34 @@
                 showToast('Privilegios de Administrador activados');
                 document.getElementById('lock-icon').className = 'fa-solid fa-unlock-keyhole';
                 refreshAllViews();
-            } else {
-                alert('Clave de autorización denegada.');
-            }
+            } else { alert('Clave de autorización denegada.'); }
         }
 
         function logoutAdmin() {
-            sessionStorage.removeItem('mp_isAdmin');
-            document.body.classList.remove('admin-mode');
+            sessionStorage.removeItem('mp_isAdmin'); document.body.classList.remove('admin-mode');
             document.getElementById('lock-icon').className = 'fa-solid fa-lock';
-            showToast('Retorno a modo Vendedor');
-            closeModal('modal-admin-login');
-            
+            showToast('Retorno a modo Vendedor'); closeModal('modal-admin-login');
             const currentActive = document.querySelector('.view-section.active').id;
-            if(currentActive === 'view-finances' || currentActive === 'view-workers') {
-                switchView('home');
-            }
+            if(currentActive === 'view-finances' || currentActive === 'view-workers') switchView('home');
             refreshAllViews();
         }
 
         window.addEventListener('load', () => {
-            if(isAdmin()) {
-                document.body.classList.add('admin-mode');
-                document.getElementById('lock-icon').className = 'fa-solid fa-unlock-keyhole';
-            }
+            if(isAdmin()) { document.body.classList.add('admin-mode'); document.getElementById('lock-icon').className = 'fa-solid fa-unlock-keyhole'; }
         });
 
-        function refreshAllViews() {
-            renderDashboard(); renderProducts(); renderFinances(); renderWorkers(); renderReports();
-        }
+        function refreshAllViews() { renderDashboard(); renderProducts(); renderFinances(); renderWorkers(); renderReports(); }
 
         // ---------- RUTEO Y NAVEGACIÓN ----------
         function switchView(viewName) {
             if(!isAdmin() && (viewName === 'finances' || viewName === 'workers')) return;
-
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(`view-${viewName}`).classList.add('active');
-            document.getElementById('header-title').innerText = {
-                home:'Inicio', products:'Inventario', finances:'Finanzas', workers:'Equipo', reports:'Reportes'
-            }[viewName];
-            
+            document.getElementById('header-title').innerText = { home:'Inicio', products:'Inventario', finances:'Finanzas', workers:'Equipo', reports:'Reportes' }[viewName];
             if (document.getElementById(`nav-${viewName}`)) document.getElementById(`nav-${viewName}`).classList.add('active');
-            
-            if (viewName === 'home') renderDashboard();
-            if (viewName === 'products') renderProducts();
-            if (viewName === 'finances') renderFinances();
-            if (viewName === 'workers') renderWorkers();
-            if (viewName === 'reports') renderReports();
+            if (viewName === 'home') renderDashboard(); if (viewName === 'products') renderProducts();
+            if (viewName === 'finances') renderFinances(); if (viewName === 'workers') renderWorkers(); if (viewName === 'reports') renderReports();
         }
 
         function toggleFabMenu() { document.getElementById('fab-menu').classList.toggle('active'); }
@@ -742,11 +786,7 @@
                 <div class="action-icon admin-only" onclick="openEditProduct(${prod.id})" title="Editar"><i class="fa-solid fa-pen-to-square" style="color:var(--primary-dark);font-size:16px;"></i></div>
                 <div class="action-icon admin-only" onclick="deleteProduct(${prod.id})" title="Eliminar"><i class="fa-solid fa-trash-can" style="color:var(--danger);font-size:16px;"></i></div>
             `;
-
-            let imageHtml = prod.image 
-                ? `<img src="${prod.image}" alt="Foto producto">` 
-                : `<i class="fa-solid fa-cube"></i>`;
-
+            let imageHtml = prod.image ? `<img src="${prod.image}" alt="Foto producto">` : `<i class="fa-solid fa-cube"></i>`;
             let medidaBadge = prod.medida ? ` | <i class="fa-solid fa-ruler-combined"></i> ${prod.medida}` : '';
 
             return `
@@ -754,17 +794,10 @@
                 <div class="product-img">${imageHtml}</div>
                 <div class="product-details">
                     <h3>${prod.name}</h3>
-                    <div class="product-meta">
-                        <span><i class="fa-solid fa-barcode"></i> SKU: ${prod.sku} | ${prod.cat}${medidaBadge}</span>
-                        ${costHtml}
-                    </div>
+                    <div class="product-meta"><span><i class="fa-solid fa-barcode"></i> SKU: ${prod.sku} | ${prod.cat}${medidaBadge}</span>${costHtml}</div>
                     <div style="display:flex;gap:4px;margin-top:10px;margin-left:-8px;">${actionsHtml}</div>
                 </div>
-                <div class="product-actions">
-                    <span class="status-badge ${statusClass}">${statusText}</span>
-                    <span style="font-size:12px;color:var(--text-muted);font-weight:700;">${prod.stock} unid.</span>
-                    <span class="price">${formatMoney(prod.price)}</span>
-                </div>
+                <div class="product-actions"><span class="status-badge ${statusClass}">${statusText}</span><span style="font-size:12px;color:var(--text-muted);font-weight:700;">${prod.stock} unid.</span><span class="price">${formatMoney(prod.price)}</span></div>
             </div>`;
         }
 
@@ -779,17 +812,10 @@
             document.getElementById('dash-low-stock').innerText = lowStock;
             document.getElementById('dash-no-stock').innerText = noStock;
             document.getElementById('stock-alert-badge').innerText = lowStock+noStock;
-            
-            if((lowStock+noStock) > 0) {
-                document.getElementById('stock-alert-badge').style.display = 'flex';
-            } else {
-                document.getElementById('stock-alert-badge').style.display = 'none';
-            }
-
+            document.getElementById('stock-alert-badge').style.display = (lowStock+noStock) > 0 ? 'flex' : 'none';
             document.getElementById('recent-products-list').innerHTML = recentHTML || '<p style="text-align:center;color:var(--text-light);font-weight:500;">No hay productos en inventario.</p>';
         }
 
-        // ---------- FILTRADO AVANZADO DE PRODUCTOS ----------
         function filterProducts() {
             const searchVal = document.getElementById('search-product').value.toLowerCase();
             const catVal = document.getElementById('filter-cat').value;
@@ -798,31 +824,20 @@
         }
 
         function renderProducts(search='', catFilter='', medidaFilter='') {
-            const list = document.getElementById('all-products-list');
-            let html = '';
-            
+            const list = document.getElementById('all-products-list'); let html = '';
             db.products.forEach(p => {
-                const matchesSearch = (p.name || '').toLowerCase().includes(search) || 
-                                      (p.sku || '').toLowerCase().includes(search) ||
-                                      (p.medida || '').toLowerCase().includes(search);
+                const matchesSearch = (p.name || '').toLowerCase().includes(search) || (p.sku || '').toLowerCase().includes(search) || (p.medida || '').toLowerCase().includes(search);
                 const matchesCat = catFilter === '' || p.cat === catFilter;
                 const matchesMedida = medidaFilter === '' || (p.medida && p.medida.toLowerCase() === medidaFilter.toLowerCase());
-
-                if (matchesSearch && matchesCat && matchesMedida) {
-                    html += createProductCard(p);
-                }
+                if (matchesSearch && matchesCat && matchesMedida) html += createProductCard(p);
             });
-            
             list.innerHTML = html || '<p style="text-align:center;color:var(--text-light);margin-top:20px;font-weight:500;">No se encontraron resultados.</p>';
         }
 
         function saveProduct() {
             const name = document.getElementById('prod-name').value, sku = document.getElementById('prod-sku').value;
-            const cat = document.getElementById('prod-cat').value;
-            const medida = document.getElementById('prod-medida').value;
-            const cost = parseFloat(document.getElementById('prod-cost').value);
-            const price = parseFloat(document.getElementById('prod-price').value);
-            const stock = parseInt(document.getElementById('prod-stock').value);
+            const cat = document.getElementById('prod-cat').value, medida = document.getElementById('prod-medida').value;
+            const cost = parseFloat(document.getElementById('prod-cost').value), price = parseFloat(document.getElementById('prod-price').value), stock = parseInt(document.getElementById('prod-stock').value);
             
             if(!name||!sku||isNaN(cost)||isNaN(price)||isNaN(stock)) return alert('Por favor, completa todos los campos correctamente.');
             
@@ -835,92 +850,123 @@
                 }
                 showToast('Inventario actualizado');
             } else {
-                db.products.unshift({
-                    id: Date.now(), name, sku, cat, medida, cost, price, stock,
-                    image: currentUploadedImage
-                });
+                db.products.unshift({ id: Date.now(), name, sku, cat, medida, cost, price, stock, image: currentUploadedImage });
                 showToast('Producto añadido con éxito');
             }
-            
             saveDB(); closeModal('modal-product'); renderDashboard(); filterProducts();
         }
 
         function openEditProduct(id) {
-            editingProductId = id; 
-            const p = db.products.find(p=>p.id===id);
-            
-            document.getElementById('prod-name').value = p.name;
-            document.getElementById('prod-sku').value = p.sku;
-            document.getElementById('prod-cat').value = p.cat;
-            document.getElementById('prod-medida').value = p.medida || '';
-            document.getElementById('prod-cost').value = p.cost;
-            document.getElementById('prod-price').value = p.price;
-            document.getElementById('prod-stock').value = p.stock;
+            editingProductId = id; const p = db.products.find(p=>p.id===id);
+            document.getElementById('prod-name').value = p.name; document.getElementById('prod-sku').value = p.sku;
+            document.getElementById('prod-cat').value = p.cat; document.getElementById('prod-medida').value = p.medida || '';
+            document.getElementById('prod-cost').value = p.cost; document.getElementById('prod-price').value = p.price; document.getElementById('prod-stock').value = p.stock;
             
             const preview = document.getElementById('prod-img-preview');
             if(p.image) {
-                preview.src = p.image;
-                preview.style.display = 'block';
-                document.getElementById('upload-icon').style.display = 'none';
-                document.getElementById('upload-text').style.display = 'none';
+                preview.src = p.image; preview.style.display = 'block';
+                document.getElementById('upload-icon').style.display = 'none'; document.getElementById('upload-text').style.display = 'none';
             } else {
-                preview.style.display = 'none';
-                document.getElementById('upload-icon').style.display = 'block';
-                document.getElementById('upload-text').style.display = 'block';
+                preview.style.display = 'none'; document.getElementById('upload-icon').style.display = 'block'; document.getElementById('upload-text').style.display = 'block';
             }
-
-            document.getElementById('modal-product-title').innerText = 'Modificar Inventario';
-            document.getElementById('modal-product-btn').innerText = 'Guardar Cambios';
+            document.getElementById('modal-product-title').innerText = 'Modificar Inventario'; document.getElementById('modal-product-btn').innerText = 'Guardar Cambios';
             openModal('modal-product');
         }
 
         function deleteProduct(id) {
             if(confirm('¿Confirmas la eliminación permanente de este registro?')) { 
-                db.products = db.products.filter(p=>p.id!==id); 
-                saveDB(); renderDashboard(); filterProducts(); showToast('Registro eliminado'); 
+                db.products = db.products.filter(p=>p.id!==id); saveDB(); renderDashboard(); filterProducts(); showToast('Registro eliminado'); 
             }
         }
 
         function resetProductForm() {
-            editingProductId=null; 
-            currentUploadedImage = null;
-            
-            document.getElementById('modal-product-title').innerText='Agregar Producto';
-            document.getElementById('modal-product-btn').innerText='Guardar en Inventario';
-            
+            editingProductId=null; currentUploadedImage = null;
+            document.getElementById('modal-product-title').innerText='Agregar Producto'; document.getElementById('modal-product-btn').innerText='Guardar en Inventario';
             ['prod-name','prod-sku','prod-medida','prod-cost','prod-price','prod-stock','prod-image'].forEach(id=>document.getElementById(id).value='');
-            
-            document.getElementById('prod-img-preview').style.display = 'none';
-            document.getElementById('prod-img-preview').src = '';
-            document.getElementById('upload-icon').style.display = 'block';
-            document.getElementById('upload-text').style.display = 'block';
+            document.getElementById('prod-img-preview').style.display = 'none'; document.getElementById('prod-img-preview').src = '';
+            document.getElementById('upload-icon').style.display = 'block'; document.getElementById('upload-text').style.display = 'block';
         }
 
-        // ---------- LÓGICA DE VENTAS ----------
-        function populateSaleSelect() {
-            const sel = document.getElementById('sale-product');
-            sel.innerHTML = '<option value="">Seleccione producto a vender...</option>';
-            db.products.filter(p=>p.stock>0).forEach(p => {
-                const medLabel = p.medida ? ` (${p.medida})` : '';
-                sel.innerHTML += `<option value="${p.id}">${p.name}${medLabel} - ${formatMoney(p.price)} (Stock: ${p.stock})</option>`;
-            });
+        // ---------- NUEVA LÓGICA DE VENTAS (TARJETAS VISUALES) ----------
+        function openSaleProductSelector() {
+            const grid = document.getElementById('sale-product-grid');
+            grid.innerHTML = '';
+            
+            // Filtramos solo los que tienen stock para que no puedan vender a la fuerza
+            const availableProducts = db.products.filter(p => p.stock > 0);
+            
+            if (availableProducts.length === 0) {
+                grid.innerHTML = '<p style="grid-column: span 2; text-align:center; color:var(--text-light); padding: 40px 0; font-weight:600;">No hay productos con stock disponible en este momento.</p>';
+            } else {
+                availableProducts.forEach(p => {
+                    const imgHtml = p.image ? `<img src="${p.image}">` : `<div class="icon-placeholder"><i class="fa-solid fa-cube"></i></div>`;
+                    const medLabel = p.medida ? ` | ${p.medida}` : '';
+                    
+                    grid.innerHTML += `
+                        <div class="sale-card" onclick="selectProductForSale(${p.id})">
+                            ${imgHtml}
+                            <h4>${p.name}</h4>
+                            <p>${p.cat}${medLabel}</p>
+                            <div class="sale-price">${formatMoney(p.price)}</div>
+                            <p style="color:var(--success); margin-top:2px;">Disp: ${p.stock}</p>
+                        </div>
+                    `;
+                });
+            }
+            
+            closeModal('fab-menu'); // Ocultar el menú flotante
+            openModal('modal-select-product'); // Mostrar la cuadrícula
+        }
+
+        function selectProductForSale(id) {
+            const prod = db.products.find(p => p.id === id);
+            if (!prod) return;
+            
+            closeModal('modal-select-product'); // Cierra la cuadrícula
+            
+            // Preparamos los datos ocultos para los cálculos
+            document.getElementById('sale-active-product-id').value = prod.id;
+            document.getElementById('sale-active-product-price').value = prod.price;
+            
+            // Rellenar interfaz del modal final
+            const imgHtml = prod.image 
+                ? `<img src="${prod.image}" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid #E2E8F0;">` 
+                : `<div style="width:64px;height:64px;background:white;border:1px solid #E2E8F0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text-light);"><i class="fa-solid fa-cube"></i></div>`;
+            const medLabel = prod.medida ? ` | ${prod.medida}` : '';
+            
+            document.getElementById('sale-display-img').innerHTML = imgHtml;
+            document.getElementById('sale-display-name').innerText = prod.name;
+            document.getElementById('sale-display-meta').innerText = `${prod.cat}${medLabel} - SKU: ${prod.sku}`;
+            document.getElementById('sale-display-stock').innerHTML = `<i class="fa-solid fa-check-circle"></i> ${prod.stock} unidades disponibles`;
+            
+            // Limitar la cantidad máxima en el input al stock disponible
+            const qtyInput = document.getElementById('sale-qty');
+            qtyInput.value = 1;
+            qtyInput.max = prod.stock;
+            
+            updateSaleTotal();
+            openModal('modal-sale'); // Abre el modal de confirmación
         }
 
         function updateSaleTotal() {
-            const prodId = document.getElementById('sale-product').value, qty = parseInt(document.getElementById('sale-qty').value)||0;
-            if(!prodId){ document.getElementById('sale-total').value='Bs. 0.00'; return; }
-            const prod = db.products.find(p=>p.id==prodId);
-            document.getElementById('sale-total').value = formatMoney(prod.price * qty);
+            const price = parseFloat(document.getElementById('sale-active-product-price').value) || 0;
+            const qty = parseInt(document.getElementById('sale-qty').value) || 0;
+            document.getElementById('sale-total').value = formatMoney(price * qty);
         }
 
         function processSale() {
-            const prodId = document.getElementById('sale-product').value, qty = parseInt(document.getElementById('sale-qty').value);
-            if(!prodId||isNaN(qty)||qty<=0) return alert('Verifique el producto y la cantidad.');
-            const idx = db.products.findIndex(p=>p.id==prodId);
-            if(idx===-1) return; const prod = db.products[idx];
-            if(qty>prod.stock) return alert(`Stock insuficiente. Disponibles: ${prod.stock}`);
+            const prodId = parseInt(document.getElementById('sale-active-product-id').value);
+            const qty = parseInt(document.getElementById('sale-qty').value);
             
-            const totalRev = prod.price*qty, totalCost = prod.cost*qty, profit = totalRev-totalCost;
+            if(!prodId || isNaN(qty) || qty <= 0) return alert('Verifique la cantidad a vender.');
+            
+            const idx = db.products.findIndex(p => p.id === prodId);
+            if(idx === -1) return; 
+            
+            const prod = db.products[idx];
+            if(qty > prod.stock) return alert(`Stock insuficiente. Solo quedan ${prod.stock} unidades.`);
+            
+            const totalRev = prod.price * qty, totalCost = prod.cost * qty, profit = totalRev - totalCost;
             const now = new Date(), fullDate = now.toLocaleDateString('es-ES')+' '+now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
             
             const pNameLabel = prod.medida ? `${prod.name} (${prod.medida})` : prod.name;
@@ -928,15 +974,19 @@
             db.sales.push({id:Date.now(),productId:prod.id,productName:pNameLabel,unitPrice:prod.price,qty,date:todayStr,fullDate,revenue:totalRev,cost:totalCost,profit});
             db.products[idx].stock -= qty;
             
-            saveDB(); closeModal('modal-sale'); showToast('Venta registrada con éxito'); 
-            renderDashboard(); filterProducts(); renderFinances(); renderReports();
-            document.getElementById('sale-qty').value='1'; updateSaleTotal();
+            saveDB(); 
+            closeModal('modal-sale'); 
+            showToast('Venta registrada con éxito'); 
+            
+            renderDashboard(); 
+            filterProducts(); 
+            renderFinances(); 
+            renderReports();
         }
 
         // ---------- LÓGICA FINANCIERA (Solo Admin) ----------
         function renderFinances() {
             if(!isAdmin()) return; 
-            
             const todaySales = db.sales.filter(s=>s.date===todayStr);
             const todayPayroll = db.payroll.filter(p=>p.date===todayStr);
             let totalRev=0, totalCost=0, totalProfit=0, totalExpenses=0;
@@ -957,38 +1007,20 @@
 
             if(financeChartInstance) financeChartInstance.destroy();
             const ctx = document.getElementById('financeChart').getContext('2d');
-            financeChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Ingresos Brutos', 'Gastos Operativos'],
-                    datasets: [{
-                        data: [totalRev || 1, totalExpenses || 1],
-                        backgroundColor: ['#059669', '#DC2626'],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: { 
-                    responsive: true, cutout:'70%',
-                    plugins: { legend: { position: 'bottom', labels:{font:{family:'Inter',weight:'600'}} } }
-                }
-            });
+            financeChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Ingresos Brutos', 'Gastos Operativos'], datasets: [{ data: [totalRev || 1, totalExpenses || 1], backgroundColor: ['#059669', '#DC2626'], borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, cutout:'70%', plugins: { legend: { position: 'bottom', labels:{font:{family:'Inter',weight:'600'}} } } } });
         }
 
         // ---------- LÓGICA DE PERSONAL (Solo Admin) ----------
         function renderWorkers() {
             if(!isAdmin()) return;
-
-            const list = document.getElementById('workers-list');
-            let html = '';
+            const list = document.getElementById('workers-list'); let html = '';
             db.workers.forEach(w => {
                 const typeText = w.type === 'Fijo' ? `Mensual: ${formatMoney(w.salary)}` : `Destajo: ${formatMoney(w.rate)}/u`;
                 html += `<div class="worker-card"><div class="worker-info"><h4>${w.name}</h4><p><i class="fa-solid fa-briefcase"></i> ${w.type} · ${typeText}</p></div><div style="display:flex;gap:12px;align-items:center;"><button class="btn-secondary" style="background:var(--primary-light);color:var(--primary-dark);border:none;padding:8px 14px;" onclick="openPayWorkerModal(${w.id})">Liquidar</button> <i class="fa-solid fa-trash-can" style="color:var(--danger);cursor:pointer;font-size:18px;padding:8px;" onclick="deleteWorker(${w.id})"></i></div></div>`;
             });
             list.innerHTML = html || '<p style="color:var(--text-light);text-align:center;font-weight:500;">Directorio vacío.</p>';
 
-            const todayPayroll = db.payroll.filter(p=>p.date===todayStr);
-            let payrollHtml = '';
+            const todayPayroll = db.payroll.filter(p=>p.date===todayStr); let payrollHtml = '';
             todayPayroll.forEach(p=>{
                 const worker = db.workers.find(w=>w.id===p.workerId);
                 payrollHtml += `<div class="product-card"><div class="icon-box icon-amber" style="margin-right:16px;"><i class="fa-solid fa-money-check-dollar"></i></div><div class="product-details"><h3>${worker?.name||'Registro Huérfano'}</h3><span style="font-size:12px;color:var(--text-muted);font-weight:600;">Liquidación procesada</span></div><div style="font-weight:800;color:var(--danger);font-size:16px;">-${formatMoney(p.amount)}</div></div>`;
@@ -1018,53 +1050,33 @@
             saveDB(); closeModal('modal-worker'); showToast('Colaborador registrado'); renderWorkers();
         }
 
-        function deleteWorker(id) {
-            if(confirm('¿Eliminar perfil de colaborador?')) { db.workers = db.workers.filter(w=>w.id!==id); saveDB(); renderWorkers(); }
-        }
+        function deleteWorker(id) { if(confirm('¿Eliminar perfil de colaborador?')) { db.workers = db.workers.filter(w=>w.id!==id); saveDB(); renderWorkers(); } }
 
         function openPayWorkerModal(workerId) {
-            const sel = document.getElementById('pay-worker-select');
-            sel.innerHTML = '';
+            const sel = document.getElementById('pay-worker-select'); sel.innerHTML = '';
             db.workers.forEach(w => { sel.innerHTML += `<option value="${w.id}">${w.name} (${w.type})</option>`; });
-            sel.value = workerId;
-            document.getElementById('pay-amount').value = '';
-            openModal('modal-pay-worker');
+            sel.value = workerId; document.getElementById('pay-amount').value = ''; openModal('modal-pay-worker');
         }
 
         function processPayment() {
-            const workerId = parseInt(document.getElementById('pay-worker-select').value);
-            const amount = parseFloat(document.getElementById('pay-amount').value);
+            const workerId = parseInt(document.getElementById('pay-worker-select').value), amount = parseFloat(document.getElementById('pay-amount').value);
             if(!workerId||isNaN(amount)||amount<=0) return alert('Operación inválida. Revise los datos.');
             db.payroll.push({id:Date.now(), workerId, amount, date:todayStr});
             saveDB(); closeModal('modal-pay-worker'); showToast('Liquidación procesada'); renderWorkers(); renderFinances();
         }
 
-        // ---------- AJUSTE CAMBIARIO ----------
         function applyCostAdjustment() {
             const factor = parseFloat(document.getElementById('adjust-factor').value);
-            
-            if (isNaN(factor) || factor <= 0) {
-                return alert('Por favor, ingresa un factor multiplicador válido (ej. 1.05).');
-            }
-
+            if (isNaN(factor) || factor <= 0) return alert('Por favor, ingresa un factor multiplicador válido (ej. 1.05).');
             if (confirm(`¿Estás seguro de aplicar un ajuste de x${factor} a los costos? Esto actualizará todo el inventario.`)) {
-                db.products.forEach(p => {
-                    p.cost = parseFloat((p.cost * factor).toFixed(2));
-                });
-                
-                saveDB();
-                closeModal('modal-cost-adjust');
-                showToast(`Costos ajustados exitosamente (Factor: ${factor})`);
-                
-                renderDashboard();
-                filterProducts();
+                db.products.forEach(p => { p.cost = parseFloat((p.cost * factor).toFixed(2)); });
+                saveDB(); closeModal('modal-cost-adjust'); showToast(`Costos ajustados exitosamente (Factor: ${factor})`); renderDashboard(); filterProducts();
             }
         }
 
         // ---------- REPORTES / PDF ----------
         function renderReports() {
-            const list = document.getElementById('reports-list');
-            let html = '';
+            const list = document.getElementById('reports-list'); let html = '';
             db.sales.slice().reverse().forEach(s => {
                 html += `<div class="product-card"><div class="icon-box" style="background:var(--bg-color);color:var(--text-dark);margin-right:16px;border:1px solid #E2E8F0;"><i class="fa-regular fa-file-pdf"></i></div><div class="product-details"><h3>Folio #${String(s.id).slice(-6)}</h3><span style="font-size:12px;color:var(--text-muted);font-weight:600;">${s.fullDate} <br> ${s.productName} (x${s.qty})</span></div><button class="btn-secondary" style="padding:10px 16px;font-size:13px;width:auto;border-color:var(--primary-dark);color:var(--primary-dark);" onclick="generatePDF(${s.id})"><i class="fa-solid fa-download"></i></button></div>`;
             });
@@ -1073,8 +1085,7 @@
 
         function generatePDF(saleId) {
             const sale = db.sales.find(s=>s.id===saleId); if(!sale) return;
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
             doc.setFont("helvetica","bold"); doc.setFontSize(24); doc.setTextColor(245,166,35); doc.text("Multiplast",105,25,{align:"center"});
             doc.setFontSize(14); doc.setTextColor(15,23,42); doc.text("Recibo Comercial",105,34,{align:"center"});
             doc.line(20,44,190,44);
@@ -1093,9 +1104,7 @@
         // ---------- INICIALIZACIÓN ----------
         window.onload = () => {
             refreshAllViews();
-            document.addEventListener('click', (e) => { 
-                if(!e.target.closest('.fab-container')) document.getElementById('fab-menu').classList.remove('active'); 
-            });
+            document.addEventListener('click', (e) => { if(!e.target.closest('.fab-container')) document.getElementById('fab-menu').classList.remove('active'); });
         };
     </script>
 </body>
