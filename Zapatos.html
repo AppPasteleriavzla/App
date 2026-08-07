@@ -38,6 +38,9 @@
             z-index: 10;
             border-bottom: 1px solid #E5E7EB;
             margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .app-header h1 {
@@ -45,6 +48,17 @@
             font-weight: 700;
             color: #1F2937;
             margin: 0;
+        }
+        
+        .btn-toggle-admin {
+            background-color: #E5E7EB;
+            color: #111827;
+            border: none;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         /* Contenedores de Pantalla */
@@ -664,9 +678,31 @@
             color: #111827;
             margin: 0;
         }
+
+        /* -------------------------------------
+           SISTEMA DE ROLES (ADMIN / VENDEDOR)
+           ------------------------------------- */
+        body.role-vendedor #nav-agregar,
+        body.role-vendedor #nav-ganancias {
+            display: none !important;
+        }
+
+        body.role-vendedor .precio-item.costo-item,
+        body.role-vendedor .precio-item.ganancia {
+            display: none !important;
+        }
+
+        body.role-vendedor .bottom-nav {
+            justify-content: center;
+        }
+        
+        body.role-vendedor #nav-inventario {
+            width: 100%;
+        }
     </style>
 </head>
-<body>
+<!-- Se añade la clase por defecto role-vendedor -->
+<body class="role-vendedor">
 
     <!-- OVERLAY DE CARGA -->
     <div id="loader-overlay" class="modal-overlay">
@@ -679,6 +715,8 @@
     <!-- Cabecera -->
     <header class="app-header">
         <h1 id="titulo-header">Mi Inventario</h1>
+        <!-- Botón para alternar Rol -->
+        <button id="btn-admin-toggle" class="btn-toggle-admin" onclick="toggleAdmin()">Entrar Admin</button>
     </header>
 
     <!-- PANTALLA 1: INVENTARIO -->
@@ -829,6 +867,28 @@
         </div>
     </div>
 
+    <!-- MODAL PARA CONFIRMAR/EDITAR PRECIO EN VENTA -->
+    <div id="modal-confirmar-venta" class="modal-overlay" style="align-items: flex-end;">
+        <div class="modal-content">
+            <div class="talla-header" style="border-bottom: 1px solid #E5E7EB; padding-bottom: 15px; margin-bottom: 15px;">
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 800; color: #111827; margin: 0;">Confirmar Venta</h2>
+                    <span style="font-size: 13px; color: #6B7280;">Puedes editar el precio final si hubo una rebaja</span>
+                </div>
+                <button class="modal-cerrar" onclick="cerrarModalVenta()">&times;</button>
+            </div>
+            
+            <p id="venta-producto-nombre" style="font-size: 15px; font-weight: 600; color: #111827; margin-bottom: 15px;"></p>
+            
+            <div class="form-group">
+                <label>Precio de Venta a Cobrar ($)</label>
+                <input type="number" id="venta-precio-final" step="0.01">
+            </div>
+
+            <button type="button" class="btn" style="margin-top: 10px;" onclick="ejecutarVenta()">Confirmar y Vender</button>
+        </div>
+    </div>
+
     <!-- MODAL DE REPORTE DIARIO -->
     <div id="modal-reporte-dia" class="modal-overlay" style="align-items: flex-end;">
         <div class="modal-content">
@@ -858,6 +918,30 @@
 
     <script>
         // ==========================================
+        // SISTEMA DE ROLES (Admin / Vendedor)
+        // ==========================================
+        let currentRole = 'vendedor';
+
+        function toggleAdmin() {
+            if (currentRole === 'vendedor') {
+                const pass = prompt("Ingrese contraseña de Administrador:");
+                if (pass === "123456789") {
+                    currentRole = 'admin';
+                    document.body.classList.remove('role-vendedor');
+                    document.getElementById('btn-admin-toggle').innerText = 'Salir Admin';
+                    alert("Modo Administrador activado. Ahora tienes acceso completo.");
+                } else if (pass !== null) {
+                    alert("Contraseña incorrecta.");
+                }
+            } else {
+                currentRole = 'vendedor';
+                document.body.classList.add('role-vendedor');
+                document.getElementById('btn-admin-toggle').innerText = 'Entrar Admin';
+                cambiarPantalla('inventario'); // Forzar vuelta al inventario por seguridad
+            }
+        }
+
+        // ==========================================
         // CONFIGURACIÓN DE SUPABASE
         // ==========================================
         const SUPABASE_URL = 'https://luwcggpjvsrhvdwjiarw.supabase.co';
@@ -869,6 +953,7 @@
         let productos = [];
         let chartInstancia = null;
         let productoEnEdicionIndex = null;
+        let ventaPendiente = null;
 
         // ==========================================
         // FUNCIONES DEL LOADER (SPINNER)
@@ -1126,9 +1211,10 @@
             productos.forEach((prod, indexProd) => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                // Al hacer clic en la tarjeta (fuera del botón vender), abre la edición
+                // Solo Admin puede abrir el modal de edición
                 card.onclick = (e) => {
                     if (e.target.closest('.btn-vender')) return;
+                    if (currentRole !== 'admin') return; 
                     abrirModalEdicion(indexProd);
                 };
                 
@@ -1146,12 +1232,12 @@
                             </div>
                             <div class="talla-body">
                                 <div class="talla-finanzas">
-                                    <div class="precio-item"><span class="lbl">Precio:</span> <strong style="color: #111827; font-size: 14px;">$${item.precio.toFixed(2)}</strong></div>
-                                    <div class="precio-item"><span class="lbl">Costo:</span> $${item.costo.toFixed(2)}</div>
+                                    <div class="precio-item precio-venta"><span class="lbl">Precio:</span> <strong style="color: #111827; font-size: 14px;">$${item.precio.toFixed(2)}</strong></div>
+                                    <div class="precio-item costo-item"><span class="lbl">Costo:</span> $${item.costo.toFixed(2)}</div>
                                     <div class="precio-item ganancia"><span class="lbl">Ganancia:</span> +$${item.ganancia.toFixed(2)}</div>
                                 </div>
                                 <div>
-                                    <button class="btn-vender" ${btnDisabled} onclick="event.stopPropagation(); venderTallaSupabase(${indexProd}, ${indexTalla})">
+                                    <button class="btn-vender" ${btnDisabled} onclick="event.stopPropagation(); abrirModalVenta(${indexProd}, ${indexTalla})">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                                             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -1179,160 +1265,39 @@
         }
 
         // ==========================================
-        // MODAL DE EDICIÓN, AJUSTES +/- Y ELIMINACIÓN
+        // VENTA Y EDICIÓN DE PRECIO PREVIA
         // ==========================================
-        function abrirModalEdicion(indexProd) {
-            productoEnEdicionIndex = indexProd;
-            let prod = productos[indexProd];
-
-            document.getElementById('edit-nombre-zapato').value = prod.nombre;
-            
-            const contenedorTallasEdit = document.getElementById('contenedor-editar-tallas');
-            contenedorTallasEdit.innerHTML = '';
-
-            prod.tallas.forEach((t, i) => {
-                const fila = document.createElement('div');
-                fila.className = 'item-talla-fila';
-                fila.innerHTML = `
-                    <label>Talla ${t.talla}</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                        <div>
-                            <span style="font-size: 11px; font-weight: 600; color: #6B7280; margin-bottom: 4px; display: block;">Costo ($)</span>
-                            <input type="number" id="edit-costo-${i}" step="0.01" value="${t.costo}">
-                        </div>
-                        <div>
-                            <span style="font-size: 11px; font-weight: 600; color: #6B7280; margin-bottom: 4px; display: block;">Precio ($)</span>
-                            <input type="number" id="edit-precio-${i}" step="0.01" value="${t.precio}">
-                        </div>
-                    </div>
-                    <div>
-                        <span style="font-size: 11px; font-weight: 600; color: #6B7280; margin-bottom: 4px; display: block;">Cantidad Disponible</span>
-                        <div class="control-cantidad-grupo">
-                            <button type="button" class="btn-stepper" onclick="modificarCantidadSteper(${i}, -1)">-</button>
-                            <input type="number" id="edit-cant-${i}" min="0" value="${t.cantidad}" style="text-align: center; font-weight: 700;">
-                            <button type="button" class="btn-stepper" onclick="modificarCantidadSteper(${i}, 1)">+</button>
-                        </div>
-                    </div>
-                `;
-                contenedorTallasEdit.appendChild(fila);
-            });
-
-            document.getElementById('modal-editar-producto').style.display = 'flex';
-        }
-
-        function cerrarModalEdicion() {
-            document.getElementById('modal-editar-producto').style.display = 'none';
-            productoEnEdicionIndex = null;
-        }
-
-        function modificarCantidadSteper(indexTalla, cambio) {
-            const input = document.getElementById(`edit-cant-${indexTalla}`);
-            let val = parseInt(input.value) || 0;
-            val += cambio;
-            if (val < 0) val = 0;
-            input.value = val;
-        }
-
-        async function guardarCambiosProducto() {
-            if (productoEnEdicionIndex === null) return;
-            let prod = productos[productoEnEdicionIndex];
-
-            const nuevoNombre = document.getElementById('edit-nombre-zapato').value.trim();
-            if (!nuevoNombre) return alert("El nombre del modelo no puede estar vacío.");
-
-            mostrarLoader("Actualizando producto...");
-
-            try {
-                let nuevoCostoBase = prod.costo_base;
-                let nuevoPrecioBase = prod.precio_base;
-                if (prod.tallas.length > 0) {
-                    nuevoCostoBase = parseFloat(document.getElementById(`edit-costo-0`).value) || prod.costo_base;
-                    nuevoPrecioBase = parseFloat(document.getElementById(`edit-precio-0`).value) || prod.precio_base;
-                }
-
-                // 1. Actualizar datos principales del zapato
-                const { error: errorZapato } = await supabaseClient
-                    .from('shoes')
-                    .update({ 
-                        description: nuevoNombre,
-                        cost: nuevoCostoBase,
-                        selling_price: nuevoPrecioBase
-                    })
-                    .eq('id', prod.id);
-
-                if (errorZapato) throw errorZapato;
-
-                // 2. Actualizar stock y precios individuales por talla
-                for (let i = 0; i < prod.tallas.length; i++) {
-                    let t = prod.tallas[i];
-                    let nuevaCant = parseInt(document.getElementById(`edit-cant-${i}`).value) || 0;
-                    let nuevoCosto = parseFloat(document.getElementById(`edit-costo-${i}`).value) || t.costo;
-                    let nuevoPrecio = parseFloat(document.getElementById(`edit-precio-${i}`).value) || t.precio;
-
-                    const { error: errorStock } = await supabaseClient
-                        .from('shoe_stock')
-                        .update({ quantity: nuevaCant })
-                        .eq('id', t.stock_id);
-
-                    if (errorStock) throw errorStock;
-
-                    // Si deseas actualizar también costo/precio general o por talla si la tabla lo soporta
-                    const { error: errorPrecioZapato } = await supabaseClient
-                        .from('shoes')
-                        .update({ cost: nuevoCosto, selling_price: nuevoPrecio })
-                        .eq('id', prod.id);
-                        
-                    if (errorPrecioZapato) throw errorPrecioZapato;
-                }
-
-                cerrarModalEdicion();
-                await cargarDatosDesdeSupabase();
-                ocultarLoader();
-            } catch (err) {
-                ocultarLoader();
-                alert("Error al actualizar: " + err.message);
-            }
-        }
-
-        async function eliminarModeloZapato() {
-            if (productoEnEdicionIndex === null) return;
-            let prod = productos[productoEnEdicionIndex];
-
-            if (!confirm(`¿Estás seguro de eliminar por completo el modelo "${prod.nombre}" del inventario? Esta acción no se puede deshacer.`)) {
-                return;
-            }
-
-            mostrarLoader("Eliminando modelo...");
-
-            try {
-                // Supabase eliminará en cascada si está configurado, o borramos stock e items relacionados primero si es necesario.
-                // Intentamos eliminar primero los stocks dependientes
-                await supabaseClient.from('shoe_stock').delete().eq('shoe_id', prod.id);
-                
-                // Eliminamos el registro del zapato
-                const { error: errorDel } = await supabaseClient
-                    .from('shoes')
-                    .delete()
-                    .eq('id', prod.id);
-
-                if (errorDel) throw errorDel;
-
-                cerrarModalEdicion();
-                await cargarDatosDesdeSupabase();
-                ocultarLoader();
-            } catch (err) {
-                ocultarLoader();
-                alert("Error al eliminar el modelo: " + err.message + "\nNota: Si tiene ventas asociadas en el historial, es posible que el sistema requiera mantener el registro o eliminar las ventas previas.");
-            }
-        }
-
-        async function venderTallaSupabase(indexProd, indexTalla) {
+        function abrirModalVenta(indexProd, indexTalla) {
             let prod = productos[indexProd];
             let tallaObj = prod.tallas[indexTalla];
 
             if(tallaObj.cantidad <= 0) return alert("No quedan unidades de esta talla.");
 
+            ventaPendiente = { prod, tallaObj };
+            
+            document.getElementById('venta-producto-nombre').innerHTML = `<strong>${prod.nombre}</strong> - Talla ${tallaObj.talla}`;
+            document.getElementById('venta-precio-final').value = tallaObj.precio.toFixed(2);
+            
+            document.getElementById('modal-confirmar-venta').style.display = 'flex';
+        }
+
+        function cerrarModalVenta() {
+            document.getElementById('modal-confirmar-venta').style.display = 'none';
+            ventaPendiente = null;
+        }
+
+        async function ejecutarVenta() {
+            if (!ventaPendiente) return;
+            let { prod, tallaObj } = ventaPendiente;
+            
+            let precioFinal = parseFloat(document.getElementById('venta-precio-final').value);
+            
+            if (isNaN(precioFinal) || precioFinal < 0) {
+                return alert("Por favor, ingrese un precio válido.");
+            }
+
             mostrarLoader("Procesando venta...");
+            cerrarModalVenta();
 
             try {
                 let { data: clientData, error: clientError } = await supabaseClient
@@ -1355,7 +1320,7 @@
 
                 const { data: saleData, error: saleError } = await supabaseClient
                     .from('sales')
-                    .insert([{ client_id: clientId, total_amount: tallaObj.precio }])
+                    .insert([{ client_id: clientId, total_amount: precioFinal }])
                     .select();
                 if (saleError) throw saleError;
                 const saleId = saleData[0].id;
@@ -1367,7 +1332,7 @@
                         shoe_id: prod.id,
                         size: tallaObj.talla,
                         quantity: 1,
-                        unit_price: tallaObj.precio,
+                        unit_price: precioFinal,
                         unit_cost: tallaObj.costo
                     }]);
                 if (itemError) throw itemError;
@@ -1385,6 +1350,174 @@
             } catch (err) {
                 ocultarLoader();
                 alert("Error al procesar la venta: " + err.message);
+            }
+        }
+
+        // ==========================================
+        // MODAL DE EDICIÓN, AJUSTES +/- Y ELIMINACIÓN
+        // ==========================================
+        function abrirModalEdicion(indexProd) {
+            productoEnEdicionIndex = indexProd;
+            let prod = productos[indexProd];
+
+            document.getElementById('edit-nombre-zapato').value = prod.nombre;
+            
+            const contenedorTallasEdit = document.getElementById('contenedor-editar-tallas');
+            contenedorTallasEdit.innerHTML = '';
+
+            // Renderizar todas las tallas posibles para permitir añadir nuevas
+            for (let i = 35; i <= 45; i++) {
+                let tallaExistente = prod.tallas.find(t => t.talla === i);
+                
+                let costo = tallaExistente ? tallaExistente.costo : prod.costo_base;
+                let precio = tallaExistente ? tallaExistente.precio : prod.precio_base;
+                let cantidad = tallaExistente ? tallaExistente.cantidad : 0;
+                let stockId = tallaExistente ? tallaExistente.stock_id : '';
+
+                const fila = document.createElement('div');
+                fila.className = 'item-talla-fila';
+                fila.innerHTML = `
+                    <label>Talla ${i}</label>
+                    <input type="hidden" id="edit-stockid-${i}" value="${stockId}">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <span style="font-size: 11px; font-weight: 600; color: #6B7280; margin-bottom: 4px; display: block;">Costo ($)</span>
+                            <input type="number" id="edit-costo-${i}" step="0.01" value="${costo}">
+                        </div>
+                        <div>
+                            <span style="font-size: 11px; font-weight: 600; color: #6B7280; margin-bottom: 4px; display: block;">Precio ($)</span>
+                            <input type="number" id="edit-precio-${i}" step="0.01" value="${precio}">
+                        </div>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; font-weight: 600; color: #6B7280; margin-bottom: 4px; display: block;">Cantidad Disponible</span>
+                        <div class="control-cantidad-grupo">
+                            <button type="button" class="btn-stepper" onclick="modificarCantidadSteper(${i}, -1)">-</button>
+                            <input type="number" id="edit-cant-${i}" min="0" value="${cantidad}" style="text-align: center; font-weight: 700;">
+                            <button type="button" class="btn-stepper" onclick="modificarCantidadSteper(${i}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                contenedorTallasEdit.appendChild(fila);
+            }
+
+            document.getElementById('modal-editar-producto').style.display = 'flex';
+        }
+
+        function cerrarModalEdicion() {
+            document.getElementById('modal-editar-producto').style.display = 'none';
+            productoEnEdicionIndex = null;
+        }
+
+        function modificarCantidadSteper(tallaIndex, cambio) {
+            const input = document.getElementById(`edit-cant-${tallaIndex}`);
+            let val = parseInt(input.value) || 0;
+            val += cambio;
+            if (val < 0) val = 0;
+            input.value = val;
+        }
+
+        async function guardarCambiosProducto() {
+            if (productoEnEdicionIndex === null) return;
+            let prod = productos[productoEnEdicionIndex];
+
+            const nuevoNombre = document.getElementById('edit-nombre-zapato').value.trim();
+            if (!nuevoNombre) return alert("El nombre del modelo no puede estar vacío.");
+
+            mostrarLoader("Actualizando producto...");
+
+            try {
+                // Obtener costo/precio base de la primera talla ingresada para reflejarlo en la tabla principal
+                let nuevoCostoBase = prod.costo_base;
+                let nuevoPrecioBase = prod.precio_base;
+                
+                // 1. Actualizar datos principales del zapato
+                const { error: errorZapato } = await supabaseClient
+                    .from('shoes')
+                    .update({ 
+                        description: nuevoNombre
+                    })
+                    .eq('id', prod.id);
+
+                if (errorZapato) throw errorZapato;
+
+                // 2. Iterar sobre todas las tallas posibles (35 a 45) para actualizar o insertar
+                for (let i = 35; i <= 45; i++) {
+                    let stockId = document.getElementById(`edit-stockid-${i}`).value;
+                    let nuevaCant = parseInt(document.getElementById(`edit-cant-${i}`).value) || 0;
+                    let nuevoCosto = parseFloat(document.getElementById(`edit-costo-${i}`).value) || prod.costo_base;
+                    let nuevoPrecio = parseFloat(document.getElementById(`edit-precio-${i}`).value) || prod.precio_base;
+
+                    if (stockId) {
+                        // La talla ya existía en la base de datos, hacemos UPDATE
+                        const { error: errorStock } = await supabaseClient
+                            .from('shoe_stock')
+                            .update({ quantity: nuevaCant })
+                            .eq('id', stockId);
+
+                        if (errorStock) throw errorStock;
+                        
+                        // Actualizamos costo/precio en la tabla general de shoes (si aplicara)
+                        await supabaseClient.from('shoes')
+                            .update({ cost: nuevoCosto, selling_price: nuevoPrecio })
+                            .eq('id', prod.id);
+
+                    } else if (nuevaCant > 0) {
+                        // Es una talla nueva que antes no tenía stock (insertamos un nuevo registro)
+                        const { error: errorStockIns } = await supabaseClient
+                            .from('shoe_stock')
+                            .insert([{
+                                shoe_id: prod.id,
+                                size: i,
+                                quantity: nuevaCant
+                            }]);
+                            
+                        if (errorStockIns) throw errorStockIns;
+                        
+                        // Actualizamos costo/precio en la tabla general
+                        await supabaseClient.from('shoes')
+                            .update({ cost: nuevoCosto, selling_price: nuevoPrecio })
+                            .eq('id', prod.id);
+                    }
+                }
+
+                cerrarModalEdicion();
+                await cargarDatosDesdeSupabase();
+                ocultarLoader();
+            } catch (err) {
+                ocultarLoader();
+                alert("Error al actualizar: " + err.message);
+            }
+        }
+
+        async function eliminarModeloZapato() {
+            if (productoEnEdicionIndex === null) return;
+            let prod = productos[productoEnEdicionIndex];
+
+            if (!confirm(`¿Estás seguro de eliminar por completo el modelo "${prod.nombre}" del inventario? Esta acción no se puede deshacer.`)) {
+                return;
+            }
+
+            mostrarLoader("Eliminando modelo...");
+
+            try {
+                // Eliminamos stocks primero
+                await supabaseClient.from('shoe_stock').delete().eq('shoe_id', prod.id);
+                
+                // Eliminamos el registro del zapato
+                const { error: errorDel } = await supabaseClient
+                    .from('shoes')
+                    .delete()
+                    .eq('id', prod.id);
+
+                if (errorDel) throw errorDel;
+
+                cerrarModalEdicion();
+                await cargarDatosDesdeSupabase();
+                ocultarLoader();
+            } catch (err) {
+                ocultarLoader();
+                alert("Error al eliminar el modelo: " + err.message + "\nNota: Si tiene ventas asociadas en el historial, es posible que el sistema requiera mantener el registro o eliminar las ventas previas.");
             }
         }
 
@@ -1541,4 +1674,3 @@
     </script>
 </body>
 </html>
-
