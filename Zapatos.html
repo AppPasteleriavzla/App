@@ -276,10 +276,12 @@
             background: #EFF6FF;
             border: 1px solid #BFDBFE;
             border-radius: 16px;
-            padding: 20px;
+            padding: 16px 20px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .api-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 
         /* Navegación */
         .bottom-nav {
@@ -444,14 +446,14 @@
     <!-- PANTALLA 3: FINANZAS Y REPORTES -->
     <main id="pantalla-ganancias" class="pantalla">
         
+        <!-- Panel Resumen de Tasa Activa -->
         <div class="api-panel modulo-admin-cierre">
-            <div class="api-info">
-                <span>Estado de Tasa (API):</span>
-                <strong id="badge-tasa-api" style="color:#1D4ED8; font-size:15px;">Requiere Consulta</strong>
+            <div>
+                <span style="font-size:12px; font-weight:800; color:#64748B; text-transform:uppercase;">Tasa de Cambio Activa</span>
+                <div id="badge-tasa-api" style="color:#1D4ED8; font-size:16px; font-weight:800; margin-top:4px;">No configurada</div>
             </div>
-            <button class="btn" style="background:#2563EB; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="obtenerTasaCambioAPI()">
-                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                Consultar Tasa ARS-BOB (Usa 1 crédito)
+            <button class="btn-icon-action" style="background:#DBEAFE; color:#1D4ED8; padding: 12px;" onclick="abrirModalTasa()" title="Configurar Tasa">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
             </button>
         </div>
 
@@ -534,6 +536,37 @@
         <button class="nav-item" id="nav-agregar" onclick="cambiarPantalla('agregar')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>Agregar</button>
         <button class="nav-item" id="nav-ganancias" onclick="cambiarPantalla('ganancias')"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Finanzas</button>
     </nav>
+
+    <!-- MODAL CONFIGURAR TASA DE CAMBIO -->
+    <div id="modal-tasa-cambio" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="font-size:20px; font-weight:800; margin:0; display:flex; align-items:center; gap:8px;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="#2563EB" stroke-width="2" fill="none"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                    Tasa ARS/BOB
+                </h2>
+                <button class="modal-cerrar" onclick="cerrarModalTasa()">&times;</button>
+            </div>
+
+            <!-- Opción API -->
+            <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:16px; padding:16px; margin-bottom:20px;">
+                <p style="margin:0 0 10px 0; font-size:14px; font-weight:600; color:#1E3A8A;">Opción 1: Automática (API Global)</p>
+                <button class="btn" style="background:#2563EB; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="obtenerTasaCambioAPI()">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    Consultar Tasa Actual
+                </button>
+            </div>
+
+            <!-- Opción Manual -->
+            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:16px; padding:16px;">
+                <p style="margin:0 0 10px 0; font-size:14px; font-weight:600; color:#475569;">Opción 2: Ingreso Manual</p>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="input-tasa-manual" placeholder="Ej: 0.0079" step="0.0001" style="flex:1;">
+                    <button class="btn btn-secundario" style="width:auto; padding:14px;" onclick="guardarTasaManual()">Fijar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL VENDER (SELECCIÓN DE TALLA) -->
     <div id="modal-seleccionar-talla" class="modal-overlay">
@@ -726,6 +759,25 @@
             actualizarVisibilidadHistorial();
         }
 
+        /* ----- NUEVAS FUNCIONES DE TASA DE CAMBIO ----- */
+        function abrirModalTasa() {
+            document.getElementById('modal-tasa-cambio').style.display = 'flex';
+        }
+
+        function cerrarModalTasa() {
+            document.getElementById('modal-tasa-cambio').style.display = 'none';
+        }
+
+        function guardarTasaManual() {
+            const val = parseFloat(document.getElementById('input-tasa-manual').value);
+            if (isNaN(val) || val <= 0) {
+                return alert("Por favor ingresa una tasa de cambio válida.");
+            }
+            tasaARS_BOB = val;
+            document.getElementById('badge-tasa-api').innerText = `1 ARS = ${tasaARS_BOB.toFixed(5)} BOB (Manual)`;
+            cerrarModalTasa();
+        }
+
         async function obtenerTasaCambioAPI() {
             mostrarLoader("Consultando API...");
             try {
@@ -733,12 +785,17 @@
                 const data = await res.json();
                 if (data.result === 'success') {
                     tasaARS_BOB = data.conversion_rate;
-                    document.getElementById('badge-tasa-api').innerText = `1 ARS = ${tasaARS_BOB.toFixed(5)} BOB`;
-                    alert("Tasa actualizada con éxito.");
+                    document.getElementById('badge-tasa-api').innerText = `1 ARS = ${tasaARS_BOB.toFixed(5)} BOB (API)`;
+                    cerrarModalTasa();
+                    alert("Tasa actualizada con éxito mediante la API.");
                 }
-            } catch (err) { alert("Error de conexión."); }
+            } catch (err) { 
+                cerrarModalTasa();
+                alert("Error de conexión. Por favor, usa la opción de ingreso manual."); 
+            }
             ocultarLoader();
         }
+        /* ---------------------------------------------- */
 
         window.onload = async function() {
             await verificarClienteGeneral();
@@ -974,7 +1031,10 @@
         function ejecutarCierreTienda(numTienda) {
             let nombreTienda = 'Tienda ' + numTienda;
             let datos = dataTiendasGlobal[nombreTienda];
-            if (tasaARS_BOB === null) return alert("¡Actualiza la Tasa ARS-BOB primero!");
+            
+            if (tasaARS_BOB === null) {
+                return alert("¡Debes configurar la Tasa de Cambio (ARS-BOB) primero! Haz clic en el ícono superior.");
+            }
             
             let conversionARS = datos.ars * tasaARS_BOB;
             let totalBrutoBOB = datos.bob + conversionARS;
