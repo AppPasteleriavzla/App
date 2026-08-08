@@ -379,16 +379,13 @@
             <span class="header-indicador-tienda" id="indicador-tienda-header">Cargando...</span>
         </h1>
         <div class="header-actions">
-            <!-- Botón para cerrar sesión de tienda y cambiar de sucursal -->
             <button id="btn-cambiar-tienda" class="btn-icon-action" onclick="resetearTienda()" title="Cerrar Sesión de Tienda / Cambiar">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             </button>
             <button id="btn-exportar-admin" class="btn-icon-action" onclick="exportarInventarioExcel()" title="Exportar Inventario">
-                <!-- CORREGIDO: Se añadió fill="none" -->
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 18 15 15"></polyline></svg>
             </button>
             <button class="btn-icon-action" onclick="toggleSearch()" title="Buscar">
-                <!-- CORREGIDO: Se añadió fill="none" -->
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
             <button id="btn-admin-toggle" class="btn-toggle-admin" onclick="toggleAdmin()">Entrar Admin</button>
@@ -398,7 +395,6 @@
     <!-- BUSCADOR -->
     <div id="search-bar-container">
         <div class="search-input-wrapper">
-            <!-- CORREGIDO: Se añadieron width, height, stroke y fill="none" para evitar el "agujero negro" -->
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="input-busqueda" placeholder="Buscar modelo..." onkeyup="filtrarInventario(this.value)">
         </div>
@@ -1086,9 +1082,26 @@
                 const records = tallasConfiguradas.map(t => ({ shoe_id: shoeData[0].id, size: t.talla, quantity: t.cantidad }));
                 await supabaseClient.from('shoe_stock').insert(records);
 
-                document.getElementById('form-producto').reset(); archivoFotoSeleccionado = null; document.getElementById('preview-foto-container').style.display = 'none'; tallasConfiguradas = []; document.getElementById('texto-tallas-seleccionadas').innerText = "Ninguna talla configurada.";
-                await cargarDatosDesdeSupabase(); ocultarLoader(); cambiarPantalla('inventario');
-            } catch (err) { ocultarLoader(); alert("Error: " + err.message); }
+                document.getElementById('form-producto').reset(); 
+                archivoFotoSeleccionado = null; 
+                document.getElementById('preview-foto-container').style.display = 'none'; 
+                tallasConfiguradas = []; 
+                document.getElementById('texto-tallas-seleccionadas').innerText = "Ninguna talla configurada.";
+                
+                // NUEVO: Limpiamos los inputs del modal de tallas
+                for(let i = 35; i <= 45; i++) {
+                    document.getElementById(`cant-${i}`).value = "0";
+                    document.getElementById(`costo-${i}`).value = "0";
+                    document.getElementById(`precio-${i}`).value = "0";
+                }
+
+                await cargarDatosDesdeSupabase(); 
+                ocultarLoader(); 
+                cambiarPantalla('inventario');
+            } catch (err) { 
+                ocultarLoader(); 
+                alert("Error: " + err.message); 
+            }
         });
 
         function abrirModalEdicion(indexProd) {
