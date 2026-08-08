@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventario App Pro - Multi-Tienda y Admin</title>
+    <title>Inventario App Pro - Multi-Tienda Segura</title>
     <!-- Librería Chart.js para la gráfica -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Librería oficial de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Fuentes Google Fonts para mejor diseño -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fuentes Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* =========================================
-           DISEÑO BASE Y RESET
-           ========================================= */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -23,8 +20,8 @@
         }
 
         body {
-            background-color: #F4F7F6;
-            color: #1E293B;
+            background-color: #F8FAFC;
+            color: #0F172A;
             margin: 0;
             padding: 0;
             padding-bottom: 90px;
@@ -33,157 +30,316 @@
 
         h1, h2, h3, h4, p, span, div, label, th, td { text-align: left; }
 
-        /* =========================================
-           CABECERA (HEADER)
-           ========================================= */
+        /* Cabecera */
         .app-header {
             background-color: #FFFFFF;
             padding: 16px 24px;
             position: sticky;
             top: 0;
             z-index: 10;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border-bottom: 1px solid #E2E8F0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .app-header h1 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: #0F172A;
             margin: 0;
-            letter-spacing: -0.5px;
             display: flex;
             flex-direction: column;
         }
 
         .header-indicador-tienda {
             font-size: 11px;
-            font-weight: 800;
-            color: #3B82F6;
+            font-weight: 700;
+            color: #2563EB;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-top: 2px;
         }
         
-        .header-actions { display: flex; gap: 12px; align-items: center; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
 
         .btn-icon-action {
-            background: #F1F5F9; border: none; color: #475569;
-            cursor: pointer; padding: 8px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s ease;
+            background: #F1F5F9;
+            border: none;
+            color: #475569;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
         .btn-icon-action:active { background: #E2E8F0; color: #0F172A; }
 
         .btn-toggle-admin {
-            background: linear-gradient(135deg, #0F172A 0%, #334155 100%);
-            color: #FFFFFF; border: none; padding: 8px 16px;
-            font-size: 13px; font-weight: 700; border-radius: 10px;
-            cursor: pointer; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+            background: #0F172A;
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         }
 
-        /* =========================================
-           BUSCADOR
-           ========================================= */
+        /* Buscador */
         #search-bar-container {
-            display: none; background-color: #FFFFFF; padding: 15px 24px;
-            border-bottom: 1px solid #E2E8F0; margin-bottom: 15px;
+            display: none;
+            background-color: #FFFFFF;
+            padding: 15px 24px;
+            border-bottom: 1px solid #E2E8F0;
+            margin-bottom: 15px;
         }
 
         .search-input-wrapper { position: relative; width: 100%; }
         .search-input-wrapper svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
         .search-input-wrapper input {
-            width: 100%; padding: 12px 12px 12px 42px; font-size: 15px; font-weight: 600;
-            border: 2px solid #E2E8F0; border-radius: 12px; background-color: #F8FAFC; outline: none;
+            width: 100%;
+            padding: 12px 12px 12px 42px;
+            font-size: 15px;
+            font-weight: 600;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            background-color: #F8FAFC;
+            outline: none;
         }
-        .search-input-wrapper input:focus { border-color: #3B82F6; background-color: #FFFFFF; }
+        .search-input-wrapper input:focus { border-color: #2563EB; background-color: #FFFFFF; }
 
-        /* =========================================
-           PANTALLAS Y FORMULARIOS
-           ========================================= */
+        /* Pantallas */
         .pantalla { display: none; padding: 0 20px; margin-top: 20px; }
         .pantalla.activa { display: block; }
 
+        /* Formularios y Tarjetas */
         .form-group {
-            margin-bottom: 20px; background-color: #FFFFFF; padding: 20px;
-            border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #F1F5F9;
+            margin-bottom: 20px;
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            border: 1px solid #E2E8F0;
         }
 
-        label { display: block; font-size: 13px; font-weight: 800; color: #334155; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        label {
+            display: block; font-size: 12px; font-weight: 800;
+            color: #64748B; margin-bottom: 8px; text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
         input[type="text"], input[type="number"], input[type="password"], select {
-            width: 100%; padding: 14px; font-size: 16px; font-weight: 600;
-            border: 2px solid #E2E8F0; border-radius: 12px; background-color: #F8FAFC; color: #0F172A; outline: none;
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border: 2px solid #E2E8F0;
+            border-radius: 14px;
+            background-color: #F8FAFC;
+            color: #0F172A;
+            outline: none;
+            transition: all 0.2s;
         }
+        input:focus, select:focus { border-color: #0F172A; background-color: #FFFFFF; }
 
-        /* =========================================
-           BOTONES
-           ========================================= */
+        /* Botones */
         .btn {
-            display: block; width: 100%; background-color: #0F172A; color: #FFFFFF;
-            border: none; padding: 16px; font-size: 16px; font-weight: 700;
-            border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+            display: block;
+            width: 100%;
+            background-color: #0F172A;
+            color: #FFFFFF;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.15);
+            transition: transform 0.1s ease;
         }
-        .btn:active { transform: translateY(2px); box-shadow: none; }
-        .btn-secundario { background-color: #F1F5F9; color: #0F172A; border: 1px solid #E2E8F0; }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-secundario {
+            background-color: #F1F5F9;
+            color: #0F172A;
+            box-shadow: none;
+            border: 1px solid #CBD5E1;
+        }
         .btn-peligro { background-color: #EF4444; color: #FFFFFF; }
-        .btn-revertir { background-color: #FEF2F2; color: #DC2626; border: 1px solid #FCA5A5; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+        .btn-excel { background-color: #10B981; color: #FFFFFF; margin-top: 10px; }
 
-        /* =========================================
-           TARJETAS DE PRODUCTO
-           ========================================= */
+        .btn-revertir {
+            background-color: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid #FCA5A5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* Tarjetas de Producto Profesionales */
         .grid-productos { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .card { background-color: #FFFFFF; border-radius: 20px; overflow: hidden; border: 1px solid #F1F5F9; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04); }
-        .card img { width: 100%; height: 260px; object-fit: cover; background-color: #F8FAFC; display: block; cursor: pointer; }
-        .card-body { padding: 20px; }
-        .card-title { font-size: 22px; font-weight: 800; margin: 0 0 8px 0; color: #0F172A; }
-
-        /* =========================================
-           MÓDULO DE FINANZAS Y MULTI-TIENDA
-           ========================================= */
-        .seccion-finanzas { background-color: #FFFFFF; padding: 24px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); border: 1px solid #F1F5F9; }
-        .seccion-header-finanzas { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px dashed #E2E8F0; }
-        .seccion-header-finanzas h3 { font-size: 14px; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: 800; }
-
-        .caja-tienda { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px; margin-bottom: 15px; }
-        .caja-tienda-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .caja-tienda-header h4 { margin: 0; font-size: 18px; font-weight: 800; color: #0F172A; }
         
-        .moneda-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0; font-size: 15px; }
-        .moneda-row span { color: #64748B; font-weight: 600; }
-        .moneda-row strong { color: #0F172A; font-weight: 800; font-size: 16px; }
-        .moneda-ars strong { color: #2563EB; } 
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        }
 
-        .resultado-cierre { background: #D1FAE5; border-radius: 12px; padding: 15px; margin-top: 15px; margin-bottom: 15px; display: none; border: 1px solid #A7F3D0; }
+        .card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            background-color: #F1F5F9;
+            cursor: pointer;
+        }
+
+        .card-body { padding: 20px; }
+        .card-title { font-size: 20px; font-weight: 800; margin: 0 0 6px 0; color: #0F172A; }
+
+        /* Módulos de Finanzas */
+        .seccion-finanzas {
+            background-color: #FFFFFF;
+            padding: 24px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            border: 1px solid #E2E8F0;
+        }
+
+        .seccion-header-finanzas {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed #E2E8F0;
+        }
+
+        .seccion-header-finanzas h3 {
+            font-size: 16px;
+            color: #0F172A;
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .caja-tienda {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .caja-tienda-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .caja-tienda-header h4 { margin: 0; font-size: 18px; font-weight: 800; color: #0F172A; display: flex; align-items: center; gap: 8px; }
+
+        .moneda-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 15px;
+        }
+        .moneda-row span { color: #64748B; font-weight: 600; }
+        .moneda-row strong { color: #0F172A; font-weight: 800; }
+        .moneda-ars strong { color: #2563EB; }
+
+        .resultado-cierre {
+            background: #D1FAE5;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 15px;
+            display: none;
+            border: 1px solid #A7F3D0;
+        }
         .res-fila { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
         .res-fila:last-child { margin-bottom: 0; padding-top: 8px; border-top: 1px dashed #34D399; font-size: 16px; font-weight: 800; color: #065F46; }
 
-        .api-panel { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .api-panel {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
         .api-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .api-info span { font-size: 14px; font-weight: 700; color: #1E3A8A; }
 
-        /* =========================================
-           BARRA DE NAVEGACIÓN Y MODALES
-           ========================================= */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #FFFFFF; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #E2E8F0; z-index: 20; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
-        .nav-item { background: none; border: none; color: #94A3B8; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; cursor: pointer; }
+        /* Navegación */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #FFFFFF;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #E2E8F0;
+            z-index: 20;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: #94A3B8;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            cursor: pointer;
+        }
         .nav-item.activa { color: #0F172A; }
         .nav-item svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; fill: none; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.75); z-index: 1000; align-items: flex-end; backdrop-filter: blur(4px); }
-        .modal-content { background-color: #FFFFFF; padding: 25px; width: 100%; border-radius: 24px 24px 0 0; max-height: 85vh; overflow-y: auto; }
-        .modal-cerrar { background: none; border: none; font-size: 28px; color: #64748B; cursor: pointer; line-height: 1; }
+        /* Modales */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.75);
+            z-index: 1000;
+            align-items: flex-end;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background-color: #FFFFFF;
+            padding: 25px;
+            width: 100%;
+            border-radius: 24px 24px 0 0;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-cerrar { background: none; border: none; font-size: 28px; color: #64748B; cursor: pointer; }
 
         #loader-overlay { align-items: center; justify-content: center; }
         .loader-box { background: #FFFFFF; padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 300px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .spinner { border: 4px solid #F1F5F9; border-top: 4px solid #0F172A; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* PERMISOS ROL VENDEDORA */
+        /* Permisos Rol Vendedora */
         body.role-vendedor #nav-agregar,
         body.role-vendedor #btn-exportar-admin,
-        body.role-vendedor #btn-reset-tienda,
         body.role-vendedor .btn-editar-admin,
         body.role-vendedor .modulo-admin-cierre,
         body.role-vendedor #seccion-grafica-admin { display: none !important; }
@@ -201,15 +357,15 @@
         </div>
     </div>
 
-    <!-- MODAL DE CÓDIGO DE TIENDA O ADMIN (BLOQUEO INICIAL) -->
+    <!-- MODAL DE PIN / VINCULACIÓN DE TIENDA -->
     <div id="modal-codigo-tienda" class="modal-overlay" style="z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
         <div class="modal-content" style="border-radius: 24px; padding: 30px; text-align: center; max-width: 350px;">
             <div style="background:#DBEAFE; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 15px auto;">
                 <svg viewBox="0 0 24 24" width="30" height="30" stroke="#1D4ED8" stroke-width="2" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             </div>
             <h2 style="font-size:22px; font-weight:800; color:#0F172A; margin-top:0; margin-bottom:8px;">Vincular Dispositivo</h2>
-            <p style="color:#64748B; font-size:14px; margin-bottom:20px;">Ingresa el PIN de la Tienda (1111 / 2222) o la Clave Maestra de Administrador.</p>
-            <input type="password" id="input-codigo-tienda" placeholder="PIN o Clave..." style="text-align:center; letter-spacing:4px; font-size:20px; font-weight:800; margin-bottom:20px;">
+            <p style="color:#64748B; font-size:14px; margin-bottom:20px;">Ingresa el PIN de Tienda (1111 / 2222) o Clave Admin.</p>
+            <input type="password" id="input-codigo-tienda" placeholder="PIN..." style="text-align:center; letter-spacing:4px; font-size:20px; font-weight:800; margin-bottom:20px;">
             <button class="btn" style="background:#2563EB;" onclick="verificarCodigoTienda()">Verificar y Entrar</button>
         </div>
     </div>
@@ -221,13 +377,14 @@
             <span class="header-indicador-tienda" id="indicador-tienda-header">Cargando...</span>
         </h1>
         <div class="header-actions">
-            <button id="btn-reset-tienda" class="btn-icon-action" onclick="resetearTienda()" title="Desvincular">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+            <!-- Botón para cerrar sesión de tienda y cambiar de sucursal -->
+            <button id="btn-cambiar-tienda" class="btn-icon-action" onclick="resetearTienda()" title="Cerrar Sesión de Tienda / Cambiar">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             </button>
-            <button id="btn-exportar-admin" class="btn-icon-action" onclick="exportarInventarioExcel()" title="Exportar Todo el Inventario">
+            <button id="btn-exportar-admin" class="btn-icon-action" onclick="exportarInventarioExcel()" title="Exportar Inventario">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 18 15 15"></polyline></svg>
             </button>
-            <button class="btn-icon-action" onclick="toggleSearch()" title="Buscar Zapato">
+            <button class="btn-icon-action" onclick="toggleSearch()" title="Buscar">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
             <button id="btn-admin-toggle" class="btn-toggle-admin" onclick="toggleAdmin()">Entrar Admin</button>
@@ -238,14 +395,13 @@
     <div id="search-bar-container">
         <div class="search-input-wrapper">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="input-busqueda" placeholder="Buscar modelo o talla..." onkeyup="filtrarInventario(this.value)">
+            <input type="text" id="input-busqueda" placeholder="Buscar modelo..." onkeyup="filtrarInventario(this.value)">
         </div>
     </div>
 
     <!-- PANTALLA 1: INVENTARIO -->
     <main id="pantalla-inventario" class="pantalla activa">
         <div id="estado-vacio" style="padding: 60px 20px; color: #94A3B8; text-align: center; display:none;">
-            <svg viewBox="0 0 24 24" width="60" height="60" stroke="currentColor" stroke-width="1.5" fill="none" style="margin: 0 auto 15px auto; display: block;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
             <p style="font-size: 18px; font-weight:700;">Inventario Vacío</p>
         </div>
         <div id="contenedor-productos" class="grid-productos"></div>
@@ -262,8 +418,14 @@
             <div class="form-group">
                 <label>Foto del Producto</label>
                 <div style="display: flex; gap: 12px;">
-                    <label class="btn btn-secundario" style="flex:1; text-align:center; cursor:pointer; font-size:14px; padding:12px;">📸 Cámara <input type="file" accept="image/*" capture="environment" style="display: none;" onchange="seleccionarFotoUI(this)"></label>
-                    <label class="btn btn-secundario" style="flex:1; text-align:center; cursor:pointer; font-size:14px; padding:12px;">🖼️ Galería <input type="file" accept="image/*" style="display: none;" onchange="seleccionarFotoUI(this)"></label>
+                    <label class="btn btn-secundario" style="flex:1; text-align:center; cursor:pointer; font-size:14px; padding:12px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        Cámara <input type="file" accept="image/*" capture="environment" style="display: none;" onchange="seleccionarFotoUI(this)">
+                    </label>
+                    <label class="btn btn-secundario" style="flex:1; text-align:center; cursor:pointer; font-size:14px; padding:12px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        Galería <input type="file" accept="image/*" style="display: none;" onchange="seleccionarFotoUI(this)">
+                    </label>
                 </div>
                 <div id="preview-foto-container" style="display: none; margin-top: 15px; text-align: center;">
                     <img id="preview-foto" src="" style="width: 120px; height: 120px; object-fit: cover; border-radius: 16px; border:2px solid #E2E8F0; margin: 0 auto;">
@@ -285,24 +447,29 @@
         <div class="api-panel modulo-admin-cierre">
             <div class="api-info">
                 <span>Estado de Tasa (API):</span>
-                <strong id="badge-tasa-api" style="color:#1D4ED8; font-size:16px;">Requiere Consulta</strong>
+                <strong id="badge-tasa-api" style="color:#1D4ED8; font-size:15px;">Requiere Consulta</strong>
             </div>
-            <button class="btn" style="background:#2563EB;" onclick="obtenerTasaCambioAPI()">🔄 Consultar Tasa ARS-BOB (Usa 1 crédito)</button>
+            <button class="btn" style="background:#2563EB; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="obtenerTasaCambioAPI()">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Consultar Tasa ARS-BOB (Usa 1 crédito)
+            </button>
         </div>
 
         <div class="modulo-admin-cierre">
-            <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin-bottom:15px;">Panel de Cierre por Sucursal (Hoy)</h3>
+            <h3 style="font-size:14px; font-weight:800; color:#0F172A; margin-bottom:15px;">Panel de Cierre por Sucursal (Hoy)</h3>
             
             <!-- CAJA TIENDA 1 -->
             <div class="caja-tienda">
-                <div class="caja-tienda-header"><h4>🏪 Tienda 1</h4></div>
-                
-                <!-- MOSTRAR PARES CLARAMENTE -->
+                <div class="caja-tienda-header">
+                    <h4>
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        Tienda 1
+                    </h4>
+                </div>
                 <div class="moneda-row" style="background: #E0E7FF; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #C7D2FE;">
                     <span style="color:#3730A3;">Pares Vendidos Hoy:</span>
                     <strong style="color:#312E81; font-size: 18px;" id="pares-t1">0 pares</strong>
                 </div>
-
                 <div class="moneda-row"><span>Caja Fuerte (BOB):</span><strong id="bob-t1">Bs. 0.00</strong></div>
                 <div class="moneda-row moneda-ars"><span>Caja Fuerte (ARS):</span><strong id="ars-t1">$ 0.00</strong></div>
                 
@@ -317,14 +484,16 @@
 
             <!-- CAJA TIENDA 2 -->
             <div class="caja-tienda">
-                <div class="caja-tienda-header"><h4>🏪 Tienda 2</h4></div>
-                
-                <!-- MOSTRAR PARES CLARAMENTE -->
+                <div class="caja-tienda-header">
+                    <h4>
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        Tienda 2
+                    </h4>
+                </div>
                 <div class="moneda-row" style="background: #E0E7FF; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #C7D2FE;">
                     <span style="color:#3730A3;">Pares Vendidos Hoy:</span>
                     <strong style="color:#312E81; font-size: 18px;" id="pares-t2">0 pares</strong>
                 </div>
-
                 <div class="moneda-row"><span>Caja Fuerte (BOB):</span><strong id="bob-t2">Bs. 0.00</strong></div>
                 <div class="moneda-row moneda-ars"><span>Caja Fuerte (ARS):</span><strong id="ars-t2">$ 0.00</strong></div>
                 
@@ -340,9 +509,22 @@
 
         <div class="seccion-finanzas">
             <div class="seccion-header-finanzas" style="border-bottom:none; margin-bottom:5px;">
-                <h3 style="font-size:16px; color:#0F172A;">Registro de Movimientos (Hoy)</h3>
+                <h3>Historial de Ventas (Hoy)</h3>
             </div>
-            <div id="lista-ventas-hoy"></div>
+            
+            <div id="historial-tienda-1-container">
+                <h4 style="font-size:14px; font-weight:700; color:#475569; margin:0 0 12px 0; display:flex; align-items:center; gap:6px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Tienda 1
+                </h4>
+                <div id="lista-ventas-t1" style="margin-bottom: 25px;"></div>
+            </div>
+
+            <div id="historial-tienda-2-container">
+                <h4 style="font-size:14px; font-weight:700; color:#475569; margin:0 0 12px 0; display:flex; align-items:center; gap:6px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Tienda 2
+                </h4>
+                <div id="lista-ventas-t2"></div>
+            </div>
         </div>
     </main>
 
@@ -364,7 +546,7 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIRMAR VENTA (CON TIENDA INTELIGENTE) -->
+    <!-- MODAL CONFIRMAR VENTA -->
     <div id="modal-confirmar-venta" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -374,17 +556,14 @@
 
             <p id="venta-producto-nombre" style="font-weight:700; font-size:16px; margin-bottom:20px;"></p>
 
-            <!-- CONTROLES DE TIENDA (DEPENDIENDO DEL ROL) -->
             <div class="form-group" style="box-shadow:none; padding:0; border:none;">
-                <label>📍 Sucursal / Tienda</label>
-                
-                <!-- Vista Vendedora: Bloqueado -->
-                <div id="vendedor-tienda-lock" style="font-size:16px; font-weight:800; color:#1D4ED8; background:#DBEAFE; padding:14px; border-radius:12px; display:flex; align-items:center; gap:8px;">
-                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <label style="display:flex; align-items:center; gap:6px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    Sucursal / Tienda
+                </label>
+                <div id="vendedor-tienda-lock" style="font-size:15px; font-weight:800; color:#1D4ED8; background:#DBEAFE; padding:14px; border-radius:12px; display:flex; align-items:center; gap:8px;">
                     <span id="venta-tienda-nombre-lock">Cargando...</span>
                 </div>
-                
-                <!-- Vista Admin: Elegir -->
                 <div id="admin-tienda-select-container" style="display:none;">
                     <select id="venta-tienda-admin">
                         <option value="Tienda 1">Tienda 1</option>
@@ -394,7 +573,10 @@
             </div>
 
             <div class="form-group" style="box-shadow:none; padding:0; border:none;">
-                <label>💵 Moneda Recibida</label>
+                <label style="display:flex; align-items:center; gap:6px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+                    Moneda Recibida
+                </label>
                 <select id="venta-moneda">
                     <option value="BOB">Bolivianos (BOB)</option>
                     <option value="ARS">Pesos Argentinos (ARS)</option>
@@ -402,7 +584,10 @@
             </div>
 
             <div class="form-group" style="box-shadow:none; padding:0; border:none; margin-bottom:25px;">
-                <label>💰 Monto Exacto Cobrado</label>
+                <label style="display:flex; align-items:center; gap:6px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Monto Exacto Cobrado
+                </label>
                 <input type="number" id="venta-precio-final" step="0.01">
             </div>
 
@@ -410,7 +595,7 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR / TALLAS (Omitidos en visual aquí para espacio, pero presentes abajo) -->
+    <!-- MODALES DE TALLAS Y EDICIÓN -->
     <div id="modal-tallas" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -432,25 +617,21 @@
                 <label>Nombre del Modelo</label>
                 <input type="text" id="edit-nombre-zapato">
             </div>
-            <h4 style="font-size:14px; margin-top:20px; color:#64748B;">GESTIÓN DE INVENTARIO</h4>
             <div id="contenedor-editar-tallas"></div>
             <div style="display:flex; gap:12px; margin-top:25px;">
                 <button type="button" class="btn" style="flex:1;" onclick="guardarCambiosProducto()">Actualizar</button>
-                <button type="button" class="btn btn-peligro" style="flex:1;" onclick="eliminarModeloZapato()">Borrar Modelo</button>
+                <button type="button" class="btn btn-peligro" style="flex:1;" onclick="eliminarModeloZapato()">Borrar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // VARIABLES GLOBALES Y API KEY
-        // ==========================================
         const API_KEY_EXCHANGE = '265b6b22fdfffb2da532137d';
         let tasaARS_BOB = null; 
         let dataTiendasGlobal = { 'Tienda 1': {}, 'Tienda 2': {} }; 
         let tiendaActiva = localStorage.getItem('tienda_activa'); 
+        let clienteGeneralId = null; 
 
-        // CONFIGURACIÓN SUPABASE
         const SUPABASE_URL = 'https://luwcggpjvsrhvdwjiarw.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1d2NnZ3BqdnNyaHZkd2ppYXJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NjE4NTcsImV4cCI6MjA4MzIzNzg1N30.L_Yl3cVXdvLGcz3VZD-icJXAE4_myxqGo6o5dAkKw0M';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -461,11 +642,36 @@
         let productoEnEdicionIndex = null;
         let ventaPendiente = null;
 
-        // ==========================================
-        // SISTEMA DE SEGURIDAD Y ADMIN MAESTRO
-        // ==========================================
+        async function verificarClienteGeneral() {
+            try {
+                let { data, error } = await supabaseClient.from('clients').select('id').limit(1);
+                if (data && data.length > 0) {
+                    clienteGeneralId = data[0].id;
+                } else {
+                    let { data: newClient, error: errNew } = await supabaseClient.from('clients').insert([{ name: 'Cliente General', phone: '00000000' }]).select();
+                    if (newClient && newClient.length > 0) clienteGeneralId = newClient[0].id;
+                }
+            } catch (e) {
+                console.error("Error obteniendo cliente general:", e);
+            }
+        }
+
+        function actualizarVisibilidadHistorial() {
+            const h1 = document.getElementById('historial-tienda-1-container');
+            const h2 = document.getElementById('historial-tienda-2-container');
+            if (!h1 || !h2) return;
+            
+            if (currentRole === 'admin') {
+                h1.style.display = 'block';
+                h2.style.display = 'block';
+            } else {
+                h1.style.display = (tiendaActiva === 'Tienda 1') ? 'block' : 'none';
+                h2.style.display = (tiendaActiva === 'Tienda 2') ? 'block' : 'none';
+            }
+        }
+
         function verificarCodigoTienda() {
-            let codigo = document.getElementById('input-codigo-tienda').value;
+            let codigo = document.getElementById('input-codigo-tienda').value.trim();
             if (codigo === '1111') {
                 localStorage.setItem('tienda_activa', 'Tienda 1');
                 tiendaActiva = 'Tienda 1';
@@ -475,27 +681,26 @@
                 tiendaActiva = 'Tienda 2';
                 cerrarModalBloqueo();
             } else if (codigo === '123456789') {
-                // BYPASS COMO ADMINISTRADOR GLOBAL
                 currentRole = 'admin';
                 document.body.classList.remove('role-vendedor');
                 document.getElementById('btn-admin-toggle').innerText = 'Salir Admin';
                 tiendaActiva = 'ADMIN GLOBAL'; 
                 cerrarModalBloqueo();
-                alert("🔓 Acceso de Administrador Global concedido.");
+                alert("Acceso de Administrador Global concedido.");
             } else {
-                alert("❌ Código incorrecto.");
+                alert("Código incorrecto.");
                 document.getElementById('input-codigo-tienda').value = '';
             }
+            actualizarVisibilidadHistorial();
         }
 
         function cerrarModalBloqueo() {
             document.getElementById('modal-codigo-tienda').style.display = 'none';
             document.getElementById('indicador-tienda-header').innerText = tiendaActiva;
-            if(currentRole !== 'admin') { alert(`✅ Dispositivo vinculado a ${tiendaActiva}.`); }
         }
 
         function resetearTienda() {
-            if (confirm("⚠️ ¿Deseas desvincular este dispositivo?")) {
+            if (confirm("¿Deseas cerrar sesión de esta tienda y vincular otra?")) {
                 localStorage.removeItem('tienda_activa');
                 location.reload();
             }
@@ -509,15 +714,16 @@
                     document.body.classList.remove('role-vendedor');
                     document.getElementById('btn-admin-toggle').innerText = 'Salir Admin';
                     document.getElementById('indicador-tienda-header').innerText = 'ADMIN GLOBAL';
-                    alert("🔓 Modo Administrador Global Activado.");
-                } else if (pass) alert("❌ Contraseña incorrecta.");
+                    alert("Modo Administrador Global Activado.");
+                } else if (pass) alert("Contraseña incorrecta.");
             } else {
                 currentRole = 'vendedor';
                 document.body.classList.add('role-vendedor');
                 document.getElementById('btn-admin-toggle').innerText = 'Entrar Admin';
-                document.getElementById('indicador-tienda-header').innerText = tiendaActiva !== 'ADMIN GLOBAL' ? tiendaActiva : 'Desvinculado';
+                document.getElementById('indicador-tienda-header').innerText = tiendaActiva !== 'ADMIN GLOBAL' ? tiendaActiva : 'Tienda 1';
                 cambiarPantalla('inventario');
             }
+            actualizarVisibilidadHistorial();
         }
 
         async function obtenerTasaCambioAPI() {
@@ -528,23 +734,25 @@
                 if (data.result === 'success') {
                     tasaARS_BOB = data.conversion_rate;
                     document.getElementById('badge-tasa-api').innerText = `1 ARS = ${tasaARS_BOB.toFixed(5)} BOB`;
-                    alert("✅ Tasa actualizada.");
+                    alert("Tasa actualizada con éxito.");
                 }
-            } catch (err) { alert("⚠️ Error de conexión."); }
+            } catch (err) { alert("Error de conexión."); }
             ocultarLoader();
         }
 
         window.onload = async function() {
+            await verificarClienteGeneral();
             if (!tiendaActiva) {
                 document.getElementById('modal-codigo-tienda').style.display = 'flex';
             } else {
                 document.getElementById('indicador-tienda-header').innerText = tiendaActiva;
+                actualizarVisibilidadHistorial();
             }
 
             const contenedorTallas = document.getElementById('contenedor-lista-tallas');
             for(let i = 35; i <= 45; i++) {
                 const div = document.createElement('div');
-                div.style.background = "#F8FAFC"; div.style.padding = "10px"; div.style.marginBottom = "10px"; div.style.borderRadius = "8px";
+                div.style.background = "#F8FAFC"; div.style.padding = "12px"; div.style.marginBottom = "10px"; div.style.borderRadius = "12px";
                 div.innerHTML = `
                     <label>Talla ${i}</label>
                     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
@@ -568,27 +776,35 @@
                 }));
                 renderizarInventario(productos);
                 await actualizarUIFinanzasSupabase();
-            } catch (err) { console.error("Error cargando DB:", err); }
+            } catch (err) { console.error("Error DB:", err); }
         }
 
         function renderizarInventario(lista = productos) {
             const contenedor = document.getElementById('contenedor-productos');
             contenedor.innerHTML = '';
             let mostrados = 0;
+            const iconoTalla = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" style="vertical-align: text-top; margin-right: 4px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>`;
+            
             lista.forEach((prod) => {
                 if (prod.nombre.startsWith('[ARCHIVADO]')) return;
                 mostrados++;
                 const indexProd = productos.findIndex(p => p.id === prod.id);
                 let tallasDisp = prod.tallas.filter(t => t.cantidad > 0).map(t => t.talla).sort((a,b)=>a-b).join(', ');
                 const card = document.createElement('div'); card.className = 'card';
+                
                 card.innerHTML = `
                     <img src="${prod.foto}" onclick="abrirModalSeleccionarTalla(${indexProd})">
                     <div class="card-body">
                         <h3 class="card-title">${prod.nombre}</h3>
-                        <p style="font-size:13px; color:#64748B; margin-bottom:15px;">${tallasDisp ? '👟 Tallas: ' + tallasDisp : '<span style="color:#EF4444;">Agotado</span>'}</p>
+                        <p style="font-size:13px; color:#64748B; margin-bottom:15px; font-weight:600;">${tallasDisp ? iconoTalla + 'Tallas: ' + tallasDisp : '<span style="color:#EF4444;">Agotado</span>'}</p>
                         <div style="display:flex; gap:10px;">
-                            <button class="btn btn-secundario btn-editar-admin" style="flex: 0 0 auto; padding:14px;" onclick="abrirModalEdicion(${indexProd})">✏️</button>
-                            <button class="btn" style="flex:1;" onclick="abrirModalSeleccionarTalla(${indexProd})">Seleccionar y Vender</button>
+                            <button class="btn btn-secundario btn-editar-admin" style="flex: 0 0 auto; padding:14px; border-radius:14px; display:flex; align-items:center; justify-content:center;" onclick="abrirModalEdicion(${indexProd})">
+                                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                            <button class="btn" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="abrirModalSeleccionarTalla(${indexProd})">
+                                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                                Vender
+                            </button>
                         </div>
                     </div>
                 `;
@@ -605,8 +821,8 @@
                 let colorStock = item.cantidad > 0 ? '#10B981' : '#EF4444';
                 contenedor.innerHTML += `
                     <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:15px; border-radius:16px; display:flex; justify-content:space-between; align-items:center;">
-                        <div><div style="font-size:16px; font-weight:800;">Talla ${item.talla}</div><div style="font-size:12px; color:${colorStock};">${item.cantidad} disp.</div></div>
-                        <button class="btn" style="width:auto; padding:10px 16px;" ${item.cantidad <= 0 ? 'disabled' : ''} onclick="cerrarModalSeleccionarTalla(); abrirModalVenta(${indexProd}, ${indexTalla})">Cobrar</button>
+                        <div><div style="font-size:16px; font-weight:800;">Talla ${item.talla}</div><div style="font-size:12px; font-weight:700; color:${colorStock};">${item.cantidad} disp.</div></div>
+                        <button class="btn" style="width:auto; padding:10px 16px; border-radius:12px;" ${item.cantidad <= 0 ? 'disabled' : ''} onclick="cerrarModalSeleccionarTalla(); abrirModalVenta(${indexProd}, ${indexTalla})">Cobrar</button>
                     </div>
                 `;
             });
@@ -619,7 +835,6 @@
             ventaPendiente = { prod, tallaObj };
             document.getElementById('venta-producto-nombre').innerText = `${prod.nombre} - Talla ${tallaObj.talla}`;
             
-            // Lógica de Tienda en Modal de Venta
             if (currentRole === 'admin') {
                 document.getElementById('admin-tienda-select-container').style.display = 'block';
                 document.getElementById('vendedor-tienda-lock').style.display = 'none';
@@ -636,13 +851,13 @@
 
         async function ejecutarVenta() {
             if (!ventaPendiente) return;
-            
-            // Determinar a qué tienda va la venta
+            if (!clienteGeneralId) await verificarClienteGeneral();
+
             let tiendaDestino = "";
             if (currentRole === 'admin') {
                 tiendaDestino = document.getElementById('venta-tienda-admin').value;
             } else {
-                if (!tiendaActiva || tiendaActiva === 'ADMIN GLOBAL') return alert("Error: No hay una tienda configurada.");
+                if (!tiendaActiva || tiendaActiva === 'ADMIN GLOBAL') return alert("Error: Selecciona una tienda válida.");
                 tiendaDestino = tiendaActiva;
             }
 
@@ -652,13 +867,12 @@
 
             if (isNaN(montoIngresado) || montoIngresado <= 0) return alert("Ingresa un monto válido.");
 
-            mostrarLoader("Guardando Venta Segura...");
+            mostrarLoader("Guardando Venta...");
             cerrarModalVenta();
 
             try {
-                // PROTECCIÓN ANTI-CRASH AQUÍ:
-                // Si la columna no existe o hay un error, lo atrapamos con `saleError` y no explota.
                 const { data: saleData, error: saleError } = await supabaseClient.from('sales').insert([{ 
+                    client_id: clienteGeneralId,
                     store: tiendaDestino,
                     currency: moneda,
                     original_amount: montoIngresado,
@@ -666,7 +880,7 @@
                 }]).select();
 
                 if (saleError) throw new Error(saleError.message);
-                if (!saleData || saleData.length === 0) throw new Error("Supabase no devolvió confirmación. Revisa la consola o las columnas.");
+                if (!saleData || saleData.length === 0) throw new Error("Supabase no devolvió la venta.");
 
                 const saleId = saleData[0].id;
 
@@ -680,13 +894,10 @@
                 ocultarLoader();
             } catch (err) {
                 ocultarLoader();
-                alert("❌ ERROR AL GUARDAR:\n" + err.message + "\n\n(Asegúrate de haber creado las columnas 'store', 'currency' y 'original_amount' en Supabase).");
+                alert("Error al guardar:\n" + err.message);
             }
         }
 
-        // ==========================================
-        // FINANZAS Y ARQUEO DE CAJA MULTI-TIENDA
-        // ==========================================
         async function actualizarUIFinanzasSupabase() {
             try {
                 const { data: itemsData } = await supabaseClient.from('sale_items').select(`
@@ -699,7 +910,8 @@
                     'Tienda 2': { bob: 0, ars: 0, costoTotal: 0, pares: 0 }
                 };
 
-                let listaVentasHTML = '';
+                let listaVentasT1 = '';
+                let listaVentasT2 = '';
 
                 itemsData.forEach(item => {
                     if (!item.sales) return;
@@ -718,13 +930,27 @@
                         if (moneda === 'ARS') dataTiendasGlobal[tienda].ars += montoManejado;
                         else dataTiendasGlobal[tienda].bob += montoManejado;
 
-                        let nombreReal = item.shoes ? item.shoes.description.replace('[ARCHIVADO] ', '') : 'Eliminado';
-                        listaVentasHTML += `
+                        let nombreReal = item.shoes ? item.shoes.description.replace('[ARCHIVADO] ', '') : 'Zapato';
+                        let fotoReal = item.shoes ? item.shoes.photo_url : '';
+                        
+                        let itemHTML = `
                             <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                                <div><div style="font-size:14px; font-weight:800;">${nombreReal} (T.${item.size})</div><div style="font-size:12px;">📍 ${tienda} • <strong style="color:#2563EB;">${moneda === 'ARS' ? '$' : 'Bs.'} ${montoManejado}</strong></div></div>
+                                <div style="display:flex; gap:12px; align-items:center;">
+                                    <img src="${fotoReal}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #CBD5E1;">
+                                    <div>
+                                        <div style="font-size:14px; font-weight:800; color:#0F172A;">${nombreReal} (T.${item.size})</div>
+                                        <div style="font-size:12px; color:#64748B; display:flex; align-items:center; gap:4px;">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                            ${tienda} &bull; <strong style="color:#2563EB;">${moneda === 'ARS' ? '$' : 'Bs.'} ${montoManejado}</strong>
+                                        </div>
+                                    </div>
+                                </div>
                                 <button class="btn-revertir" onclick="revertirVentaSupabase('${item.id}', '${item.sale_id}', '${item.shoe_id}', ${item.size})">Revertir</button>
                             </div>
                         `;
+
+                        if (tienda === 'Tienda 1') listaVentasT1 += itemHTML;
+                        else if (tienda === 'Tienda 2') listaVentasT2 += itemHTML;
                     }
                 });
 
@@ -738,14 +964,17 @@
                 document.getElementById('ars-t2').innerText = `$ ${dataTiendasGlobal['Tienda 2'].ars.toFixed(2)}`;
                 document.getElementById('res-t2').style.display = 'none';
 
-                document.getElementById('lista-ventas-hoy').innerHTML = listaVentasHTML || '<p style="text-align:center;">No hay ventas hoy.</p>';
-            } catch (err) { console.error("Error UI Finanzas:", err); }
+                document.getElementById('lista-ventas-t1').innerHTML = listaVentasT1 || '<p style="text-align:center; color:#94A3B8; font-size:13px; margin-top:10px;">No hay ventas registradas hoy.</p>';
+                document.getElementById('lista-ventas-t2').innerHTML = listaVentasT2 || '<p style="text-align:center; color:#94A3B8; font-size:13px; margin-top:10px;">No hay ventas registradas hoy.</p>';
+                
+                actualizarVisibilidadHistorial();
+            } catch (err) { console.error("Error Finanzas:", err); }
         }
 
         function ejecutarCierreTienda(numTienda) {
             let nombreTienda = 'Tienda ' + numTienda;
             let datos = dataTiendasGlobal[nombreTienda];
-            if (tasaARS_BOB === null) return alert("⚠️ ¡Actualiza la Tasa ARS-BOB primero!");
+            if (tasaARS_BOB === null) return alert("¡Actualiza la Tasa ARS-BOB primero!");
             
             let conversionARS = datos.ars * tasaARS_BOB;
             let totalBrutoBOB = datos.bob + conversionARS;
@@ -759,7 +988,7 @@
         }
 
         async function revertirVentaSupabase(saleItemId, saleId, shoeId, size) {
-            if (!confirm("⚠️ ¿Revertir esta venta?")) return;
+            if (!confirm("¿Revertir esta venta?")) return;
             mostrarLoader("Revirtiendo...");
             try {
                 const { data: stockData } = await supabaseClient.from('shoe_stock').select('id, quantity').eq('shoe_id', shoeId).eq('size', size).single();
@@ -772,9 +1001,6 @@
             } catch (e) { ocultarLoader(); alert("Error al revertir: " + e.message); }
         }
 
-        // ==========================================
-        // EDICIÓN Y CREACIÓN DE ZAPATOS
-        // ==========================================
         document.getElementById('form-producto').addEventListener('submit', async function(e) {
             e.preventDefault();
             if(tallasConfiguradas.length === 0) return alert("Configura al menos una talla.");
@@ -808,7 +1034,7 @@
             const cont = document.getElementById('contenedor-editar-tallas'); cont.innerHTML = '';
             for (let i = 35; i <= 45; i++) {
                 let t = prod.tallas.find(x => x.talla === i); let stock = t ? t.cantidad : 0, costo = t ? t.costo : prod.costo_base, precio = t ? t.precio : prod.precio_base; let sId = t ? t.stock_id : '';
-                cont.innerHTML += `<div style="background:#F8FAFC; padding:10px; margin-bottom:10px; border-radius:8px;"><label>Talla ${i}</label><input type="hidden" id="e-sid-${i}" value="${sId}"><div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;"><div><span style="font-size:11px;">Stock</span><input type="number" id="e-cant-${i}" value="${stock}"></div><div><span style="font-size:11px;">Costo</span><input type="number" id="e-costo-${i}" value="${costo}" step="0.01"></div><div><span style="font-size:11px;">Precio</span><input type="number" id="e-precio-${i}" value="${precio}" step="0.01"></div></div></div>`;
+                cont.innerHTML += `<div style="background:#F8FAFC; padding:12px; margin-bottom:10px; border-radius:12px;"><label>Talla ${i}</label><input type="hidden" id="e-sid-${i}" value="${sId}"><div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;"><div><span style="font-size:11px;">Stock</span><input type="number" id="e-cant-${i}" value="${stock}"></div><div><span style="font-size:11px;">Costo</span><input type="number" id="e-costo-${i}" value="${costo}" step="0.01"></div><div><span style="font-size:11px;">Precio</span><input type="number" id="e-precio-${i}" value="${precio}" step="0.01"></div></div></div>`;
             }
             document.getElementById('modal-editar-producto').style.display = 'flex';
         }
@@ -828,18 +1054,15 @@
         }
 
         async function eliminarModeloZapato() {
-            let prod = productos[productoEnEdicionIndex]; if (!confirm(`¿Eliminar "${prod.nombre}"?`)) return; mostrarLoader("Verificando ventas previas...");
+            let prod = productos[productoEnEdicionIndex]; if (!confirm(`¿Eliminar "${prod.nombre}"?`)) return; mostrarLoader("Verificando...");
             try {
                 const { data: v } = await supabaseClient.from('sale_items').select('id').eq('shoe_id', prod.id);
-                if (v && v.length > 0) { alert("Se archivará para no dañar reportes de ventas anteriores."); await supabaseClient.from('shoes').update({ description: '[ARCHIVADO] ' + prod.nombre }).eq('id', prod.id); await supabaseClient.from('shoe_stock').update({ quantity: 0 }).eq('shoe_id', prod.id); } 
+                if (v && v.length > 0) { alert("Se archivará para no dañar reportes."); await supabaseClient.from('shoes').update({ description: '[ARCHIVADO] ' + prod.nombre }).eq('id', prod.id); await supabaseClient.from('shoe_stock').update({ quantity: 0 }).eq('shoe_id', prod.id); } 
                 else { await supabaseClient.from('shoe_stock').delete().eq('shoe_id', prod.id); await supabaseClient.from('shoes').delete().eq('id', prod.id); }
                 cerrarModalEdicion(); await cargarDatosDesdeSupabase(); ocultarLoader();
             } catch (e) { ocultarLoader(); alert("Error: " + e.message); }
         }
 
-        // ==========================================
-        // UTILIDADES Y MODALES
-        // ==========================================
         let archivoFotoSeleccionado = null;
         function seleccionarFotoUI(input) { if (input.files && input.files[0]) { archivoFotoSeleccionado = input.files[0]; const reader = new FileReader(); reader.onload = e => { document.getElementById('preview-foto').src = e.target.result; document.getElementById('preview-foto-container').style.display = 'block'; }; reader.readAsDataURL(input.files[0]); } }
         function comprimirImagen(file, maxW, maxH, q) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = e => { const img = new Image(); img.src = e.target.result; img.onload = () => { let w = img.width, h = img.height; if (w > maxW) { h = Math.round((h * maxW)/w); w = maxW; } if (h > maxH) { w = Math.round((w * maxH)/h); h = maxH; } const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); canvas.toBlob(blob => res(blob), 'image/jpeg', q); }; img.onerror = err => rej(err); }; }); }
