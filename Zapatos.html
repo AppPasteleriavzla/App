@@ -776,30 +776,50 @@
         /* -------------------------------------
            SISTEMA DE ROLES (ADMIN / VENDEDOR)
            ------------------------------------- */
-        body.role-vendedor #nav-agregar,
-        body.role-vendedor #nav-ganancias {
+        
+        /* 1. Ocultar la pestaña Agregar a la vendedora */
+        body.role-vendedor #nav-agregar {
             display: none !important;
         }
 
+        /* 2. Ocultar textos de costo y ganancia en los items individuales */
         body.role-vendedor .precio-item.costo-item,
-        body.role-vendedor .precio-item.ganancia {
-            display: none !important;
-        }
-        
-        body.role-vendedor .btn-editar-admin {
-            display: none !important;
-        }
-        
+        body.role-vendedor .precio-item.ganancia,
         body.role-vendedor .item-venta-ganancia {
             display: none !important;
         }
+        
+        /* 3. Ocultar botones de administración y exportación */
+        body.role-vendedor .btn-editar-admin,
+        body.role-vendedor #btn-exportar-admin,
+        body.role-vendedor .btn-excel {
+            display: none !important;
+        }
 
-        body.role-vendedor .bottom-nav {
-            justify-content: center;
+        /* 4. En la pestaña Finanzas: Ocultar las cajas de costo y ganancia totales */
+        body.role-vendedor .caja-resumen.costo,
+        body.role-vendedor .caja-resumen.ganancia {
+            display: none !important;
         }
         
-        body.role-vendedor #nav-inventario {
-            width: 100%;
+        /* Hacer que la caja de "Vendido" ocupe el 100% del ancho para la vendedora */
+        body.role-vendedor .grid-resumen {
+            grid-template-columns: 1fr;
+        }
+
+        /* 5. Ocultar completamente las gráficas y el historial de otros días */
+        body.role-vendedor #pantalla-ganancias .seccion-finanzas:nth-of-type(2),
+        body.role-vendedor #pantalla-ganancias .seccion-finanzas:nth-of-type(3) {
+            display: none !important;
+        }
+
+        /* 6. Ajustar la barra inferior para que se vean bonitas las 2 pestañas restantes */
+        body.role-vendedor .bottom-nav {
+            justify-content: space-around;
+        }
+        
+        body.role-vendedor .nav-item {
+            width: 50%;
         }
     </style>
 </head>
@@ -817,8 +837,8 @@
     <header class="app-header">
         <h1 id="titulo-header">Mi Inventario</h1>
         <div class="header-actions">
-            <!-- Botón Exportar Inventario (Solo Admin o Ambos según prefieras, aquí visible para facilitar) -->
-            <button class="btn-icon-action" onclick="exportarInventarioExcel()" aria-label="Exportar Inventario" title="Exportar Inventario a Excel">
+            <!-- Botón Exportar Inventario (ID añadido para ocultarlo a la vendedora) -->
+            <button id="btn-exportar-admin" class="btn-icon-action" onclick="exportarInventarioExcel()" aria-label="Exportar Inventario" title="Exportar Inventario a Excel">
                 <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
@@ -913,7 +933,7 @@
         </form>
     </main>
 
-    <!-- PANTALLA 3: FINANZAS Y GRÁFICA -->
+    <!-- PANTALLA 3: FINANZAS Y REPORTES -->
     <main id="pantalla-ganancias" class="pantalla">
         <div class="seccion-finanzas">
             <div class="seccion-header-finanzas">
@@ -943,7 +963,6 @@
 
             <div style="margin-top: 20px; border-top: 1px dashed #E5E7EB; padding-top: 15px;">
                 <h4 style="font-size: 12px; color: #6B7280; text-transform: uppercase; margin-bottom: 10px; margin-top: 0;">Detalle de Ventas de Hoy</h4>
-                <!-- Lista con botón de revertir activado para el día actual -->
                 <div id="lista-ventas-hoy"></div>
             </div>
         </div>
@@ -984,9 +1003,10 @@
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             Agregar
         </button>
+        <!-- Esta pestaña ahora se llama Ventas / Reportes -->
         <button class="nav-item" id="nav-ganancias" onclick="cambiarPantalla('ganancias')">
             <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-            Finanzas
+            Ventas / Reportes
         </button>
     </nav>
 
@@ -1320,7 +1340,7 @@
             document.getElementById('pantalla-' + pantalla).classList.add('activa');
             document.getElementById('nav-' + pantalla).classList.add('activa');
 
-            const titulos = { 'inventario': 'Mi Inventario', 'agregar': 'Nuevo Zapato', 'ganancias': 'Finanzas e Historial' };
+            const titulos = { 'inventario': 'Mi Inventario', 'agregar': 'Nuevo Zapato', 'ganancias': 'Ventas y Finanzas' };
             document.getElementById('titulo-header').innerText = titulos[pantalla];
 
             if(pantalla !== 'inventario') {
@@ -1464,7 +1484,6 @@
             document.getElementById('estado-vacio').style.display = listaRender.length > 0 ? 'none' : 'block';
 
             listaRender.forEach((prod) => {
-                // Filtro para ocultar los productos archivados del catálogo principal
                 if (prod.nombre.startsWith('[ARCHIVADO]')) return;
 
                 const indexProd = productos.findIndex(p => p.id === prod.id);
@@ -1509,7 +1528,7 @@
             csvContent += "Producto,Talla,Cantidad en Stock,Costo Unitario ($),Precio Venta ($),Valor Inventario Total ($)\r\n";
 
             productos.forEach(prod => {
-                if (prod.nombre.startsWith('[ARCHIVADO]')) return; // No exportamos los archivados
+                if (prod.nombre.startsWith('[ARCHIVADO]')) return; 
 
                 prod.tallas.forEach(talla => {
                     if (talla.cantidad > 0) {
@@ -1682,24 +1701,19 @@
         // REVERTIR VENTA 
         // ==========================================
         async function revertirVentaSupabase(saleItemId, saleId, shoeId, size) {
-            if (!confirm("¿Estás seguro de REVERTIR esta venta? El dinero se restará de las ganancias y el zapato regresará a tu stock.")) return;
+            if (!confirm("¿Estás seguro de REVERTIR esta venta? El zapato regresará a tu stock.")) return;
             
             mostrarLoader("Revirtiendo venta...");
             try {
-                // 1. Verificamos si existe el registro de stock para sumarle 1
                 const { data: stockData } = await supabaseClient.from('shoe_stock').select('id, quantity').eq('shoe_id', shoeId).eq('size', size).single();
-
-                // 2. Borramos el artículo vendido (sale_item)
                 await supabaseClient.from('sale_items').delete().eq('id', saleItemId);
 
-                // 3. Devolvemos el zapato al stock
                 if (stockData) {
                     await supabaseClient.from('shoe_stock').update({ quantity: stockData.quantity + 1 }).eq('id', stockData.id);
                 } else {
                     await supabaseClient.from('shoe_stock').insert([{ shoe_id: shoeId, size: size, quantity: 1 }]);
                 }
 
-                // 4. Si la venta principal (sales) ya no tiene más items, la borramos para mantener limpia la DB
                 const { data: otherItems } = await supabaseClient.from('sale_items').select('id').eq('sale_id', saleId);
                 if (!otherItems || otherItems.length === 0) {
                     await supabaseClient.from('sales').delete().eq('id', saleId);
@@ -1707,7 +1721,6 @@
 
                 await cargarDatosDesdeSupabase();
                 
-                // Si el modal de reporte estaba abierto, lo cerramos para evitar errores visuales
                 cerrarModalReporte(); 
                 ocultarLoader();
                 
@@ -1718,7 +1731,7 @@
         }
 
         // ==========================================
-        // MODAL DE EDICIÓN Y ELIMINACIÓN (CON ARCHIVADO PARA PROTEGER FINANZAS)
+        // MODAL DE EDICIÓN Y ELIMINACIÓN CON ARCHIVADO
         // ==========================================
         function abrirModalEdicion(indexProd) {
             productoEnEdicionIndex = indexProd;
@@ -1846,19 +1859,14 @@
             mostrarLoader("Verificando historial y eliminando...");
 
             try {
-                // VERIFICACIÓN CLAVE: Buscamos si el producto tiene ventas
                 const { data: ventasPrevias } = await supabaseClient.from('sale_items').select('id').eq('shoe_id', prod.id);
 
                 if (ventasPrevias && ventasPrevias.length > 0) {
-                    // TIENE VENTAS: Lo archivamos para no dañar las finanzas (Soft Delete)
                     alert(`¡Atención! Este producto tiene ventas asociadas. Para no arruinar tus reportes de ganancias, el sistema lo ha "Archivado". \n\nSu stock pasará a 0 y desaparecerá de tu catálogo principal, pero el dinero ganado seguirá en tus reportes.`);
                     
-                    // Cambiamos el nombre para identificarlo y evitar confusiones en BD
                     await supabaseClient.from('shoes').update({ description: '[ARCHIVADO] ' + prod.nombre }).eq('id', prod.id);
-                    // Vaciamos su stock
                     await supabaseClient.from('shoe_stock').update({ quantity: 0 }).eq('shoe_id', prod.id);
                 } else {
-                    // NO TIENE VENTAS: Borrado limpio (Hard Delete)
                     await supabaseClient.from('shoe_stock').delete().eq('shoe_id', prod.id);
                     await supabaseClient.from('shoes').delete().eq('id', prod.id);
                 }
@@ -1908,10 +1916,10 @@
                         gananciaHoy += gananciaItem;
                         cantidadHoy += item.quantity;
                         detalleHoy.push({
-                            idItem: item.id, // ID del sale_item para poder revertir
-                            idVenta: item.sale_id, // ID de la venta principal
+                            idItem: item.id,
+                            idVenta: item.sale_id,
                             idProducto: item.shoe_id,
-                            nombre: item.shoes.description.replace('[ARCHIVADO] ', ''), // Limpiamos nombre si fue archivado
+                            nombre: item.shoes.description.replace('[ARCHIVADO] ', ''), 
                             foto: item.shoes.photo_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
                             talla: item.size,
                             cantidad: item.quantity,
@@ -1950,7 +1958,6 @@
                 document.getElementById('total-ganancia').innerText = `$${gananciaHoy.toFixed(2)}`;
                 document.getElementById('cantidad-vendida').innerText = cantidadHoy;
                 
-                // Le pasamos 'true' para que se habilite el botón Revertir en las ventas de hoy
                 document.getElementById('lista-ventas-hoy').innerHTML = generarHTMLListaProductos(detalleHoy, true);
 
                 let arrayHistorial = Object.values(historialAgrupado);
@@ -1984,7 +1991,6 @@
             }
         }
 
-        // Parámetro extra para activar o desactivar el botón de revertir
         function generarHTMLListaProductos(lista, permitirRevertir = false) {
             if (!lista || lista.length === 0) return `<p style="text-align:center; color:#9CA3AF; font-size:13px; padding:15px;">No hay ventas registradas.</p>`;
             return lista.map(v => `
@@ -2022,14 +2028,12 @@
             document.getElementById('modal-reporte-costo').innerText = `$${costoDia.toFixed(2)}`;
             document.getElementById('modal-reporte-ganancia').innerText = `$${dia.ganancias.toFixed(2)}`;
             
-            // Pasamos "true" para que también desde el historial de otros días puedan revertir ventas si se equivocaron
             document.getElementById('modal-reporte-lista').innerHTML = generarHTMLListaProductos(dia.detalle, true);
             document.getElementById('modal-reporte-dia').style.display = 'flex';
         }
 
         function cerrarModalReporte() { document.getElementById('modal-reporte-dia').style.display = 'none'; }
 
-        // Función para Exportar a CSV (Excel) - REPORTE DIARIO
         function exportarExcelDia(fechaStr) {
             if (!window._historialGlobal) return;
             let dia = window._historialGlobal.find(d => d.fecha === fechaStr);
