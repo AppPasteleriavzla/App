@@ -171,7 +171,6 @@
             border: 1px solid #CBD5E1;
         }
         .btn-peligro { background-color: #EF4444; color: #FFFFFF; }
-        .btn-excel { background-color: #10B981; color: #FFFFFF; margin-top: 10px; }
 
         .btn-revertir {
             background-color: #FEF2F2;
@@ -185,7 +184,7 @@
             text-transform: uppercase;
         }
 
-        /* Tarjetas de Producto Profesionales */
+        /* Tarjetas de Producto */
         .grid-productos { display: grid; grid-template-columns: 1fr; gap: 20px; }
         
         .card {
@@ -376,9 +375,17 @@
     <header class="app-header">
         <h1>
             Mi Inventario
-            <span class="header-indicador-tienda" id="indicador-tienda-header">Cargando...</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="header-indicador-tienda" id="indicador-tienda-header">Cargando...</span>
+                <span id="badge-conexion" style="font-size:10px; padding:2px 6px; border-radius:6px; background:#10B981; color:white; font-weight:bold;">Online</span>
+            </div>
         </h1>
         <div class="header-actions">
+            <!-- Botón de Sincronización Manual (Solo aparece si hay ventas pendientes) -->
+            <button id="btn-sync" class="btn-icon-action" style="display:none; color:#F59E0B; background:#FEF3C7;" onclick="sincronizarVentasOffline()" title="Sincronizar Ventas Offline">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+            </button>
+            
             <button id="btn-cambiar-tienda" class="btn-icon-action" onclick="resetearTienda()" title="Cerrar Sesión de Tienda / Cambiar">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             </button>
@@ -403,7 +410,7 @@
     <!-- PANTALLA 1: INVENTARIO -->
     <main id="pantalla-inventario" class="pantalla activa">
         <div id="estado-vacio" style="padding: 60px 20px; color: #94A3B8; text-align: center; display:none;">
-            <p style="font-size: 18px; font-weight:700;">Inventario Vacío</p>
+            <p style="font-size: 18px; font-weight:700;">Inventario Vacío o Cargando...</p>
         </div>
         <div id="contenedor-productos" class="grid-productos"></div>
     </main>
@@ -547,7 +554,6 @@
                 <button class="modal-cerrar" onclick="cerrarModalTasa()">&times;</button>
             </div>
 
-            <!-- Opción API -->
             <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:16px; padding:16px; margin-bottom:20px;">
                 <p style="margin:0 0 10px 0; font-size:14px; font-weight:600; color:#1E3A8A;">Opción 1: Automática (API Global)</p>
                 <button class="btn" style="background:#2563EB; display:flex; justify-content:center; align-items:center; gap:8px;" onclick="obtenerTasaCambioAPI()">
@@ -556,7 +562,6 @@
                 </button>
             </div>
 
-            <!-- Opción Manual -->
             <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:16px; padding:16px;">
                 <p style="margin:0 0 10px 0; font-size:14px; font-weight:600; color:#475569;">Opción 2: Ingreso Manual</p>
                 <div style="display:flex; gap:10px;">
@@ -673,9 +678,93 @@
         let tallasConfiguradas = [];
         let productoEnEdicionIndex = null;
         let ventaPendiente = null;
+        
+        // --- SISTEMA OFFLINE MEJORADO ---
+        let ventasOffline = JSON.parse(localStorage.getItem('ventas_offline') || '[]');
+
+        function actualizarEstadoConexion() {
+            const badge = document.getElementById('badge-conexion');
+            const btnSync = document.getElementById('btn-sync');
+            
+            if (navigator.onLine) {
+                if (ventasOffline.length > 0) {
+                    badge.innerText = "Pendiente Sync";
+                    badge.style.background = "#F59E0B"; // Naranja
+                    btnSync.style.display = "flex";
+                } else {
+                    badge.innerText = "Online";
+                    badge.style.background = "#10B981"; // Verde
+                    btnSync.style.display = "none";
+                }
+            } else {
+                badge.innerText = "Offline";
+                badge.style.background = "#EF4444"; // Rojo
+                btnSync.style.display = "none";
+            }
+        }
+
+        window.addEventListener('online', () => {
+            actualizarEstadoConexion();
+            sincronizarVentasOffline();
+        });
+        
+        window.addEventListener('offline', actualizarEstadoConexion);
+
+        async function sincronizarVentasOffline() {
+            if (ventasOffline.length === 0 || !navigator.onLine) return;
+            mostrarLoader("Sincronizando ventas locales...");
+            if (!clienteGeneralId) await verificarClienteGeneral();
+
+            try {
+                for (let v of ventasOffline) {
+                    const { data: saleData, error: saleError } = await supabaseClient.from('sales').insert([{ 
+                        client_id: clienteGeneralId,
+                        store: v.tienda,
+                        currency: v.moneda,
+                        original_amount: v.monto,
+                        total_amount: v.monto 
+                    }]).select();
+
+                    if (saleError || !saleData || saleData.length === 0) continue; 
+                    const saleId = saleData[0].id;
+
+                    await supabaseClient.from('sale_items').insert([{
+                        sale_id: saleId, shoe_id: v.zapato_id, size: v.talla,
+                        quantity: 1, unit_price: v.monto, unit_cost: v.costo
+                    }]);
+
+                    const { data: stockData } = await supabaseClient.from('shoe_stock').select('quantity').eq('id', v.stock_id).single();
+                    if (stockData) {
+                        await supabaseClient.from('shoe_stock').update({ quantity: stockData.quantity - 1 }).eq('id', v.stock_id);
+                    }
+                }
+                
+                // Vaciar la cola si todo sale bien
+                ventasOffline = [];
+                localStorage.removeItem('ventas_offline');
+                
+                // Animación temporal en el badge
+                const badge = document.getElementById('badge-conexion');
+                badge.innerText = "¡Sincronizado!";
+                badge.style.background = "#3B82F6"; // Azul
+                
+                setTimeout(() => {
+                    actualizarEstadoConexion(); // Volverá a decir Online verde
+                }, 4000);
+
+                await cargarDatosDesdeSupabase(); 
+                ocultarLoader();
+            } catch (err) {
+                ocultarLoader();
+                console.error(err);
+                alert("Hubo un problema al sincronizar. Se intentará más tarde.");
+            }
+        }
+        // ------------------------
 
         async function verificarClienteGeneral() {
             try {
+                if(!navigator.onLine) return; // Si no hay internet, saltamos la verificacion online
                 let { data, error } = await supabaseClient.from('clients').select('id').limit(1);
                 if (data && data.length > 0) {
                     clienteGeneralId = data[0].id;
@@ -758,7 +847,6 @@
             actualizarVisibilidadHistorial();
         }
 
-        /* ----- NUEVAS FUNCIONES DE TASA DE CAMBIO ----- */
         function abrirModalTasa() {
             document.getElementById('modal-tasa-cambio').style.display = 'flex';
         }
@@ -778,6 +866,10 @@
         }
 
         async function obtenerTasaCambioAPI() {
+            if (!navigator.onLine) {
+                alert("No hay internet para consultar la API. Usa la opción manual.");
+                return;
+            }
             mostrarLoader("Consultando API...");
             try {
                 const res = await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY_EXCHANGE}/pair/ARS/BOB`);
@@ -794,9 +886,9 @@
             }
             ocultarLoader();
         }
-        /* ---------------------------------------------- */
 
         window.onload = async function() {
+            actualizarEstadoConexion(); 
             await verificarClienteGeneral();
             if (!tiendaActiva) {
                 document.getElementById('modal-codigo-tienda').style.display = 'flex';
@@ -824,15 +916,34 @@
 
         async function cargarDatosDesdeSupabase() {
             try {
-                const { data: shoesData } = await supabaseClient.from('shoes').select('*, shoe_stock(id, size, quantity)');
+                if (!navigator.onLine) throw new Error("Estás sin conexión");
+
+                const { data: shoesData, error: fetchError } = await supabaseClient.from('shoes').select('*, shoe_stock(id, size, quantity)');
+                if (fetchError) throw fetchError;
+
                 productos = shoesData.map(shoe => ({
                     id: shoe.id, nombre: shoe.description, costo_base: shoe.cost, precio_base: shoe.selling_price,
                     foto: shoe.photo_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
                     tallas: shoe.shoe_stock.map(st => ({ stock_id: st.id, talla: st.size, cantidad: st.quantity, costo: shoe.cost, precio: shoe.selling_price }))
                 }));
+
+                localStorage.setItem('inventario_cache', JSON.stringify(productos));
+                
                 renderizarInventario(productos);
                 await actualizarUIFinanzasSupabase();
-            } catch (err) { console.error("Error DB:", err); }
+            } catch (err) { 
+                console.warn("Cargando desde el Caché Local. Razón: ", err.message);
+                const cache = localStorage.getItem('inventario_cache');
+                if (cache) {
+                    productos = JSON.parse(cache);
+                    renderizarInventario(productos);
+                    document.getElementById('estado-vacio').style.display = productos.length === 0 ? 'block' : 'none';
+                    await actualizarUIFinanzasSupabase(); // Renderizamos las finanzas cacheadas y offline
+                } else {
+                    document.getElementById('estado-vacio').innerHTML = '<p>No hay inventario guardado ni conexión a internet.</p>';
+                    document.getElementById('estado-vacio').style.display = 'block';
+                }
+            }
         }
 
         function renderizarInventario(lista = productos) {
@@ -907,7 +1018,6 @@
 
         async function ejecutarVenta() {
             if (!ventaPendiente) return;
-            if (!clienteGeneralId) await verificarClienteGeneral();
 
             let tiendaDestino = "";
             if (currentRole === 'admin') {
@@ -923,8 +1033,39 @@
 
             if (isNaN(montoIngresado) || montoIngresado <= 0) return alert("Ingresa un monto válido.");
 
-            mostrarLoader("Guardando Venta...");
             cerrarModalVenta();
+
+            // LOGICA OFFLINE: Si no hay internet, guardar en cola local y actualizar UI de inmediato
+            if (!navigator.onLine) {
+                let ventaLocal = {
+                    id: 'local_' + Date.now(),
+                    zapato_id: prod.id,
+                    nombre: prod.nombre,  // Guardamos info para dibujar el historial
+                    foto: prod.foto,
+                    talla: tallaObj.talla,
+                    tienda: tiendaDestino,
+                    moneda: moneda,
+                    monto: montoIngresado,
+                    costo: tallaObj.costo,
+                    stock_id: tallaObj.stock_id,
+                    fecha: new Date().toISOString()
+                };
+                
+                ventasOffline.push(ventaLocal);
+                localStorage.setItem('ventas_offline', JSON.stringify(ventasOffline));
+                
+                tallaObj.cantidad -= 1;
+                localStorage.setItem('inventario_cache', JSON.stringify(productos)); 
+                renderizarInventario(); 
+                actualizarEstadoConexion(); 
+                actualizarUIFinanzasSupabase(); // Dibujar historial offline de inmediato
+                
+                return;
+            }
+
+            // Flujo Normal Online
+            mostrarLoader("Guardando Venta...");
+            if (!clienteGeneralId) await verificarClienteGeneral();
 
             try {
                 const { data: saleData, error: saleError } = await supabaseClient.from('sales').insert([{ 
@@ -956,9 +1097,22 @@
 
         async function actualizarUIFinanzasSupabase() {
             try {
-                const { data: itemsData } = await supabaseClient.from('sale_items').select(`
-                    *, sales ( sale_date, store, currency, original_amount ), shoes ( description, photo_url )
-                `);
+                let itemsData = [];
+                
+                // Tratar de buscar las finanzas en Supabase (Online)
+                if (navigator.onLine) {
+                    const { data, error } = await supabaseClient.from('sale_items').select(`
+                        *, sales ( sale_date, store, currency, original_amount ), shoes ( description, photo_url )
+                    `);
+                    if (!error && data) {
+                        itemsData = data;
+                        localStorage.setItem('finanzas_cache', JSON.stringify(itemsData)); // Caché para cuando no haya internet
+                    }
+                } else {
+                    // Cargar historial del caché si no hay internet
+                    const cache = localStorage.getItem('finanzas_cache');
+                    if (cache) itemsData = JSON.parse(cache);
+                }
 
                 const hoyStr = new Date().toDateString();
                 dataTiendasGlobal = {
@@ -969,6 +1123,7 @@
                 let listaVentasT1 = '';
                 let listaVentasT2 = '';
 
+                // DIBUJAR VENTAS PREVIAS (Cacheadas o desde Internet)
                 itemsData.forEach(item => {
                     if (!item.sales) return;
                     const fecha = new Date(item.sales.sale_date);
@@ -1002,6 +1157,45 @@
                                     </div>
                                 </div>
                                 <button class="btn-revertir" onclick="revertirVentaSupabase('${item.id}', '${item.sale_id}', '${item.shoe_id}', ${item.size})">Revertir</button>
+                            </div>
+                        `;
+
+                        if (tienda === 'Tienda 1') listaVentasT1 += itemHTML;
+                        else if (tienda === 'Tienda 2') listaVentasT2 += itemHTML;
+                    }
+                });
+
+                // DIBUJAR VENTAS OFFLINE ALMACENADAS LOCALMENTE
+                ventasOffline.forEach(v => {
+                    const fecha = new Date(v.fecha);
+                    if (fecha.toDateString() === hoyStr) {
+                        let tienda = v.tienda;
+                        let moneda = v.moneda;
+                        let montoManejado = parseFloat(v.monto);
+                        let costoItem = v.costo;
+
+                        if(!dataTiendasGlobal[tienda]) dataTiendasGlobal[tienda] = { bob: 0, ars: 0, costoTotal: 0, pares: 0 };
+                        
+                        dataTiendasGlobal[tienda].pares += 1; 
+                        dataTiendasGlobal[tienda].costoTotal += costoItem;
+                        if (moneda === 'ARS') dataTiendasGlobal[tienda].ars += montoManejado;
+                        else dataTiendasGlobal[tienda].bob += montoManejado;
+
+                        // Estilo AMARILLO para identificar la venta local
+                        let itemHTML = `
+                            <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                                <div style="display:flex; gap:12px; align-items:center;">
+                                    <img src="${v.foto}" style="width:45px; height:45px; border-radius:10px; object-fit:cover; border:1px solid #FCD34D;">
+                                    <div>
+                                        <div style="font-size:14px; font-weight:800; color:#92400E;">${v.nombre} (T.${v.talla})</div>
+                                        <div style="font-size:12px; color:#B45309; display:flex; align-items:center; gap:4px;">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                            ${tienda} &bull; <strong>${moneda === 'ARS' ? '$' : 'Bs.'} ${montoManejado}</strong>
+                                            <span style="background:#F59E0B; color:white; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; margin-left:4px; text-transform:uppercase;">Almacenamiento Local</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn-revertir" style="background:#FEF3C7; color:#D97706; border-color:#FCD34D;" onclick="revertirVentaOffline('${v.id}')">Revertir</button>
                             </div>
                         `;
 
@@ -1046,7 +1240,9 @@
             document.getElementById(`res-t${numTienda}`).style.display = 'block';
         }
 
+        // Revertir Venta Normal (Supabase)
         async function revertirVentaSupabase(saleItemId, saleId, shoeId, size) {
+            if (!navigator.onLine) return alert("Debes tener internet para revertir una venta ya subida al servidor.");
             if (!confirm("¿Revertir esta venta?")) return;
             mostrarLoader("Revirtiendo...");
             try {
@@ -1060,8 +1256,40 @@
             } catch (e) { ocultarLoader(); alert("Error al revertir: " + e.message); }
         }
 
+        // Revertir Venta Offline (Solo almacenada localmente)
+        function revertirVentaOffline(idLocal) {
+            if (!confirm("¿Revertir esta venta local?")) return;
+            
+            let vIndex = ventasOffline.findIndex(v => v.id === idLocal);
+            if(vIndex > -1) {
+                let v = ventasOffline[vIndex];
+                
+                // Sumar de nuevo al inventario local
+                let prod = productos.find(p => p.id === v.zapato_id);
+                if(prod) {
+                    let t = prod.tallas.find(t => t.talla === v.talla);
+                    if(t) t.cantidad += 1;
+                }
+                localStorage.setItem('inventario_cache', JSON.stringify(productos));
+                renderizarInventario();
+                
+                // Eliminar de la cola
+                ventasOffline.splice(vIndex, 1);
+                localStorage.setItem('ventas_offline', JSON.stringify(ventasOffline));
+                
+                // Actualizar interfaz
+                actualizarUIFinanzasSupabase();
+                actualizarEstadoConexion();
+            }
+        }
+
         document.getElementById('form-producto').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            if (!navigator.onLine) {
+                return alert("Debes tener conexión a Internet para crear un producto nuevo con foto.");
+            }
+
             if(tallasConfiguradas.length === 0) return alert("Configura al menos una talla.");
             if(!archivoFotoSeleccionado) return alert("Selecciona una foto.");
 
@@ -1088,7 +1316,6 @@
                 tallasConfiguradas = []; 
                 document.getElementById('texto-tallas-seleccionadas').innerText = "Ninguna talla configurada.";
                 
-                // NUEVO: Limpiamos los inputs del modal de tallas
                 for(let i = 35; i <= 45; i++) {
                     document.getElementById(`cant-${i}`).value = "0";
                     document.getElementById(`costo-${i}`).value = "0";
@@ -1116,6 +1343,7 @@
         }
 
         async function guardarCambiosProducto() {
+            if (!navigator.onLine) return alert("Debes tener conexión a Internet para editar el stock.");
             if (productoEnEdicionIndex === null) return; let prod = productos[productoEnEdicionIndex]; mostrarLoader("Actualizando...");
             try {
                 await supabaseClient.from('shoes').update({ description: document.getElementById('edit-nombre-zapato').value }).eq('id', prod.id);
@@ -1130,6 +1358,7 @@
         }
 
         async function eliminarModeloZapato() {
+            if (!navigator.onLine) return alert("Debes tener conexión a Internet para eliminar un producto.");
             let prod = productos[productoEnEdicionIndex]; if (!confirm(`¿Eliminar "${prod.nombre}"?`)) return; mostrarLoader("Verificando...");
             try {
                 const { data: v } = await supabaseClient.from('sale_items').select('id').eq('shoe_id', prod.id);
