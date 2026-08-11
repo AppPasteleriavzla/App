@@ -2,14 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Mobi - Pasajero (Con Rutas Reales)</title>
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Migo - App de Transporte Premium</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
   <style>
     :root {
-      --primary: #FFD700;
+      --primary: #E3000F;
+      --primary-active: #B3000B;
       --bg-light: #F9F9F9;
       --white: #FFFFFF;
       --text-dark: #1C1C1C;
@@ -17,24 +16,29 @@
       --border-color: #EEEEEE;
       --shadow-sm: 0 2px 10px rgba(0,0,0,0.05);
       --shadow-md: 0 -4px 20px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+      --nav-height: 70px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     body {
       background: #E5E5E5;
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      min-height: 100dvh;
       color: var(--text-dark);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .app-container {
       width: 100%;
       max-width: 420px;
-      height: 100vh;
+      height: 100dvh;
       max-height: 900px;
       background: var(--bg-light);
       position: relative;
@@ -44,386 +48,1249 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
     }
 
-    /* HEADER */
+    .hidden { display: none !important; }
+
+    /* HEADER HOME */
     .header {
-      position: absolute;
-      top: 0; left: 0; right: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 1.2rem;
-      z-index: 1000;
-      pointer-events: none;
+      padding: 1.2rem 1.2rem;
+      background: var(--bg-light);
+      z-index: 100;
+      flex-shrink: 0;
     }
-    .header .logo { height: 35px; pointer-events: auto; }
+    .header .logo {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+    }
     .btn-rewards {
-      background: var(--white); border: 1px solid var(--border-color);
-      padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;
-      font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;
-      box-shadow: var(--shadow-sm); pointer-events: auto;
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
     }
-    .btn-rewards svg { width: 16px; height: 16px; fill: var(--primary); }
 
-    /* MAPA */
-    .map-section { flex: 1; position: relative; min-height: 35vh; }
-    #map { width: 100%; height: 100%; z-index: 1; }
-    
+    /* VISTAS PRINCIPALES */
+    .view {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 10px);
+    }
+    .view.home-view {
+      padding: 0 1.2rem calc(var(--nav-height) + var(--safe-bottom) + 20px) 1.2rem;
+      gap: 1.5rem;
+    }
+    .view.historial-view,
+    .view.perfil-view {
+      padding: 1.2rem 1.2rem calc(var(--nav-height) + var(--safe-bottom) + 20px) 1.2rem;
+      background: var(--white);
+    }
+
+    .promo-banner {
+      width: 100%;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-dark);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .service-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.8rem;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.2s;
+    }
+    .service-card:active {
+      transform: scale(0.96);
+    }
+    .service-img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+    }
+    .service-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* MAP VIEW */
+    .map-view-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      height: 100%;
+    }
+    .back-btn {
+      position: absolute;
+      top: 1.2rem;
+      left: 1rem;
+      background: var(--white);
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      cursor: pointer;
+    }
+    .map-section {
+      flex: 1;
+      position: relative;
+      min-height: 35vh;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
     .locate-btn {
-      position: absolute; bottom: 20px; right: 15px; width: 45px; height: 45px;
-      background: var(--white); border-radius: 50%; display: flex;
-      justify-content: center; align-items: center; box-shadow: var(--shadow-sm);
-      border: none; z-index: 999; cursor: pointer; transition: 0.2s;
+      position: absolute;
+      bottom: 15px;
+      right: 12px;
+      width: 42px;
+      height: 42px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      border: none;
+      z-index: 999;
+      cursor: pointer;
     }
-    .locate-btn svg { width: 20px; height: 20px; fill: var(--text-dark); }
-
-    /* PIN DE INICIO Y DESTINO */
+    .gps-status {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .gps-status.show {
+      display: flex;
+    }
     .custom-pin {
-      background: var(--text-dark); width: 20px; height: 20px;
-      border-radius: 50%; display: flex; justify-content: center;
-      align-items: center; border: 3px solid var(--white);
+      background: var(--text-dark);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 3px solid var(--white);
       box-shadow: 0 3px 6px rgba(0,0,0,0.3);
     }
-    .custom-pin::after {
-      content: ''; width: 6px; height: 6px;
-      background: var(--primary); border-radius: 50%;
+    .car-marker {
+      width: 36px;
+      height: 36px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      border: 2px solid var(--primary);
     }
-
-    /* PIN CENTRAL FIJO PARA SELECCIONAR DESTINO */
+    
+    /* ANIMACIÓN DEL PIN DE DESTINO Y TOOLTIP */
     .center-fixed-pin {
       position: absolute;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -100%);
       z-index: 1000;
       pointer-events: none;
-      display: none; 
+      display: none;
       flex-direction: column;
       align-items: center;
     }
+    
+    .pin-wrapper {
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
     .pin-head {
-      width: 30px; height: 30px; background: var(--text-dark);
-      border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-      display: flex; justify-content: center; align-items: center;
+      width: 28px;
+      height: 28px;
+      background: var(--text-dark);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    .pin-head::after {
-      content: ''; width: 10px; height: 10px;
-      background: var(--primary); border-radius: 50%;
-    }
-    .pin-shadow {
-      width: 12px; height: 4px; background: rgba(0,0,0,0.3);
-      border-radius: 50%; margin-top: 5px;
-    }
-    .center-fixed-pin.moving .pin-head { transform: translateY(-10px) rotate(-45deg); transition: 0.2s; }
-    .center-fixed-pin.moving .pin-shadow { transform: scale(0.5); transition: 0.2s; }
-
-    /* BOTÓN FLOTANTE CONFIRMAR DESTINO */
-    .btn-confirm-map {
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: var(--text-dark); color: var(--primary);
-      border: none; padding: 0.8rem 1.5rem; border-radius: 20px;
-      font-weight: 700; font-size: 1rem; box-shadow: var(--shadow-md);
-      z-index: 999; display: none; cursor: pointer; white-space: nowrap;
-    }
-
-    /* BOTTOM SHEET */
-    .bottom-sheet {
-      background: var(--bg-light); border-top-left-radius: 25px;
-      border-top-right-radius: 25px; padding: 1.2rem 1.2rem 85px 1.2rem;
-      z-index: 1000; box-shadow: var(--shadow-md); display: flex;
-      flex-direction: column; gap: 0.8rem; position: relative;
-      margin-top: -20px; overflow: hidden;
-    }
-
-    .location-card { background: var(--white); border-radius: 16px; padding: 0.3rem 1rem; box-shadow: var(--shadow-sm); }
-    .input-row { display: flex; align-items: center; padding: 0.6rem 0; gap: 1rem; cursor: pointer; }
-    .input-row:first-child { border-bottom: 1px solid var(--border-color); }
     
-    .dot-icon { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .dot-yellow { background: var(--primary); }
-    .dot-black { background: var(--text-dark); }
-
-    .address-info { flex: 1; overflow: hidden; }
-    .address-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .address-sub { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* Opciones Viaje */
-    .ride-options { display: flex; flex-direction: column; gap: 0.4rem; }
-    .ride-card {
-      background: var(--white); border: 2px solid transparent;
-      border-radius: 14px; padding: 0.6rem 0.8rem; display: flex;
-      align-items: center; gap: 1rem; cursor: pointer; transition: 0.2s;
+    .pin-shadow {
+      width: 10px;
+      height: 3px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 50%;
+      margin-top: 4px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    .ride-card.active { background: #FFFDF0; border-color: var(--primary); }
-    .car-img-placeholder { width: 55px; height: 35px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+    /* Animación al mover el mapa (pin salta) */
+    .center-fixed-pin.moving .pin-wrapper {
+      transform: translateY(-12px);
+    }
+    .center-fixed-pin.moving .pin-shadow {
+      transform: scale(0.6);
+      opacity: 0.4;
+    }
+
+    /* Tooltip animado con precio y dirección */
+    .pin-tooltip {
+      position: absolute;
+      bottom: 100%;
+      margin-bottom: 22px;
+      background: var(--white);
+      color: var(--text-dark);
+      padding: 0.6rem 1rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      opacity: 0;
+      transform: translateX(-50%) translateY(20px) scale(0.95);
+      left: 50%;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    .pin-tooltip.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    
+    .pin-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 7px;
+      border-style: solid;
+      border-color: var(--white) transparent transparent transparent;
+    }
+    
+    .pin-tooltip-address {
+      font-weight: 700;
+      font-size: 0.85rem;
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    
+    .pin-tooltip-price {
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .btn-confirm-map {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-dark);
+      color: var(--white);
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: var(--shadow-md);
+      z-index: 999;
+      display: none;
+      cursor: pointer;
+      white-space: nowrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* BOTTOM SHEET Y TARJETAS */
+    .bottom-sheet {
+      background: var(--bg-light);
+      border-top-left-radius: 25px;
+      border-top-right-radius: 25px;
+      padding: 1rem 1.2rem calc(var(--nav-height) + var(--safe-bottom) + 10px) 1.2rem;
+      z-index: 1000;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      position: relative;
+      margin-top: -20px;
+    }
+    .location-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 0.3rem 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0;
+      gap: 0.8rem;
+      cursor: pointer;
+    }
+    .input-row:first-child {
+      border-bottom: 1px solid var(--border-color);
+    }
+    .dot-icon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-primary { background: var(--primary); }
+    .dot-black { background: var(--text-dark); }
+    .address-info {
+      flex: 1;
+      overflow: hidden;
+    }
+    .address-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .address-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ride-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .ride-card {
+      background: var(--white);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 0.5rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      cursor: pointer;
+    }
+    .ride-card.active {
+      background: #FFF0F0;
+      border-color: var(--primary);
+    }
     .ride-details { flex: 1; }
     .ride-title { font-weight: 700; font-size: 1rem; }
     .ride-desc { font-size: 0.75rem; color: var(--text-muted); }
-    .ride-price { font-weight: 800; font-size: 1rem; text-align: right;}
-    
-    /* Botón Pedir */
+    .ride-price { font-weight: 800; font-size: 1rem; text-align: right; }
     .btn-request {
-      background: var(--primary); color: var(--text-dark); border: none;
-      width: 100%; padding: 0.85rem; border-radius: 14px; font-size: 1.1rem;
-      font-weight: 700; cursor: pointer; display: flex; justify-content: center;
-      align-items: center; gap: 0.5rem; transition: 0.1s; margin-top: 0.2rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.4rem;
+      transition: 0.2s;
+      margin-top: 0.2rem;
     }
-    .btn-request:active { transform: scale(0.98); }
-    .hidden { display: none !important; }
+    .btn-request:active {
+      transform: scale(0.98);
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .driver-panel {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .driver-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+    }
+    .driver-details { flex: 1; }
+    .driver-name {
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .driver-car { font-size: 0.8rem; color: var(--text-muted); }
+    .driver-plate {
+      display: inline-block;
+      background: #EEEEEE;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.75rem;
+      margin-top: 4px;
+      color: var(--text-dark);
+      border: 1px solid #CCC;
+    }
 
-    /* NAVBAR INFERIOR */
+    /* MODALES */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-box {
+      background: var(--white);
+      width: 85%;
+      border-radius: 20px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px);
+      transition: 0.3s;
+    }
+    .overlay.active .modal-box {
+      transform: translateY(0);
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .modal-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .payment-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .btn-pay {
+      background: var(--bg-light);
+      border: 1px solid var(--border-color);
+      padding: 0.8rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .stars-container {
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+    .star-icon {
+      width: 32px;
+      height: 32px;
+      fill: #DDDDDD;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .star-icon.active {
+      fill: #F4B400;
+      transform: scale(1.1);
+    }
+
+    /* MENÚ INFERIOR */
     .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0; background: var(--white);
-      display: flex; justify-content: space-between; padding: 0.6rem 1.5rem 1.2rem 1.5rem;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.03); z-index: 1001; border-top: 1px solid var(--border-color);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.5rem 0.5rem calc(0.8rem + var(--safe-bottom)) 0.5rem;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+      z-index: 1001;
+      border-top: 1px solid var(--border-color);
+      height: calc(var(--nav-height) + var(--safe-bottom));
     }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; color: var(--text-muted); font-size: 0.7rem; text-decoration: none; }
-    .nav-item svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; }
-    .nav-item.active { color: var(--text-dark); font-weight: 600; }
-    .nav-item.active svg { stroke: var(--primary); fill: var(--primary); }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-decoration: none;
+      cursor: pointer;
+      padding: 0.2rem;
+    }
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+    .nav-item.active {
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+    .nav-item.active svg {
+      stroke: var(--primary);
+      fill: var(--primary);
+    }
 
+    /* HISTORIAL & PERFIL */
+    .history-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .history-icon {
+      width: 38px;
+      height: 38px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+    }
+    .perfil-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .perfil-avatar {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 0.5rem;
+    }
+    .perfil-input {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      margin-bottom: 0.8rem;
+    }
+    .text-muted {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 1rem;
+    }
+    .ruta-historial {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
   </style>
 </head>
 <body>
-
   <div class="app-container">
-    
-    <div class="header">
-      <img src="https://i.ibb.co/SXFXKTsk/20260803-012907-0000.png" alt="Mobi" class="logo">
-      <button class="btn-rewards"><svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.5-.5-.5A2.996 2.996 0 0 0 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 9.06v.94h2V9.06L15.38 12 17 10.83 14.92 8H20v6z"/></svg> Gana viajes</button>
-    </div>
-
-    <div class="map-section">
-      <div id="map"></div>
-      
-      <!-- PIN CENTRAL FLOTANTE -->
-      <div id="center-pin" class="center-fixed-pin">
-        <div class="pin-head"></div>
-        <div class="pin-shadow"></div>
-      </div>
-
-      <button class="btn-confirm-map" id="btn-confirm-dest">📍 Agregar ubicación</button>
-      <button class="locate-btn" id="btn-locate"><svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg></button>
-    </div>
-
-    <div class="bottom-sheet">
-      <div class="location-card">
-        <div class="input-row" id="pickup-row">
-          <div class="dot-icon dot-yellow"></div>
-          <div class="address-info">
-            <div class="address-title" id="display-pickup">Mi ubicación actual</div>
-            <div class="address-sub" id="display-pickup-sub">Buscando GPS...</div>
-          </div>
-        </div>
-        <div class="input-row" id="dropoff-row">
-          <div class="dot-icon dot-black"></div>
-          <div class="address-info">
-            <div class="address-title" id="display-dropoff">¿A dónde vas?</div>
-            <div class="address-sub" id="display-dropoff-sub">Toca para buscar destino en el mapa</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ride-options" id="ride-options-container">
-        <div class="ride-card active" data-type="comfort" data-price="12.50">
-          <div class="car-img-placeholder" style="background-image: url('');"></div>
-          <div class="ride-details">
-            <div class="ride-title">Mobi Comfort</div>
-            <div class="ride-desc">Viajes cómodos y seguros</div>
-          </div>
-          <div class="ride-price">S/ 12.50</div>
-        </div>
-        <div class="ride-card" data-type="plus" data-price="18.00">
-          <div class="car-img-placeholder" style="background-image: url('');"></div>
-          <div class="ride-details">
-            <div class="ride-title">Mobi Plus</div>
-            <div class="ride-desc">Autos más espaciosos</div>
-          </div>
-          <div class="ride-price">S/ 18.00</div>
-        </div>
-      </div>
-
-      <button class="btn-request" id="btn-request-ride">
-        Pedir un viaje 
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    <!-- HEADER PRINCIPAL -->
+    <div class="header" id="main-header">
+      <img src="https://i.ibb.co/zHsTyKLN/2-20260810-185725-0001.png" alt="Migo" class="logo">
+      <button class="btn-rewards">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.5-.5-.5A2.996 2.996 0 0 0 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 9.06v.94h2V9.06L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
+        Gana viajes
       </button>
     </div>
 
+    <!-- VISTA INICIO -->
+    <div class="view home-view" id="home-view">
+      <img src="https://i.ibb.co/27HQ4kV8/20260810-183533-0000.png" alt="Promo" class="promo-banner">
+      <div>
+        <h2 class="section-title">¿Qué quieres hacer hoy?</h2>
+        <div class="services-grid">
+          <div class="service-card" id="btn-viaje-rapido">
+            <img src="https://i.ibb.co/HTqVp0jf/20260810-191228-0000.png" alt="Auto Viaje Rápido" class="service-img">
+            <span class="service-title">Viaje rápido</span>
+          </div>
+          <div class="service-card">
+            <img src="https://i.ibb.co/TS2Cv85/image.png" alt="Envío y Paquetería" class="service-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/655/655680.png'">
+            <span class="service-title">Envío y paquetería</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA HISTORIAL -->
+    <div class="view historial-view hidden" id="historial-view">
+      <h2 class="section-title">Historial de rutas</h2>
+      <div id="history-list"></div>
+      <p id="no-history" class="text-muted" style="display:none;">No hay viajes realizados aún.</p>
+    </div>
+
+    <!-- VISTA PERFIL -->
+    <div class="view perfil-view hidden" id="perfil-view">
+      <div class="perfil-header">
+        <img id="perfil-avatar-img" src="https://i.pravatar.cc/150?img=12" alt="Avatar" class="perfil-avatar">
+        <h3 id="perfil-nombre-display">María López</h3>
+      </div>
+      <label style="font-weight:600;">Nombre</label>
+      <input type="text" id="perfil-nombre-input" class="perfil-input" placeholder="Tu nombre">
+      <label style="font-weight:600;">Correo electrónico</label>
+      <input type="email" id="perfil-email-input" class="perfil-input" placeholder="correo@ejemplo.com">
+      <button class="btn-request" id="btn-guardar-perfil">Guardar cambios</button>
+    </div>
+
+    <!-- MAPA (VIAJES) -->
+    <div class="map-view-container hidden" id="map-view">
+      <button class="back-btn" id="btn-back-from-map">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </button>
+      
+      <div class="map-section">
+        <div id="map"></div>
+        <div class="gps-status" id="gps-status"></div>
+        
+        <!-- PIN CENTRAL CON TOOLTIP -->
+        <div id="center-pin" class="center-fixed-pin">
+          <!-- Tooltip que aparece al soltar el mapa -->
+          <div class="pin-tooltip" id="pin-tooltip">
+            <div class="pin-tooltip-address" id="pin-tooltip-address">Calculando...</div>
+            <div class="pin-tooltip-price" id="pin-tooltip-price">S/ --</div>
+          </div>
+          
+          <div class="pin-wrapper">
+            <div class="pin-head"></div>
+          </div>
+          <div class="pin-shadow"></div>
+        </div>
+
+        <button class="btn-confirm-map" id="btn-confirm-dest">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          Confirmar destino
+        </button>
+        <button class="locate-btn" id="btn-locate">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        </button>
+      </div>
+
+      <div class="bottom-sheet" id="main-bottom-sheet">
+        <div class="location-card" id="location-picker-ui">
+          <div class="input-row" id="pickup-row">
+            <div class="dot-icon dot-primary"></div>
+            <div class="address-info">
+              <div class="address-title" id="display-pickup">Mi ubicación actual</div>
+              <div class="address-sub" id="display-pickup-sub">Obteniendo GPS...</div>
+            </div>
+          </div>
+          <div class="input-row" id="dropoff-row">
+            <div class="dot-icon dot-black"></div>
+            <div class="address-info">
+              <div class="address-title" id="display-dropoff">¿A dónde vas?</div>
+              <div class="address-sub" id="display-dropoff-sub">Toca para buscar destino en el mapa</div>
+            </div>
+          </div>
+        </div>
+        <div class="ride-options" id="ride-options-container">
+          <div class="ride-card active">
+            <img src="https://i.ibb.co/HTqVp0jf/20260810-191228-0000.png" style="width:50px; object-fit:contain;">
+            <div class="ride-details">
+              <div class="ride-title">Migo Comfort</div>
+              <div class="ride-desc">Viajes cómodos y seguros</div>
+            </div>
+            <div class="ride-price" id="final-ride-price">S/ --</div>
+          </div>
+        </div>
+        <div class="driver-panel hidden" id="driver-panel">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Chofer" class="driver-avatar">
+          <div class="driver-details">
+            <div class="driver-name">Carlos <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="#F4B400"/></svg> 4.9</div>
+            <div class="driver-car">Toyota Yaris Blanco</div>
+            <div class="driver-plate">ABC-123</div>
+          </div>
+        </div>
+        <button class="btn-request" id="btn-request-ride">
+          <span id="btn-text">Pedir viaje</span>
+          <svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODALES -->
+    <div class="overlay" id="search-modal">
+      <div class="modal-box">
+        <div style="display:flex; justify-content:center; margin-bottom:15px;"><div class="spinner" style="border-color:#eee; border-top-color:var(--primary); width:40px; height:40px; border-width:4px;"></div></div>
+        <div class="modal-title">Buscando conductor cercano...</div>
+        <div class="modal-desc">Conectando con la mejor opción para ti.</div>
+      </div>
+    </div>
+    <div class="overlay" id="payment-modal">
+      <div class="modal-box">
+        <div class="modal-title">¡Has llegado a tu destino!</div>
+        <div class="modal-desc">Selecciona tu método de pago</div>
+        <div class="payment-options">
+          <button class="btn-pay" onclick="finishPayment()">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg> 
+            Pago con QR
+          </button>
+          <button class="btn-pay" onclick="finishPayment()">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5 8h2v8H5zm7 0H9c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h3c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 6h-1v-4h1v4zm7-6h-3c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h3c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 6h-1v-4h1v4z"/><path d="M2 4v16h20V4H2zm18 14H4V6h16v12z"/></svg>
+            Efectivo
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="overlay" id="rating-modal">
+      <div class="modal-box">
+        <div class="modal-title">¿Cómo estuvo el viaje?</div>
+        <div class="modal-desc">Califica a Carlos</div>
+        <div class="stars-container">
+          <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          <svg class="star-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </div>
+        <button class="btn-request" onclick="resetDemo()">Enviar calificación</button>
+      </div>
+    </div>
+
+    <!-- MENÚ INFERIOR -->
     <nav class="bottom-nav">
-      <a href="#" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Inicio</a>
-      <a href="#" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>Historial</a>
-      <a href="#" class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>Billetera</a>
+      <div class="nav-item active" data-view="home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Inicio
+      </div>
+      <div class="nav-item" data-view="viajes">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Viajes
+      </div>
+      <div class="nav-item" data-view="historial">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Historial
+      </div>
+      <div class="nav-item" data-view="perfil">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Perfil
+      </div>
     </nav>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
   <script>
-    let map, passengerMarker, destinationMarker, routeLine;
-    let currentLat = -12.0863, currentLng = -77.0343; // Coordenadas por defecto
-    let destLat = null, destLng = null;
-    let isSelectingDestination = false;
+    (function() {
+      // ESTADO GLOBAL
+      let map, passengerMarker, destinationMarker, animatedRouteLayer, carMarker;
+      let currentLat = -17.7833, currentLng = -63.1821;
+      let destLat = null, destLng = null;
+      let driverLat = null, driverLng = null;
+      let isSelectingDestination = false;
+      let mapInitialized = false;
+      let fullRouteCoords = [];
+      let watchId = null;
+      let locationReady = false;
+      let moveEndCount = 0; // Para gestionar promesas del mapa
+      let currentCalculatedPrice = 'S/ 0.00';
 
-    const centerPin = document.getElementById('center-pin');
-    const btnConfirmMap = document.getElementById('btn-confirm-dest');
-    const dropoffRow = document.getElementById('dropoff-row');
-    const rideOptionsContainer = document.getElementById('ride-options-container');
-    const btnRequestRide = document.getElementById('btn-request-ride');
-    const locateBtn = document.getElementById('btn-locate');
-    
-    // 1. Inicializar Mapa
-    function initMap(lat, lng) {
-      if(map) return;
-      map = L.map('map', { zoomControl: false, attributionControl: false }).setView([lat, lng], 16);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+      // Elementos UI
+      const homeView = document.getElementById('home-view');
+      const historialView = document.getElementById('historial-view');
+      const perfilView = document.getElementById('perfil-view');
+      const mapView = document.getElementById('map-view');
+      const mainHeader = document.getElementById('main-header');
+      const centerPin = document.getElementById('center-pin');
+      const pinTooltip = document.getElementById('pin-tooltip');
+      const pinTooltipAddress = document.getElementById('pin-tooltip-address');
+      const pinTooltipPrice = document.getElementById('pin-tooltip-price');
+      const btnConfirmMap = document.getElementById('btn-confirm-dest');
+      const dropoffRow = document.getElementById('dropoff-row');
+      const rideOptionsContainer = document.getElementById('ride-options-container');
+      const btnRequestRide = document.getElementById('btn-request-ride');
+      const locateBtn = document.getElementById('btn-locate');
+      const driverPanel = document.getElementById('driver-panel');
+      const locationPickerUi = document.getElementById('location-picker-ui');
+      const gpsStatus = document.getElementById('gps-status');
+      const navItems = document.querySelectorAll('.nav-item');
+      const finalRidePriceEl = document.getElementById('final-ride-price');
 
-      const pinHtml = `<div class="custom-pin"></div>`;
-      passengerMarker = L.marker([lat, lng], { 
-        icon: L.divIcon({ className: '', html: pinHtml, iconSize: [20, 20], iconAnchor: [10, 10] }) 
-      }).addTo(map);
-
-      map.on('movestart', () => {
-        if(isSelectingDestination) centerPin.classList.add('moving');
-      });
-      map.on('moveend', async () => {
-        if(isSelectingDestination) {
-          centerPin.classList.remove('moving');
-          const center = map.getCenter();
-          const address = await getAddressFromCoords(center.lat, center.lng);
-          document.getElementById('display-dropoff').textContent = address.main;
-          document.getElementById('display-dropoff-sub').textContent = address.sub;
-        }
-      });
-    }
-
-    // 2. Geocoding Inverso (Para texto de dirección)
-    async function getAddressFromCoords(lat, lng) {
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-        const data = await res.json();
-        const parts = data.display_name.split(',');
-        return { main: parts[0] || 'Ubicación seleccionada', sub: (parts[1] ? parts[1].trim() : 'Ciudad') };
-      } catch(e) {
-        return { main: 'Ubicación seleccionada', sub: 'Lat: ' + lat.toFixed(4) };
-      }
-    }
-
-    // 3. NUEVO: Función para trazar la ruta real por calles (API OSRM)
-    async function drawRealRoute(lat1, lng1, lat2, lng2) {
-      try {
-        // OSRM requiere las coordenadas en formato longitud,latitud
-        const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?geometries=geojson&overview=full`;
+      // NAVEGACIÓN
+      function switchView(viewName) {
+        homeView.classList.add('hidden');
+        historialView.classList.add('hidden');
+        perfilView.classList.add('hidden');
+        mapView.classList.add('hidden');
+        mainHeader.classList.add('hidden');
         
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.routes && data.routes.length > 0) {
-          const routeGeoJSON = data.routes[0].geometry;
-
-          // Dibujar la ruta usando GeoJSON devuelto por la API
-          routeLine = L.geoJSON(routeGeoJSON, {
-            style: {
-              color: '#1C1C1C', // Color de la línea de la ruta
-              weight: 5,        // Grosor
-              opacity: 0.8
-            }
-          }).addTo(map);
-
-          // Ajustar la cámara del mapa para que se vea toda la ruta
-          map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+        if (viewName === 'home') {
+          homeView.classList.remove('hidden');
+          mainHeader.classList.remove('hidden');
+          stopWatchingLocation();
+        } else if (viewName === 'viajes') {
+          mapView.classList.remove('hidden');
+          if (mapInitialized) { map.invalidateSize(); requestLocation(); }
+        } else if (viewName === 'historial') {
+          historialView.classList.remove('hidden');
+          mainHeader.classList.remove('hidden');
+          renderHistory();
+          stopWatchingLocation();
+        } else if (viewName === 'perfil') {
+          perfilView.classList.remove('hidden');
+          mainHeader.classList.remove('hidden');
+          loadProfile();
+          stopWatchingLocation();
         }
-      } catch (e) {
-        console.error("Error obteniendo la ruta por calles:", e);
-        // Fallback: Si falla la API (sin internet o límite alcanzado), dibuja la línea recta
-        routeLine = L.polyline([[lat1, lng1], [lat2, lng2]], { color: '#1C1C1C', weight: 4, dashArray: '8, 8' }).addTo(map);
-        map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+        navItems.forEach(n => n.classList.remove('active'));
+        document.querySelector(`.nav-item[data-view="${viewName}"]`).classList.add('active');
       }
-    }
 
-    // 4. Activar Modo "Seleccionar Destino"
-    dropoffRow.addEventListener('click', () => {
-      isSelectingDestination = true;
-      rideOptionsContainer.classList.add('hidden');
-      btnRequestRide.classList.add('hidden');
-      locateBtn.style.bottom = '80px';
-      
-      centerPin.style.display = 'flex';
-      btnConfirmMap.style.display = 'block';
-
-      document.getElementById('display-dropoff').textContent = 'Mueve el mapa...';
-      document.getElementById('display-dropoff-sub').textContent = 'Apunta donde quieres ir';
-
-      if(destinationMarker) map.removeLayer(destinationMarker);
-      if(routeLine) map.removeLayer(routeLine);
-    });
-
-    // 5. Confirmar Destino y Generar Ruta
-    btnConfirmMap.addEventListener('click', async () => {
-      isSelectingDestination = false;
-      const center = map.getCenter();
-      destLat = center.lat;
-      destLng = center.lng;
-
-      // Volver UI a la normalidad
-      centerPin.style.display = 'none';
-      btnConfirmMap.style.display = 'none';
-      rideOptionsContainer.classList.remove('hidden');
-      btnRequestRide.classList.remove('hidden');
-      locateBtn.style.bottom = '20px';
-
-      // Dibujar marcador de destino
-      const destHtml = `<div class="custom-pin" style="background: #1C1C1C; border-color: #FFD700;"></div>`;
-      destinationMarker = L.marker([destLat, destLng], { 
-        icon: L.divIcon({ className: '', html: destHtml, iconSize: [20, 20], iconAnchor: [10, 10] }) 
-      }).addTo(map);
-
-      // Feedback visual mientras carga la ruta
-      const btnOriginalHtml = btnRequestRide.innerHTML;
-      btnRequestRide.innerHTML = 'Calculando ruta... ⏳';
-      btnRequestRide.style.background = '#e5c100';
-
-      // Ejecutar la función de ruta real
-      await drawRealRoute(currentLat, currentLng, destLat, destLng);
-
-      // Restaurar el botón
-      btnRequestRide.innerHTML = btnOriginalHtml;
-      btnRequestRide.style.background = 'var(--primary)';
-    });
-
-    // Selección de Vehículo
-    document.querySelectorAll('.ride-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.ride-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
+      navItems.forEach(item => {
+        item.addEventListener('click', (e) => switchView(item.dataset.view));
       });
-    });
 
-    // Cargar GPS
-    function requestLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            currentLat = pos.coords.latitude;
-            currentLng = pos.coords.longitude;
-            
-            const address = await getAddressFromCoords(currentLat, currentLng);
-            document.getElementById('display-pickup').textContent = address.main;
-            document.getElementById('display-pickup-sub').textContent = address.sub;
+      document.getElementById('btn-viaje-rapido').addEventListener('click', () => switchView('viajes'));
+      document.getElementById('btn-back-from-map').addEventListener('click', () => switchView('home'));
 
-            if (!map) initMap(currentLat, currentLng);
-            else { map.flyTo([currentLat, currentLng], 16); passengerMarker.setLatLng([currentLat, currentLng]); }
-          },
-          (err) => {
-            if (!map) initMap(currentLat, currentLng);
-          }, { enableHighAccuracy: true }
-        );
-      } else {
-        if (!map) initMap(currentLat, currentLng);
+      // GEOLOCALIZACIÓN
+      function showGpsStatus(text, type = 'pin') {
+        const svgPin = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>';
+        const svgError = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
+        gpsStatus.innerHTML = `${type === 'error' ? svgError : svgPin} <span>${text}</span>`;
+        gpsStatus.classList.add('show');
       }
-    }
+      function hideGpsStatus() {
+        gpsStatus.classList.remove('show');
+      }
 
-    locateBtn.addEventListener('click', requestLocation);
-    window.onload = requestLocation;
+      function requestLocation() {
+        showGpsStatus('Buscando ubicación precisa...', 'pin');
+        document.getElementById('display-pickup-sub').textContent = 'Buscando GPS...';
+        locationReady = false;
+        if (navigator.geolocation) {
+          if (watchId) navigator.geolocation.clearWatch(watchId);
+          watchId = navigator.geolocation.watchPosition(
+            (pos) => {
+              currentLat = pos.coords.latitude;
+              currentLng = pos.coords.longitude;
+              locationReady = true;
+              hideGpsStatus();
+              document.getElementById('display-pickup-sub').textContent = 'Ubicación actual';
+              if (!map) initMap(currentLat, currentLng);
+              else {
+                map.setView([currentLat, currentLng], 15);
+                passengerMarker.setLatLng([currentLat, currentLng]);
+              }
+              if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+            },
+            (err) => {
+              showGpsStatus('Error al obtener GPS', 'error');
+              document.getElementById('display-pickup-sub').textContent = 'No se pudo obtener ubicación';
+              if (!map) initMap(currentLat, currentLng);
+            },
+            { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+          );
+        } else {
+          showGpsStatus('Geolocalización no soportada', 'error');
+          if (!map) initMap(currentLat, currentLng);
+        }
+      }
 
+      function stopWatchingLocation() {
+        if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+      }
+
+      document.getElementById('btn-locate').addEventListener('click', () => {
+        if (map && locationReady) {
+          map.setView([currentLat, currentLng], 16);
+        } else {
+          requestLocation();
+        }
+      });
+
+      // MAPA Y EVENTOS
+      function initMap(lat, lng) {
+        if (map) return;
+        map = L.map('map', { zoomControl: false, attributionControl: false }).setView([lat, lng], 15);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        passengerMarker = L.marker([lat, lng], {
+          icon: L.divIcon({ className: '', html: '<div class="custom-pin"></div>', iconSize: [20, 20], iconAnchor: [10, 10] })
+        }).addTo(map);
+        
+        // INTERACCIÓN: Cuando empieza a moverse el mapa
+        map.on('movestart', () => { 
+          if (isSelectingDestination) {
+            centerPin.classList.add('moving');
+            pinTooltip.classList.remove('show');
+          } 
+        });
+        
+        // INTERACCIÓN: Cuando el mapa se detiene
+        map.on('moveend', async () => { 
+          if (isSelectingDestination) {
+            centerPin.classList.remove('moving');
+            moveEndCount++;
+            const currentCallId = moveEndCount;
+            
+            // Estado de carga en el tooltip
+            pinTooltipAddress.textContent = 'Calculando...';
+            pinTooltipPrice.textContent = 'S/ --';
+            pinTooltip.classList.add('show');
+            
+            const center = map.getCenter();
+            const address = await obtenerDireccion(center.lat, center.lng);
+            
+            // Verificamos que sea el último movimiento (evitar solapamiento de peticiones)
+            if (currentCallId === moveEndCount) {
+              const distanceInMeters = map.distance([currentLat, currentLng], [center.lat, center.lng]);
+              
+              // Cálculo de tarifa dinámica (Base 5.00 + 2.50 por km)
+              const basePrice = 5.00;
+              const pricePerKm = 2.50;
+              const estimated = basePrice + (distanceInMeters / 1000) * pricePerKm;
+              currentCalculatedPrice = `S/ ${estimated.toFixed(2)}`;
+              
+              pinTooltipAddress.textContent = address;
+              pinTooltipPrice.textContent = currentCalculatedPrice;
+              
+              // Reflejamos en la UI de abajo también
+              document.getElementById('display-dropoff').textContent = address;
+              finalRidePriceEl.textContent = currentCalculatedPrice;
+            }
+          } 
+        });
+        
+        mapInitialized = true;
+        hideGpsStatus();
+      }
+
+      async function drawFluidRoute(lat1, lng1, lat2, lng2) {
+        if (animatedRouteLayer) map.removeLayer(animatedRouteLayer);
+        try {
+          const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?geometries=geojson&overview=full`;
+          const response = await fetch(url);
+          const data = await response.json();
+          if (data.routes && data.routes.length > 0) {
+            const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+            fullRouteCoords = coords;
+            animatedRouteLayer = L.polyline([], { color: '#1C1C1C', weight: 5, opacity: 0.8 }).addTo(map);
+            map.fitBounds(L.polyline(coords).getBounds(), { padding: [40, 40] });
+            await animatePolyline(animatedRouteLayer, coords);
+            return coords;
+          }
+        } catch (e) {}
+        const coords = [[lat1, lng1], [lat2, lng2]];
+        fullRouteCoords = coords;
+        animatedRouteLayer = L.polyline(coords, { color: '#1C1C1C', weight: 5, dashArray: '10,10' }).addTo(map);
+        map.fitBounds(animatedRouteLayer.getBounds(), { padding: [40, 40] });
+        return coords;
+      }
+
+      function animatePolyline(polyline, coords) {
+        return new Promise(resolve => {
+          let i = 0;
+          function step() {
+            if (i < coords.length) {
+              const chunk = coords.slice(i, i + 3);
+              chunk.forEach(c => polyline.addLatLng(c));
+              i += 3;
+              requestAnimationFrame(step);
+            } else {
+              resolve();
+            }
+          }
+          step();
+        });
+      }
+
+      // SELECCIÓN DE DESTINO
+      dropoffRow.addEventListener('click', () => {
+        isSelectingDestination = true;
+        rideOptionsContainer.classList.add('hidden');
+        btnRequestRide.classList.add('hidden');
+        centerPin.style.display = 'flex';
+        btnConfirmMap.style.display = 'flex';
+        document.getElementById('display-dropoff').textContent = 'Mueve el mapa...';
+        document.getElementById('display-dropoff-sub').textContent = 'Apunta donde quieres ir';
+        if (destinationMarker) map.removeLayer(destinationMarker);
+        if (animatedRouteLayer) map.removeLayer(animatedRouteLayer);
+        
+        // Simular un trigger inicial para el centro actual
+        map.fire('moveend');
+      });
+
+      btnConfirmMap.addEventListener('click', async () => {
+        isSelectingDestination = false;
+        pinTooltip.classList.remove('show');
+        
+        const center = map.getCenter();
+        destLat = center.lat;
+        destLng = center.lng;
+        
+        centerPin.style.display = 'none';
+        btnConfirmMap.style.display = 'none';
+        rideOptionsContainer.classList.remove('hidden');
+        btnRequestRide.classList.remove('hidden');
+        
+        document.getElementById('display-dropoff-sub').textContent = 'Ubicación en mapa';
+        if (destinationMarker) map.removeLayer(destinationMarker);
+        
+        destinationMarker = L.marker([destLat, destLng], {
+          icon: L.divIcon({ className: '', html: '<div class="custom-pin" style="background:#1C1C1C; border-color:var(--primary);"></div>', iconSize: [20,20], iconAnchor: [10,10] })
+        }).addTo(map);
+        
+        btnRequestRide.querySelector('#btn-text').textContent = 'Calculando...';
+        btnRequestRide.querySelector('#btn-icon').outerHTML = '<div class="spinner"></div>';
+        await drawFluidRoute(currentLat, currentLng, destLat, destLng);
+        btnRequestRide.querySelector('#btn-text').textContent = 'Pedir viaje';
+        btnRequestRide.querySelector('.spinner').outerHTML = '<svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+      });
+
+      // SIMULACIÓN DE VIAJE
+      btnRequestRide.addEventListener('click', async () => {
+        document.getElementById('search-modal').classList.add('active');
+        setTimeout(async () => {
+          document.getElementById('search-modal').classList.remove('active');
+          rideOptionsContainer.classList.add('hidden');
+          locationPickerUi.classList.add('hidden');
+          driverPanel.classList.remove('hidden');
+          btnRequestRide.style.background = 'var(--text-dark)';
+          btnRequestRide.innerHTML = '<span>Conductor en camino</span>';
+          driverLat = currentLat + 0.003;
+          driverLng = currentLng + 0.003;
+          const driverRoute = await drawFluidRoute(driverLat, driverLng, currentLat, currentLng);
+          
+          const carHtml = '<div class="car-marker"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>';
+          carMarker = L.marker([driverLat, driverLng], {
+            icon: L.divIcon({ className: '', html: carHtml, iconSize: [36,36], iconAnchor: [18,18] })
+          }).addTo(map);
+          
+          animateVehicleSmooth(carMarker, driverRoute, 4000, async () => {
+            btnRequestRide.innerHTML = '<span>En camino al destino</span>';
+            btnRequestRide.style.background = 'var(--primary)';
+            map.removeLayer(passengerMarker);
+            const tripRoute = await drawFluidRoute(currentLat, currentLng, destLat, destLng);
+            
+            animateVehicleSmooth(carMarker, tripRoute, 6000, async () => {
+              btnRequestRide.innerHTML = '<div class="spinner"></div> Guardando...';
+              await guardarViajeEnHistorial();
+              document.getElementById('payment-modal').classList.add('active');
+            });
+          });
+        }, 2500);
+      });
+
+      function animateVehicleSmooth(marker, coords, durationMs, onComplete) {
+        if (!coords || coords.length < 2) { if (onComplete) onComplete(); return; }
+        const startTime = performance.now();
+        function frame(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / durationMs, 1);
+          const index = Math.floor(progress * (coords.length - 1));
+          const nextIndex = Math.min(index + 1, coords.length - 1);
+          const localProgress = (progress * (coords.length - 1)) - index;
+          const lat = coords[index][0] + (coords[nextIndex][0] - coords[index][0]) * localProgress;
+          const lng = coords[index][1] + (coords[nextIndex][1] - coords[index][1]) * localProgress;
+          marker.setLatLng([lat, lng]);
+          if (progress < 1) {
+            requestAnimationFrame(frame);
+          } else {
+            if (onComplete) onComplete();
+          }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      window.finishPayment = function() {
+        document.getElementById('payment-modal').classList.remove('active');
+        setTimeout(() => document.getElementById('rating-modal').classList.add('active'), 300);
+      };
+
+      window.resetDemo = function() {
+        document.getElementById('rating-modal').classList.remove('active');
+        if (animatedRouteLayer) map.removeLayer(animatedRouteLayer);
+        if (carMarker) map.removeLayer(carMarker);
+        if (destinationMarker) map.removeLayer(destinationMarker);
+        if (passengerMarker) passengerMarker.addTo(map).setLatLng([currentLat, currentLng]);
+        locationPickerUi.classList.remove('hidden');
+        driverPanel.classList.add('hidden');
+        rideOptionsContainer.classList.add('hidden');
+        btnRequestRide.classList.add('hidden');
+        btnRequestRide.innerHTML = '<span id="btn-text">Pedir viaje</span><svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+        btnRequestRide.style.background = 'var(--primary)';
+        document.querySelectorAll('.star-icon').forEach(s => s.classList.remove('active'));
+      };
+
+      // HISTORIAL Y GEOCODIFICACIÓN
+      async function obtenerDireccion(lat, lng) {
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+          const data = await response.json();
+          if (data && data.address) {
+            const calle = data.address.road || data.address.pedestrian || data.address.suburb || 'Dirección seleccionada';
+            const ciudad = data.address.city || data.address.town || data.address.village || data.address.county || '';
+            return ciudad ? `${calle}, ${ciudad}` : calle;
+          }
+          return 'Dirección no encontrada';
+        } catch (error) {
+          console.error("Error al geocodificar:", error);
+          return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        }
+      }
+
+      async function guardarViajeEnHistorial() {
+        const origenText = await obtenerDireccion(currentLat, currentLng);
+        const destinoText = await obtenerDireccion(destLat, destLng);
+
+        const viajes = JSON.parse(localStorage.getItem('migo_historial') || '[]');
+        viajes.unshift({
+          fecha: new Date().toLocaleString(),
+          origen: origenText,
+          destino: destinoText,
+          precio: currentCalculatedPrice
+        });
+        localStorage.setItem('migo_historial', JSON.stringify(viajes.slice(0, 20)));
+      }
+
+      function renderHistory() {
+        const container = document.getElementById('history-list');
+        const noHistory = document.getElementById('no-history');
+        const viajes = JSON.parse(localStorage.getItem('migo_historial') || '[]');
+        container.innerHTML = '';
+        if (viajes.length === 0) {
+          noHistory.style.display = 'block';
+          return;
+        }
+        noHistory.style.display = 'none';
+        
+        const carSvg = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>';
+
+        viajes.forEach(v => {
+          const card = document.createElement('div');
+          card.className = 'history-card';
+          card.innerHTML = `
+            <div class="history-icon">${carSvg}</div>
+            <div style="flex:1;">
+              <strong>${v.fecha}</strong>
+              <div class="ruta-historial" style="font-size: 0.8rem; margin: 4px 0; color: var(--text-muted);">
+                <span><b>De:</b> ${v.origen}</span>
+                <span><b>A:</b> ${v.destino}</span>
+              </div>
+              <span style="color:var(--primary); font-weight:bold;">${v.precio}</span>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // PERFIL
+      function loadProfile() {
+        const perfil = JSON.parse(localStorage.getItem('migo_perfil') || '{}');
+        document.getElementById('perfil-nombre-input').value = perfil.nombre || 'María López';
+        document.getElementById('perfil-email-input').value = perfil.email || 'maria@example.com';
+        document.getElementById('perfil-nombre-display').textContent = perfil.nombre || 'María López';
+        document.getElementById('perfil-avatar-img').src = perfil.avatar || 'https://i.pravatar.cc/150?img=12';
+      }
+      document.getElementById('btn-guardar-perfil').addEventListener('click', () => {
+        const nombre = document.getElementById('perfil-nombre-input').value.trim();
+        const email = document.getElementById('perfil-email-input').value.trim();
+        localStorage.setItem('migo_perfil', JSON.stringify({ nombre, email, avatar: 'https://i.pravatar.cc/150?img=12' }));
+        document.getElementById('perfil-nombre-display').textContent = nombre;
+        alert('Perfil guardado correctamente.');
+      });
+
+      document.querySelectorAll('.star-icon').forEach((star, idx) => {
+        star.addEventListener('click', () => {
+          document.querySelectorAll('.star-icon').forEach((s, i) => s.classList.toggle('active', i <= idx));
+        });
+      });
+
+      window.onload = () => {
+        switchView('home');
+        requestLocation();
+        loadProfile();
+      };
+    })();
   </script>
 </body>
 </html>
