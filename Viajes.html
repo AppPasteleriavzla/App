@@ -270,7 +270,6 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
-    /* Animación al mover el mapa (pin salta) */
     .center-fixed-pin.moving .pin-wrapper {
       transform: translateY(-12px);
     }
@@ -279,7 +278,6 @@
       opacity: 0.4;
     }
 
-    /* Tooltip animado con precio y dirección */
     .pin-tooltip {
       position: absolute;
       bottom: 100%;
@@ -738,7 +736,7 @@
           <!-- Tooltip que aparece al soltar el mapa -->
           <div class="pin-tooltip" id="pin-tooltip">
             <div class="pin-tooltip-address" id="pin-tooltip-address">Calculando...</div>
-            <div class="pin-tooltip-price" id="pin-tooltip-price">S/ --</div>
+            <div class="pin-tooltip-price" id="pin-tooltip-price">Bs --</div>
           </div>
           
           <div class="pin-wrapper">
@@ -780,7 +778,7 @@
               <div class="ride-title">Migo Comfort</div>
               <div class="ride-desc">Viajes cómodos y seguros</div>
             </div>
-            <div class="ride-price" id="final-ride-price">S/ --</div>
+            <div class="ride-price" id="final-ride-price">Bs --</div>
           </div>
         </div>
         <div class="driver-panel hidden" id="driver-panel">
@@ -871,8 +869,8 @@
       let fullRouteCoords = [];
       let watchId = null;
       let locationReady = false;
-      let moveEndCount = 0; // Para gestionar promesas del mapa
-      let currentCalculatedPrice = 'Bs/ 0.00';
+      let moveEndCount = 0;
+      let currentCalculatedPrice = 'Bs 0.00'; // Actualizado a Bs
 
       // Elementos UI
       const homeView = document.getElementById('home-view');
@@ -997,7 +995,6 @@
           icon: L.divIcon({ className: '', html: '<div class="custom-pin"></div>', iconSize: [20, 20], iconAnchor: [10, 10] })
         }).addTo(map);
         
-        // INTERACCIÓN: Cuando empieza a moverse el mapa
         map.on('movestart', () => { 
           if (isSelectingDestination) {
             centerPin.classList.add('moving');
@@ -1005,35 +1002,30 @@
           } 
         });
         
-        // INTERACCIÓN: Cuando el mapa se detiene
         map.on('moveend', async () => { 
           if (isSelectingDestination) {
             centerPin.classList.remove('moving');
             moveEndCount++;
             const currentCallId = moveEndCount;
             
-            // Estado de carga en el tooltip
             pinTooltipAddress.textContent = 'Calculando...';
-            pinTooltipPrice.textContent = 'S/ --';
+            pinTooltipPrice.textContent = 'Bs --';
             pinTooltip.classList.add('show');
             
             const center = map.getCenter();
             const address = await obtenerDireccion(center.lat, center.lng);
             
-            // Verificamos que sea el último movimiento (evitar solapamiento de peticiones)
             if (currentCallId === moveEndCount) {
               const distanceInMeters = map.distance([currentLat, currentLng], [center.lat, center.lng]);
               
-              // Cálculo de tarifa dinámica (Base 5.00 + 2.50 por km)
               const basePrice = 5.00;
               const pricePerKm = 2.50;
               const estimated = basePrice + (distanceInMeters / 1000) * pricePerKm;
-              currentCalculatedPrice = `S/ ${estimated.toFixed(2)}`;
+              currentCalculatedPrice = `Bs ${estimated.toFixed(2)}`; // Actualizado a Bs
               
               pinTooltipAddress.textContent = address;
               pinTooltipPrice.textContent = currentCalculatedPrice;
               
-              // Reflejamos en la UI de abajo también
               document.getElementById('display-dropoff').textContent = address;
               finalRidePriceEl.textContent = currentCalculatedPrice;
             }
@@ -1095,7 +1087,6 @@
         if (destinationMarker) map.removeLayer(destinationMarker);
         if (animatedRouteLayer) map.removeLayer(animatedRouteLayer);
         
-        // Simular un trigger inicial para el centro actual
         map.fire('moveend');
       });
 
@@ -1201,7 +1192,6 @@
         document.querySelectorAll('.star-icon').forEach(s => s.classList.remove('active'));
       };
 
-      // HISTORIAL Y GEOCODIFICACIÓN
       async function obtenerDireccion(lat, lng) {
         try {
           const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
@@ -1263,7 +1253,6 @@
         });
       }
 
-      // PERFIL
       function loadProfile() {
         const perfil = JSON.parse(localStorage.getItem('migo_perfil') || '{}');
         document.getElementById('perfil-nombre-input').value = perfil.nombre || 'María López';
