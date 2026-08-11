@@ -61,7 +61,7 @@
       flex-shrink: 0;
     }
     .header .logo {
-      height: 32px;
+      height: 68px;
       width: auto;
       object-fit: contain;
     }
@@ -408,10 +408,22 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    
+    /* MODIFICACIÓN: Contenedor con scroll para los tipos de viaje */
     .ride-options {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
+      max-height: 240px; 
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .ride-options::-webkit-scrollbar {
+      width: 4px;
+    }
+    .ride-options::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
     }
     .ride-card {
       background: var(--white);
@@ -422,15 +434,23 @@
       align-items: center;
       gap: 0.8rem;
       cursor: pointer;
+      flex-shrink: 0;
     }
     .ride-card.active {
       background: #FFF0F0;
       border-color: var(--primary);
     }
+    .ride-card.disabled {
+      opacity: 0.45;
+      filter: grayscale(100%);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
     .ride-details { flex: 1; }
     .ride-title { font-weight: 700; font-size: 1rem; }
     .ride-desc { font-size: 0.75rem; color: var(--text-muted); }
     .ride-price { font-weight: 800; font-size: 1rem; text-align: right; }
+    
     .btn-request {
       background: var(--primary);
       color: var(--white);
@@ -676,7 +696,7 @@
   <div class="app-container">
     <!-- HEADER PRINCIPAL -->
     <div class="header" id="main-header">
-      <img src="https://i.ibb.co/zHsTyKLN/2-20260810-185725-0001.png" alt="Migo" class="logo">
+      <img src="https://i.ibb.co/jkC8nhQr/file-000000003250820e8a0329e625c66f45.png" alt="Migo" class="logo">
       <button class="btn-rewards">
         <svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.5-.5-.5A2.996 2.996 0 0 0 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 9.06v.94h2V9.06L15.38 12 17 10.83 14.92 8H20v6z"/></svg>
         Gana viajes
@@ -685,16 +705,16 @@
 
     <!-- VISTA INICIO -->
     <div class="view home-view" id="home-view">
-      <img src="https://i.ibb.co/27HQ4kV8/20260810-183533-0000.png" alt="Promo" class="promo-banner">
+      <img src="https://i.ibb.co/PzJN0hJJ/file-00000000710c820e9b3e8a78d3eff8d0.png" alt="Promo" class="promo-banner">
       <div>
         <h2 class="section-title">¿Qué quieres hacer hoy?</h2>
         <div class="services-grid">
           <div class="service-card" id="btn-viaje-rapido">
-            <img src="https://i.ibb.co/HTqVp0jf/20260810-191228-0000.png" alt="Auto Viaje Rápido" class="service-img">
+            <img src="https://app-vert-theta-18.vercel.app/viaje.png" alt="Auto Viaje Rápido" class="service-img">
             <span class="service-title">Viaje rápido</span>
           </div>
           <div class="service-card">
-            <img src="https://i.ibb.co/TS2Cv85/image.png" alt="Envío y Paquetería" class="service-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/655/655680.png'">
+            <img src="https://app-vert-theta-18.vercel.app/delivery.png" alt="Envío y Paquetería" class="service-img">
             <span class="service-title">Envío y paquetería</span>
           </div>
         </div>
@@ -771,16 +791,66 @@
             </div>
           </div>
         </div>
+        
+        <!-- MODIFICACIÓN: Contenedor con todos los modos de viaje -->
         <div class="ride-options" id="ride-options-container">
-          <div class="ride-card active">
-            <img src="https://i.ibb.co/HTqVp0jf/20260810-191228-0000.png" style="width:50px; object-fit:contain;">
+          <!-- MODOS DISPONIBLES (Activos) -->
+          <div class="ride-card active" data-multiplier="1">
+            <img src="https://app-vert-theta-18.vercel.app/viaje.png" alt="Migo Económico" style="width:50px; height:50px; object-fit:contain;">
             <div class="ride-details">
-              <div class="ride-title">Migo Comfort</div>
-              <div class="ride-desc">Viajes cómodos y seguros</div>
+              <div class="ride-title">Migo Económico</div>
+              <div class="ride-desc">Viaje rápido en auto</div>
             </div>
-            <div class="ride-price" id="final-ride-price">Bs --</div>
+            <div class="ride-price dynamic-price">Bs --</div>
+          </div>
+          
+          <div class="ride-card" data-multiplier="0.6">
+            <img src="https://app-vert-theta-18.vercel.app/bike.png" alt="Migo Bike" style="width:50px; height:50px; object-fit:contain;">
+            <div class="ride-details">
+              <div class="ride-title">Migo Bike</div>
+              <div class="ride-desc">Rápido y ágil</div>
+            </div>
+            <div class="ride-price dynamic-price">Bs --</div>
+          </div>
+
+          <!-- MODOS NO DISPONIBLES (Desactivados) -->
+          <div class="ride-card disabled">
+            <img src="https://app-vert-theta-18.vercel.app/delivery.png" alt="Migo Delivery" style="width:50px; height:50px; object-fit:contain;">
+            <div class="ride-details">
+              <div class="ride-title">Migo Delivery</div>
+              <div class="ride-desc">Próximamente</div>
+            </div>
+            <div class="ride-price">-</div>
+          </div>
+          
+          <div class="ride-card disabled">
+            <img src="https://app-vert-theta-18.vercel.app/carga.png" alt="Migo Carga" style="width:50px; height:50px; object-fit:contain;">
+            <div class="ride-details">
+              <div class="ride-title">Migo Carga</div>
+              <div class="ride-desc">Próximamente</div>
+            </div>
+            <div class="ride-price">-</div>
+          </div>
+
+          <div class="ride-card disabled">
+            <img src="https://app-vert-theta-18.vercel.app/bus.png" alt="Migo Bus" style="width:50px; height:50px; object-fit:contain;">
+            <div class="ride-details">
+              <div class="ride-title">Migo Bus</div>
+              <div class="ride-desc">Próximamente</div>
+            </div>
+            <div class="ride-price">-</div>
+          </div>
+
+          <div class="ride-card disabled">
+            <img src="https://app-vert-theta-18.vercel.app/mudanza.png" alt="Migo Mudanza" style="width:50px; height:50px; object-fit:contain;">
+            <div class="ride-details">
+              <div class="ride-title">Migo Mudanza</div>
+              <div class="ride-desc">Próximamente</div>
+            </div>
+            <div class="ride-price">-</div>
           </div>
         </div>
+        
         <div class="driver-panel hidden" id="driver-panel">
           <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Chofer" class="driver-avatar">
           <div class="driver-details">
@@ -870,7 +940,7 @@
       let watchId = null;
       let locationReady = false;
       let moveEndCount = 0;
-      let currentCalculatedPrice = 'Bs 0.00'; // Actualizado a Bs
+      let currentCalculatedPrice = 'Bs 0.00'; 
 
       // Elementos UI
       const homeView = document.getElementById('home-view');
@@ -891,7 +961,16 @@
       const locationPickerUi = document.getElementById('location-picker-ui');
       const gpsStatus = document.getElementById('gps-status');
       const navItems = document.querySelectorAll('.nav-item');
-      const finalRidePriceEl = document.getElementById('final-ride-price');
+
+      // LÓGICA DE SELECCIÓN DE VIAJES
+      document.querySelectorAll('.ride-card:not(.disabled)').forEach(card => {
+        card.addEventListener('click', function() {
+          document.querySelectorAll('.ride-card').forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          currentCalculatedPrice = this.querySelector('.dynamic-price').textContent;
+          pinTooltipPrice.textContent = currentCalculatedPrice;
+        });
+      });
 
       // NAVEGACIÓN
       function switchView(viewName) {
@@ -1020,14 +1099,22 @@
               
               const basePrice = 5.00;
               const pricePerKm = 2.50;
-              const estimated = basePrice + (distanceInMeters / 1000) * pricePerKm;
-              currentCalculatedPrice = `Bs ${estimated.toFixed(2)}`; // Actualizado a Bs
+              const estimatedBase = basePrice + (distanceInMeters / 1000) * pricePerKm;
               
+              // Actualizar precios dinámicos para los modos activos
+              document.querySelectorAll('.ride-card:not(.disabled)').forEach(card => {
+                  let multiplier = parseFloat(card.dataset.multiplier) || 1;
+                  let calculatedCardPrice = `Bs ${(estimatedBase * multiplier).toFixed(2)}`;
+                  card.querySelector('.dynamic-price').textContent = calculatedCardPrice;
+                  
+                  if (card.classList.contains('active')) {
+                      currentCalculatedPrice = calculatedCardPrice;
+                  }
+              });
+
               pinTooltipAddress.textContent = address;
               pinTooltipPrice.textContent = currentCalculatedPrice;
-              
               document.getElementById('display-dropoff').textContent = address;
-              finalRidePriceEl.textContent = currentCalculatedPrice;
             }
           } 
         });
