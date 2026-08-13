@@ -2,496 +2,812 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AquaVita - App Choferes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AquaVita - Panel de Chofer</title>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
-            --primary: #000000;
-            --blue-aqua: #0077b6; /* Un azul corporativo plano para detalles de agua */
-            --white: #ffffff;
-            --gray-light: #f8f9fa;
-            --gray-border: #e9ecef;
-            --text-dark: #121212;
-            --text-muted: #6c757d;
+            --bg-body: #f8fafc;
+            --surface: #ffffff;
+            --surface-subtle: #f1f5f9;
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --primary-light: #e0f2fe;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+            --shadow-nav: 0 -4px 20px rgba(15, 23, 42, 0.06);
+            --radius-lg: 20px;
+            --radius-md: 14px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--gray-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-            padding-bottom: 80px; /* Espacio para el botón final */
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.4;
+            padding-bottom: 80px; 
         }
+
+        /* --- LOGIN OVERLAY --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-body); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 2rem;
+        }
+        .login-box { width: 100%; max-width: 400px; text-align: center; background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+        .login-icon { font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem; }
 
         /* --- HEADER --- */
         header {
-            background-color: var(--primary);
-            color: var(--white);
-            padding: 1rem 5%;
+            background-color: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            color: var(--surface);
+            padding: 1rem 1.25rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-sm);
         }
-
-        .logo {
-            font-size: 1.2rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .logo { font-size: 1.15rem; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 32px; height: 32px; background: linear-gradient(135deg, #38bdf8, #0284c7);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.9rem;
         }
-
-        .user-profile {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--gray-border);
+        .driver-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(2, 132, 199, 0.2); color: #38bdf8; font-size: 0.7rem;
+            font-weight: 700; padding: 4px 10px; border-radius: 20px;
         }
-
-        /* --- CONTENEDOR PRINCIPAL --- */
-        main {
-            padding: 1.5rem 5%;
+        .header-btn { background: transparent; border: none; font-size: 1.25rem; cursor: pointer; padding: 4px; display: none; }
+        
+        /* --- NAVEGACIÓN INFERIOR --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: var(--surface); border-top: 1px solid var(--border);
+            box-shadow: var(--shadow-nav); display: flex; justify-content: space-around;
+            padding: 10px 5px; padding-bottom: env(safe-area-inset-bottom, 15px); z-index: 999;
         }
-
-        .section-card {
-            background-color: var(--white);
-            border: 1px solid var(--gray-border);
-            border-radius: 12px;
-            padding: 1.2rem;
-            margin-bottom: 1.5rem;
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            color: var(--text-muted); font-size: 0.65rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s ease; width: 33.33%;
         }
+        .nav-item i { font-size: 1.25rem; margin-bottom: 2px; transition: transform 0.2s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-2px); }
 
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--gray-light);
-            text-align: left;
-        }
-
-        /* --- FORMULARIOS Y SELECTORES --- */
-        .form-group {
-            margin-bottom: 1rem;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        select, input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--gray-border);
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
-            background-color: var(--gray-light);
-            color: var(--text-dark);
-            outline: none;
-        }
-
-        select:focus, input[type="text"]:focus {
-            border-color: var(--primary);
-        }
-
-        /* --- LISTA DE PRODUCTOS --- */
-        .product-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .product-item:last-child {
-            border-bottom: none;
-        }
-
-        .product-info {
-            text-align: left;
-            flex-grow: 1;
-        }
-
-        .product-name {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 2px;
-        }
-
-        .product-price {
-            font-size: 0.85rem;
-            color: var(--blue-aqua);
-            font-weight: 600;
-        }
-
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .qty-btn {
-            background-color: var(--gray-light);
-            border: 1px solid var(--gray-border);
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .qty-btn:active {
-            background-color: var(--gray-border);
-        }
-
-        .qty-number {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--primary);
-            min-width: 25px;
-            text-align: center;
-        }
-
-        /* --- OPCIONES DE PAGO --- */
-        .payment-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .payment-label {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border: 1px solid var(--gray-border);
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .payment-label input[type="radio"] {
-            margin-right: 12px;
-            accent-color: var(--primary);
-            transform: scale(1.2);
-        }
-
-        /* --- FOOTER FIJO (TOTAL Y BOTÓN) --- */
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--white);
-            border-top: 1px solid var(--gray-border);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 100;
-        }
-
-        .total-display {
-            text-align: left;
-        }
-
-        .total-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .total-amount {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--primary);
-        }
-
-        .submit-btn {
-            background-color: var(--primary);
-            color: var(--white);
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .submit-btn:active {
-            transform: scale(0.97);
-        }
-
-        /* --- MODAL DE ÉXITO LIGERO --- */
+        /* --- MODALES --- */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0,0,0,0.8);
-            display: none; z-index: 1000;
-            justify-content: center; align-items: center; padding: 20px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.7); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+            padding: 20px;
         }
-
-        .modal-content {
-            background-color: var(--white);
-            width: 100%; max-width: 350px;
-            border-radius: 16px;
-            padding: 30px 20px;
-            text-align: center;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        .modal-container {
+            background: var(--surface); width: 100%; max-width: 400px;
+            border-radius: 12px; padding: 20px; text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
 
-        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        /* --- TOGGLE SWITCH --- */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        .success-icon {
-            font-size: 3.5rem; color: var(--primary); margin-bottom: 15px;
+        /* --- LAYOUT PRINCIPAL Y PANTALLAS --- */
+        main { padding: 1.25rem; max-width: 500px; margin: 0 auto; }
+        .screen { display: none; animation: fadeInScreen 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .screen.active { display: block; }
+        @keyframes fadeInScreen { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; margin-top: 0.5rem; }
+        .section-title { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .section-badge { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+        /* --- TARJETAS DE ESTADO DEL CAMIÓN --- */
+        .truck-status-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white; border-radius: var(--radius-lg); padding: 1.25rem;
+            margin-bottom: 1.5rem; box-shadow: var(--shadow-md); display: none;
         }
+        .truck-status-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .truck-route-name { font-size: 1.1rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+        .stock-counter-big { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .stock-label-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+        .inventory-bar { width: 100%; height: 10px; background-color: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; margin: 12px 0 8px 0; }
+        .inventory-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8); border-radius: 5px; transition: width 0.8s ease; }
+        .inventory-fill.low { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
-        .modal-title {
-            font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;
+        /* --- INDICADOR GPS --- */
+        .gps-indicator {
+            font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            margin-top: 15px; background: rgba(16, 185, 129, 0.1); color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3); display: none;
         }
+        .gps-indicator.error { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
 
-        .modal-text {
-            font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px;
-        }
+        /* --- ALERTAS Y DEBUGGING --- */
+        .alert-box { display: none; background: var(--warning-light); border: 1px solid #fcd34d; color: #b45309; padding: 15px; border-radius: var(--radius-md); text-align: center; font-size: 0.85rem; font-weight: 700; margin-bottom: 15px; }
+        .debug-error-box { display: none; background: var(--danger-light); border: 1px solid var(--danger); color: #991b1b; padding: 12px; border-radius: var(--radius-md); margin-bottom: 15px; font-size: 0.8rem; word-wrap: break-word; white-space: pre-wrap; }
 
-        .close-modal-btn {
-            background-color: var(--gray-light);
-            color: var(--primary);
-            border: 1px solid var(--gray-border);
-            padding: 12px; width: 100%;
-            border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer;
-        }
+        /* --- FORMULARIOS --- */
+        .admin-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 1.5rem; }
+        .form-card { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); }
+        .form-title { font-size: 0.9rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: var(--primary-dark); }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.9rem; outline: none; transition: border-color 0.2s; background: var(--bg-body); color: var(--text-main); }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); background: var(--surface); }
+        .btn-primary { width: 100%; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-family: inherit; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: opacity 0.2s; }
+        .btn-primary:active { opacity: 0.8; }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* --- HISTORIAL DE VENTAS --- */
+        .delivery-list-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+        .delivery-item { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.9rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+        .delivery-left { display: flex; align-items: center; gap: 12px; }
+        .truck-avatar { width: 38px; height: 38px; border-radius: 10px; background-color: var(--surface-subtle); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--primary-dark); font-size: 0.9rem; }
+        .delivery-client { font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+        .delivery-meta-sub { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .delivery-right { text-align: right; }
+        .delivery-price { font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
+        .payment-pill { font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; display: inline-block; margin-top: 3px; }
+        .pay-efectivo { background: #dcfce7; color: #15803d; }
+        .pay-qr { background: #e0f2fe; color: #0369a1; }
+        .pay-credito { background: #fef3c7; color: #b45309; }
+        .pay-transferencia { background: #f3e8ff; color: #7e22ce; }
+        .loading-text { text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">
-            <i class="fa-solid fa-droplet"></i> AQUAVITA
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <div class="login-icon"><i class="fa-solid fa-id-badge"></i></div>
+            <h2 style="margin-bottom: 10px; color: var(--primary-dark);">Acceso a Ruta</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Ingresa el código que te proporcionó administración para sincronizar tu camión.</p>
+            <div id="debug-error-login" class="debug-error-box"></div>
+            <form id="form-login">
+                <div class="input-group" style="text-align: left;">
+                    <label>Código de Chofer</label>
+                    <input type="text" id="input-codigo" placeholder="Ej: 1111" required style="text-transform: uppercase;">
+                </div>
+                <button type="submit" class="btn-primary" id="btn-login-submit">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
+                </button>
+            </form>
         </div>
-        <div class="user-profile">
-            <i class="fa-solid fa-user-circle"></i> Chofer
+    </div>
+
+    <!-- MODAL: CONFIRMACIÓN PARA NUEVO CLIENTE Y UBICACIÓN -->
+    <div id="modal-flujo-cliente" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 style="color: var(--primary-dark); font-size: 1.1rem; margin: 0;"><i class="fa-solid fa-user-plus"></i> Registrar Nuevo Cliente</h3>
+                <button class="modal-close" onclick="cerrarModalFlujo()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">
+                El cliente <strong id="flujo-nuevo-nombre" style="color: var(--text-main);"></strong> no está en tu lista de hoy. ¿Deseas guardarlo?
+            </p>
+            
+            <div class="input-group">
+                <label>Número de Teléfono</label>
+                <input type="tel" id="flujo-nuevo-telefono" placeholder="Ej: 70012345">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: var(--surface-subtle); border-radius: 10px; border: 1px solid var(--border);">
+                <div>
+                    <label style="margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--text-main); display: block;">¿Guardar Ubicación GPS?</label>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">Desactívalo si el cliente prefiere no compartirla.</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="flujo-toggle-gps" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button class="btn-primary" id="btn-guardar-flujo" onclick="ejecutarVentaConClienteNuevo()">
+                <i class="fa-solid fa-floppy-disk"></i> Confirmar y Registrar Venta
+            </button>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo"><div class="logo-icon"><i class="fa-solid fa-truck-fast"></i></div>CHOFER</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="driver-badge" id="driver-status-label"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+            
+            <!-- Botón para ver la lista de navegación GPS -->
+            <button class="header-btn" id="btn-perfil-clientes" onclick="abrirDirectorioClientes()" title="Navegar Clientes GPS" style="color: var(--surface);">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </button>
+            
+            <button class="header-btn" id="btn-logout" onclick="cerrarSesion()" title="Cerrar Sesión" style="color: #ef4444;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
         </div>
     </header>
 
     <main>
-        <!-- 1. DATOS DE LA RUTA Y CLIENTE -->
-        <div class="section-card">
-            <h2 class="section-title">Datos de Entrega</h2>
+        <!-- ==============================================
+             PANTALLA 1: MI RUTA
+        =============================================== -->
+        <div id="screen-ruta" class="screen active">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Estado de Unidad</h2>
+                <span class="section-badge" id="current-date">Hoy</span>
+            </div>
+
+            <div id="alerta-sin-ruta" class="alert-box">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem; display: block; margin-bottom: 5px;"></i>
+                No tienes ninguna ruta activa en este momento. Espera a que administración despache tu camión.
+            </div>
+
+            <div class="truck-status-card" id="card-camion">
+                <div class="truck-status-top">
+                    <div class="truck-route-name" id="card-route-name"><i class="fa-solid fa-route"></i> Cargando...</div>
+                    <span style="font-size: 0.75rem; background: rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 6px;" id="card-placa">Placa: --</span>
+                </div>
+                <div class="stock-counter-big" id="card-stock-actual">0</div>
+                <div class="stock-label-sub">Botellones disponibles en camión</div>
+                
+                <div class="inventory-bar">
+                    <div class="inventory-fill" id="card-inventory-fill" style="width: 0%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #94a3b8;">
+                    <span>Capacidad Máxima: <strong id="card-capacidad-max">0</strong></span>
+                    <span id="card-porcentaje">0%</span>
+                </div>
+                
+                <div id="gps-status-indicator" class="gps-indicator">
+                    <i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS Transmitiendo en vivo
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             PANTALLA 2: VENDER 
+        =============================================== -->
+        <div id="screen-vender" class="screen">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-cash-register" style="color: var(--primary);"></i> Nueva Venta</h2>
+                <span class="section-badge">Cobro Rápido</span>
+            </div>
             
-            <div class="form-group">
-                <label>Selecciona tu Vehículo</label>
-                <select id="camioneta-select">
-                    <option value="Camioneta 1 (Ruta Norte)">Camioneta 1 (Ruta Norte)</option>
-                    <option value="Camioneta 2 (Ruta Sur)">Camioneta 2 (Ruta Sur)</option>
-                    <option value="Camión Mayorista">Camión Mayorista</option>
-                </select>
-            </div>
+            <div class="admin-section">
+                <div class="form-card">
+                    <div class="form-title"><i class="fa-solid fa-file-invoice-dollar"></i> Registrar Despacho</div>
+                    
+                    <div id="debug-error-venta" class="debug-error-box"></div>
 
-            <div class="form-group">
-                <label>Cliente / Tienda</label>
-                <input type="text" id="cliente-input" placeholder="Ej. Bodega Don José..." autocomplete="off">
+                    <form id="form-venta-chofer">
+                        
+                        <!-- DATALIST PARA AUTOSUGERIR CLIENTES PREVIOS -->
+                        <div class="input-group">
+                            <label>Nombre del Cliente / Local</label>
+                            <input type="text" id="venta-cliente" list="clientes-datalist" placeholder="Escribe el nombre del cliente..." autocomplete="off" required>
+                            <datalist id="clientes-datalist"></datalist>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Cantidad de Botellones Entregados</label>
+                            <input type="number" id="venta-unidades" placeholder="Ej: 3" min="1" required oninput="calcularTotalVenta()">
+                        </div>
+                        <div class="input-group">
+                            <label>Precio Unitario (Bs.)</label>
+                            <input type="number" id="venta-precio-unit" value="15" step="0.5" required oninput="calcularTotalVenta()">
+                        </div>
+                        <div class="input-group">
+                            <label>Total a Cobrar</label>
+                            <input type="text" id="venta-total-calc" value="Bs. 0.00" disabled style="font-weight: 800; color: var(--primary-dark);">
+                        </div>
+                        <div class="input-group">
+                            <label>Método de Pago</label>
+                            <select id="venta-metodo" required>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="QR">Pago Móvil / QR</option>
+                                <option value="Transferencia">Transferencia Bancaria</option>
+                                <option value="Crédito">Cuenta por Cobrar (Crédito)</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary" id="btn-submit-venta" style="margin-top: 15px;">
+                            <i class="fa-solid fa-check-circle"></i> Procesar Venta
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- 2. PRODUCTOS ENTREGADOS -->
-        <div class="section-card">
-            <h2 class="section-title">Productos Entregados</h2>
-            <div id="product-list">
-                <!-- Se inyecta con JS -->
+        <!-- ==============================================
+             PANTALLA 3: DIRECTORIO DE CLIENTES / NAVEGACIÓN
+        =============================================== -->
+        <div id="screen-clientes" class="screen">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Clientes con GPS</h2>
+            </div>
+            
+            <div class="form-card" style="padding: 1rem;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">
+                    Historial de clientes que aceptaron guardar su ubicación exacta para navegar.
+                </p>
+                
+                <div id="lista-clientes-directorio" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando ubicaciones...</div>
+                </div>
             </div>
         </div>
 
-        <!-- 3. MÉTODO DE PAGO -->
-        <div class="section-card">
-            <h2 class="section-title">Cobranza</h2>
-            <div class="payment-options">
-                <label class="payment-label">
-                    <input type="radio" name="pago" value="Efectivo" checked> Efectivo al Contado
-                </label>
-                <label class="payment-label">
-                    <input type="radio" name="pago" value="QR"> Transferencia / QR
-                </label>
-                <label class="payment-label">
-                    <input type="radio" name="pago" value="Crédito"> Cuenta por Cobrar (Crédito)
-                </label>
+        <!-- ==============================================
+             PANTALLA 4: HISTORIAL 
+        =============================================== -->
+        <div id="screen-historial" class="screen">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Mis Ventas de Hoy</h2>
+                <span class="section-badge" id="historial-total-count">0 entregas</span>
+            </div>
+            
+            <div class="delivery-list-wrapper" id="driver-delivery-list">
+                <div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando tus ventas...</div>
             </div>
         </div>
+
     </main>
 
-    <!-- BARRA INFERIOR DE TOTALES -->
-    <div class="bottom-bar">
-        <div class="total-display">
-            <div class="total-label">Total a Cobrar</div>
-            <div class="total-amount" id="total-amount">Bs. 0.00</div>
+    <!-- BARRA DE NAVEGACIÓN INFERIOR -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchScreen('ruta', this)">
+            <i class="fa-solid fa-truck"></i>
+            <span>Mi Ruta</span>
         </div>
-        <button class="submit-btn" onclick="registrarEntrega()">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Registrar
-        </button>
-    </div>
-
-    <!-- MODAL DE ÉXITO -->
-    <div class="modal-overlay" id="success-modal">
-        <div class="modal-content">
-            <i class="fa-solid fa-circle-check success-icon"></i>
-            <h2 class="modal-title">¡Entrega Registrada!</h2>
-            <p class="modal-text">Los datos se han enviado al panel central de AquaVita correctamente.</p>
-            <button class="close-modal-btn" onclick="cerrarModal()">Nueva Entrega</button>
+        <div class="nav-item" onclick="switchScreen('vender', this)">
+            <i class="fa-solid fa-cash-register"></i>
+            <span>Vender</span>
         </div>
-    </div>
+        <div class="nav-item" onclick="switchScreen('historial', this)">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Historial</span>
+        </div>
+    </nav>
 
     <script>
-        // Catálogo de AquaVita
-        const catalogo = [
-            { id: 'agua20', nombre: 'Agua de Mesa (Bidón 20L)', precio: 15.00 },
-            { id: 'agua10', nombre: 'Agua de Mesa 10L', precio: 10.00 },
-            { id: 'agua2', nombre: 'Agua de Mesa 2L', precio: 5.00 },
-            { id: 'aguasachet', nombre: 'Agua en Sachet (Paquete)', precio: 8.00 },
-            { id: 'ronnorteno', nombre: 'Ron Norteño', precio: 35.00 },
-            { id: 'canelado', nombre: 'Licor Canelado', precio: 25.00 },
-            { id: 'destilada', nombre: 'Agua Destilada (Baterías)', precio: 12.00 }
-        ];
-
-        let pedidoActual = {}; // Almacenará las cantidades: { agua20: 2, ronnorteno: 1 }
-
-        function renderizarProductos() {
-            const container = document.getElementById('product-list');
-            container.innerHTML = '';
-
-            catalogo.forEach(prod => {
-                // Inicializar en 0
-                pedidoActual[prod.id] = 0;
-
-                container.innerHTML += `
-                    <div class="product-item">
-                        <div class="product-info">
-                            <h4 class="product-name">${prod.nombre}</h4>
-                            <span class="product-price">Bs. ${prod.precio.toFixed(2)}</span>
-                        </div>
-                        <div class="quantity-control">
-                            <button class="qty-btn" onclick="cambiarCantidad('${prod.id}', -1)">-</button>
-                            <span class="qty-number" id="qty-${prod.id}">0</span>
-                            <button class="qty-btn" onclick="cambiarCantidad('${prod.id}', 1)">+</button>
-                        </div>
-                    </div>
-                `;
-            });
-            calcularTotal();
+        // ==========================================
+        // NAVEGACIÓN Y PANTALLAS
+        // ==========================================
+        function switchScreen(screenName, navElement) {
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.getElementById('screen-' + screenName).classList.add('active');
+            if(navElement) navElement.classList.add('active');
         }
 
-        function cambiarCantidad(id, cambio) {
-            if (pedidoActual[id] + cambio >= 0) {
-                pedidoActual[id] += cambio;
-                document.getElementById(`qty-${id}`).innerText = pedidoActual[id];
-                calcularTotal();
+        function abrirDirectorioClientes() {
+            switchScreen('clientes', null);
+        }
+
+        // ==========================================
+        // CONFIGURACIÓN SUPABASE
+        // ==========================================
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://wzixsohxprcobfsmiksf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6aXhzb2h4cHJjb2Jmc21pa3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0Njg1MjUsImV4cCI6MjA5NzA0NDUyNX0.xBVJVEKVBoKjVzOt9TtrDtD1XkAMriq-de4yZdV9nHE';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        let datosChoferLogueado = null;
+        let unidadSeleccionadaId = null;
+        let stockActualUnidad = 0;
+        let capacidadMaxUnidad = 0;
+
+        let latitudActual = null;
+        let longitudActual = null;
+        let watchPositionId = null;
+        
+        let entregasGlobales = [];
+
+        const fmtBs = (val) => `Bs. ${Number(val).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const formatTime = (dateString) => new Date(dateString).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+
+        // ------------------------------------------
+        // SESIÓN Y LOGIN
+        // ------------------------------------------
+        async function inicializarSesion() {
+            const codigoGuardado = localStorage.getItem('chofer_codigo');
+            if (codigoGuardado) {
+                await procesarLogin(codigoGuardado, true);
+            } else {
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('driver-status-label').innerHTML = `<i class="fa-solid fa-user-xmark"></i> Sin Sesión`;
             }
         }
 
-        function calcularTotal() {
-            let total = 0;
-            catalogo.forEach(prod => {
-                total += (prod.precio * pedidoActual[prod.id]);
-            });
-            document.getElementById('total-amount').innerText = `Bs. ${total.toFixed(2)}`;
-            return total;
-        }
+        async function procesarLogin(codigo, esAutomatico = false) {
+            const btnSubmit = document.getElementById('btn-login-submit');
+            const debugErrorLogin = document.getElementById('debug-error-login');
+            debugErrorLogin.style.display = 'none';
 
-        function registrarEntrega() {
-            const total = calcularTotal();
-            const cliente = document.getElementById('cliente-input').value.trim();
-            const camioneta = document.getElementById('camioneta-select').value;
-            const metodoPago = document.querySelector('input[name="pago"]:checked').value;
+            if (!esAutomatico) btnSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verificando...';
 
-            if (total === 0) {
-                alert('Debes agregar al menos un producto a la entrega.');
-                return;
-            }
+            try {
+                const { data, error } = await supabaseClient.from('choferes').select('*').eq('codigo', codigo.toUpperCase()).maybeSingle();
+                if (error) throw error;
 
-            if (cliente === '') {
-                alert('Por favor, ingresa el nombre del cliente o tienda.');
-                return;
-            }
+                if (data) {
+                    datosChoferLogueado = data;
+                    localStorage.setItem('chofer_codigo', data.codigo);
+                    
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('driver-status-label').innerHTML = `<i class="fa-solid fa-user-check"></i> ${data.nombre}`;
+                    
+                    document.getElementById('btn-perfil-clientes').style.display = 'block';
+                    document.getElementById('btn-logout').style.display = 'block';
 
-            // Filtrar solo los productos que tienen cantidad > 0
-            const itemsEntregados = [];
-            catalogo.forEach(prod => {
-                if (pedidoActual[prod.id] > 0) {
-                    itemsEntregados.push({
-                        nombre: prod.nombre,
-                        cantidad: pedidoActual[prod.id],
-                        subtotal: prod.precio * pedidoActual[prod.id]
-                    });
+                    buscarRutaActiva();
+                    fetchHistorialVentasChofer();
+                } else {
+                    if (esAutomatico) cerrarSesion(false);
+                    else alert('Código incorrecto o no registrado.');
                 }
-            });
-
-            const nuevaEntrega = {
-                id: 'ENV-' + Math.floor(Math.random() * 10000),
-                fecha: new Date().toLocaleString(),
-                camioneta: camioneta,
-                cliente: cliente,
-                items: itemsEntregados,
-                total: total,
-                metodoPago: metodoPago
-            };
-
-            // Guardar en LocalStorage para que lo lea el panel Admin
-            let registrosAquaVita = JSON.parse(localStorage.getItem('entregasAquaVita')) || [];
-            registrosAquaVita.push(nuevaEntrega);
-            localStorage.setItem('entregasAquaVita', JSON.stringify(registrosAquaVita));
-
-            // Mostrar modal de éxito
-            document.getElementById('success-modal').style.display = 'flex';
+            } catch (err) {
+                if (!esAutomatico) {
+                    debugErrorLogin.innerHTML = `<strong>Error:</strong><br>${err.message}`;
+                    debugErrorLogin.style.display = 'block';
+                }
+            } finally {
+                if (!esAutomatico) btnSubmit.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión';
+            }
         }
 
-        function cerrarModal() {
-            document.getElementById('success-modal').style.display = 'none';
-            
-            // Resetear el formulario para la siguiente entrega
-            document.getElementById('cliente-input').value = '';
-            catalogo.forEach(prod => {
-                pedidoActual[prod.id] = 0;
-                document.getElementById(`qty-${prod.id}`).innerText = '0';
-            });
-            document.querySelector('input[name="pago"][value="Efectivo"]').checked = true;
-            calcularTotal();
-            
-            // Scroll arriba
-            window.scrollTo(0,0);
+        function cerrarSesion(preguntar = true) {
+            if (!preguntar || confirm("¿Cerrar sesión del dispositivo?")) {
+                if(watchPositionId) navigator.geolocation.clearWatch(watchPositionId);
+                localStorage.removeItem('chofer_codigo');
+                location.reload();
+            }
         }
 
-        // Inicializar
-        renderizarProductos();
+        // ------------------------------------------
+        // GPS Y OPENSTREETMAP (Código Abierto)
+        // ------------------------------------------
+        function encenderMotorGPS() {
+            const indicador = document.getElementById('gps-status-indicator');
+            if (navigator.geolocation) {
+                if (watchPositionId) navigator.geolocation.clearWatch(watchPositionId);
+                watchPositionId = navigator.geolocation.watchPosition(
+                    async (position) => {
+                        latitudActual = position.coords.latitude;
+                        longitudActual = position.coords.longitude;
+                        indicador.style.display = 'flex';
+                        indicador.className = 'gps-indicator';
+                        indicador.innerHTML = '<i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS en vivo';
+
+                        if (unidadSeleccionadaId) {
+                            await supabaseClient.from('flota').update({ latitud: latitudActual, longitud: longitudActual }).eq('id', unidadSeleccionadaId);
+                        }
+                    },
+                    (error) => {
+                        indicador.style.display = 'flex';
+                        indicador.className = 'gps-indicator error';
+                        indicador.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Activa el GPS celular';
+                    },
+                    { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+                );
+            }
+        }
+
+        async function obtenerDireccionExacta(lat, lng) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                const data = await response.json();
+                if (data && data.address) {
+                    const calle = data.address.road || 'Calle sin nombre';
+                    const numero = data.address.house_number || 'S/N';
+                    const zona = data.address.suburb || data.address.neighbourhood || '';
+                    const ciudad = data.address.city || data.address.town || '';
+                    
+                    let dir = `${calle} ${numero}`;
+                    if(zona) dir += `, Zona ${zona}`;
+                    if(ciudad) dir += `, ${ciudad}`;
+                    return dir;
+                }
+                return 'Ubicación GPS';
+            } catch (error) { return 'Ubicación GPS'; }
+        }
+
+        function getUbicacionPromise() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) reject(new Error("Geolocalización no soportada"));
+                navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true });
+            });
+        }
+
+        // ------------------------------------------
+        // LÓGICA DE VENTAS Y FLUJO CON MODAL DE CONFIRMACIÓN
+        // ------------------------------------------
+        function calcularTotalVenta() {
+            const unidades = parseFloat(document.getElementById('venta-unidades').value) || 0;
+            const precioUnit = parseFloat(document.getElementById('venta-precio-unit').value) || 0;
+            document.getElementById('venta-total-calc').value = fmtBs(unidades * precioUnit);
+        }
+
+        function cerrarModalFlujo() {
+            document.getElementById('modal-flujo-cliente').style.display = 'none';
+        }
+
+        // INTERCEPTOR: Al enviar la venta, verificamos si el cliente ya existe en el historial de hoy
+        document.getElementById('form-venta-chofer').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const debugErrorBox = document.getElementById('debug-error-venta');
+            debugErrorBox.style.display = 'none';
+
+            if (!unidadSeleccionadaId) return alert("Actualmente no tienes una unidad en ruta.");
+
+            const clienteInput = document.getElementById('venta-cliente').value.trim();
+            const unidades = parseInt(document.getElementById('venta-unidades').value);
+            
+            if (unidades > stockActualUnidad) return alert(`Stock insuficiente. Quedan: ${stockActualUnidad}`);
+
+            const clienteExiste = entregasGlobales.some(e => e.cliente.toLowerCase() === clienteInput.toLowerCase());
+
+            if (clienteExiste) {
+                // Si el cliente ya existe, se procesa la venta directamente sin pedir confirmación de ubicación
+                registrarVentaFinal(clienteInput, null, null, null);
+            } else {
+                // Si es un cliente nuevo, abrimos el modal de confirmación con el interruptor de GPS
+                document.getElementById('flujo-nuevo-nombre').innerText = clienteInput;
+                document.getElementById('flujo-nuevo-telefono').value = '';
+                document.getElementById('flujo-toggle-gps').checked = true; // Activado por defecto
+                document.getElementById('modal-flujo-cliente').style.display = 'flex';
+            }
+        });
+
+        async function ejecutarVentaConClienteNuevo() {
+            const clienteNombre = document.getElementById('flujo-nuevo-nombre').innerText;
+            const telefono = document.getElementById('flujo-nuevo-telefono').value.trim();
+            const guardarGps = document.getElementById('flujo-toggle-gps').checked; // Estado del interruptor
+            
+            const btnModal = document.getElementById('btn-guardar-flujo');
+            btnModal.disabled = true;
+            btnModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+
+            try {
+                let lat = null, lng = null, dirExacta = null;
+
+                // Solo si el interruptor está encendido intentamos capturar la ubicación
+                if (guardarGps) {
+                    try {
+                        const pos = await getUbicacionPromise();
+                        lat = pos.coords.latitude;
+                        lng = pos.coords.longitude;
+                        dirExacta = await obtenerDireccionExacta(lat, lng);
+                    } catch(err) {
+                        console.warn("No se pudo obtener GPS o el usuario denegó el permiso.");
+                    }
+                }
+
+                cerrarModalFlujo();
+                
+                // Formateamos la referencia combinando teléfono y dirección obtenida (si la hay)
+                let referenciaTexto = telefono ? `Tel: ${telefono}` : 'Sin teléfono';
+                if (dirExacta) referenciaTexto += ` - ${dirExacta}`;
+
+                await registrarVentaFinal(clienteNombre, lat, lng, referenciaTexto);
+
+            } catch (error) {
+                alert("Hubo un error al procesar.");
+                console.error(error);
+            } finally {
+                btnModal.disabled = false;
+                btnModal.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Confirmar y Registrar Venta';
+            }
+        }
+
+        async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
+            const btn = document.getElementById('btn-submit-venta');
+            const debugErrorBox = document.getElementById('debug-error-venta');
+            
+            const unidades = parseInt(document.getElementById('venta-unidades').value);
+            const precioUnit = parseFloat(document.getElementById('venta-precio-unit').value);
+            const metodoPago = document.getElementById('venta-metodo').value;
+            const total = unidades * precioUnit;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+            try {
+                let urlMaps = null;
+                const finalLat = lat !== null ? lat : latitudActual;
+                const finalLng = lng !== null ? lng : longitudActual;
+                
+                // Solo generamos enlace a maps si se guardaron coordenadas válidas
+                if (lat !== null && lng !== null) {
+                    urlMaps = `https://www.google.com/maps?q=${lat},${lng}`;
+                }
+
+                // 1. Insertar entrega en Supabase
+                const { error: errEntrega } = await supabaseClient.from('entregas').insert([{
+                    cliente: nombreCliente,
+                    unidades: unidades,
+                    total: total,
+                    metodo_pago: metodoPago,
+                    flota_id: unidadSeleccionadaId,
+                    latitud: lat,
+                    longitud: lng,
+                    referencia_ubicacion: referencia || 'Sin referencia',
+                    url_maps: urlMaps
+                }]);
+                if(errEntrega) throw errEntrega;
+
+                // 2. Descontar stock de la flota
+                const nuevoStock = stockActualUnidad - unidades;
+                const { error: errFlota } = await supabaseClient.from('flota').update({ stock_actual: nuevoStock }).eq('id', unidadSeleccionadaId);
+                if(errFlota) throw errFlota;
+
+                // 3. Registrar asiento contable
+                const { error: errAsiento } = await supabaseClient.from('asientos_contables').insert([{
+                    concepto: `Venta a ${nombreCliente} (${unidades} botellones)`,
+                    cuenta_debe: metodoPago === 'Crédito' ? 'Cuentas por Cobrar' : 'Caja / Banco',
+                    cuenta_haber: 'Ventas de Agua',
+                    monto: total
+                }]);
+                if(errAsiento) throw errAsiento;
+
+                // Limpiar formulario
+                document.getElementById('form-venta-chofer').reset();
+                document.getElementById('venta-precio-unit').value = '15';
+                document.getElementById('venta-total-calc').value = 'Bs. 0.00';
+                
+                alert('¡Venta registrada con éxito!');
+                
+                buscarRutaActiva();
+                switchScreen('historial', document.querySelectorAll('.nav-item')[2]); 
+
+            } catch (err) {
+                console.error("Error al procesar venta:", err);
+                debugErrorBox.innerHTML = `<strong>Error de Supabase:</strong><br>${err.message || err.details}`;
+                debugErrorBox.style.display = 'block';
+                alert("No se pudo completar la venta. Revisa el cuadro rojo.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Procesar Venta';
+            }
+        }
+
+        // ------------------------------------------
+        // CARGA DE DATOS Y RUTA
+        // ------------------------------------------
+        async function buscarRutaActiva() {
+            if (!datosChoferLogueado) return;
+            try {
+                const { data } = await supabaseClient.from('flota').select('*, choferes(placa)').eq('chofer_id', datosChoferLogueado.id).eq('estado', 'ruta').order('created_at', { ascending: false }).limit(1).maybeSingle();
+                const cardCamion = document.getElementById('card-camion');
+                const alerta = document.getElementById('alerta-sin-ruta');
+
+                if (data) {
+                    unidadSeleccionadaId = data.id; stockActualUnidad = data.stock_actual; capacidadMaxUnidad = data.capacidad_maxima;
+                    alerta.style.display = 'none'; cardCamion.style.display = 'block';
+                    
+                    const p = Math.max(0, Math.min(100, (stockActualUnidad / capacidadMaxUnidad) * 100));
+                    document.getElementById('card-route-name').innerHTML = `<i class="fa-solid fa-route"></i> ${data.nombre}`;
+                    document.getElementById('card-placa').innerText = `Placa: ${data.choferes?.placa || 'N/A'}`;
+                    document.getElementById('card-stock-actual').innerText = stockActualUnidad;
+                    document.getElementById('card-capacidad-max').innerText = capacidadMaxUnidad;
+                    document.getElementById('card-inventory-fill').style.width = p + '%';
+                    document.getElementById('card-porcentaje').innerText = Math.round(p) + '%';
+                    document.getElementById('card-inventory-fill').className = p < 25 ? 'inventory-fill low' : 'inventory-fill';
+
+                    encenderMotorGPS(); fetchHistorialVentasChofer();
+                } else {
+                    unidadSeleccionadaId = null;
+                    if(watchPositionId) navigator.geolocation.clearWatch(watchPositionId);
+                    document.getElementById('gps-status-indicator').style.display = 'none';
+                    alerta.style.display = 'block'; cardCamion.style.display = 'none';
+                    document.getElementById('driver-delivery-list').innerHTML = '<div class="loading-text">No hay ruta activa.</div>';
+                }
+            } catch (err) { console.error("Error ruta:", err); }
+        }
+
+        async function fetchHistorialVentasChofer() {
+            if (!unidadSeleccionadaId) return;
+            try {
+                const { data } = await supabaseClient.from('entregas').select('*').eq('flota_id', unidadSeleccionadaId).order('created_at', { ascending: false });
+                entregasGlobales = data || [];
+                
+                const datalist = document.getElementById('clientes-datalist');
+                let optionsHtml = '';
+                const unicos = [...new Set(entregasGlobales.map(e => e.cliente))];
+                unicos.forEach(nombre => {
+                    optionsHtml += `<option value="${nombre}">`;
+                });
+                datalist.innerHTML = optionsHtml;
+
+                const contenedor = document.getElementById('lista-clientes-directorio');
+                document.getElementById('historial-total-count').innerText = `${entregasGlobales.length} entregas`;
+                
+                if(!entregasGlobales.length) {
+                    contenedor.innerHTML = '<div class="loading-text">No hay ventas registradas aún.</div>';
+                    return;
+                }
+
+                let htmlHistorial = '';
+                let htmlClientesGPS = '';
+
+                entregasGlobales.forEach(e => {
+                    let payClass = 'pay-efectivo'; 
+                    const metodo = (e.metodo_pago || '').toLowerCase();
+                    if(metodo.includes('qr')) payClass = 'pay-qr';
+                    else if(metodo.includes('crédito') || metodo.includes('credito')) payClass = 'pay-credito';
+                    else if(metodo.includes('transferencia')) payClass = 'pay-transferencia';
+                    
+                    htmlHistorial += `<div class="delivery-item"><div class="delivery-left"><div class="truck-avatar"><i class="fa-solid fa-droplet"></i></div><div><div class="delivery-client">${e.cliente}</div><div class="delivery-meta-sub"><span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span></div></div></div><div class="delivery-right"><div class="delivery-price">${fmtBs(e.total)}</div><span class="payment-pill ${payClass}">${e.metodo_pago} (${e.unidades} u.)</span></div></div>`;
+
+                    // Mostrar solo aquellos que SÍ guardaron ubicación GPS
+                    if (e.latitud && e.longitud) {
+                        const linkNav = `https://www.google.com/maps/dir/?api=1&destination=${e.latitud},${e.longitud}`;
+                        htmlClientesGPS += `
+                            <div class="delivery-item" style="flex-direction: column; align-items: flex-start; gap: 8px; border-left: 4px solid var(--success);">
+                                <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">
+                                    <i class="fa-solid fa-store" style="color: var(--success); margin-right: 5px;"></i> ${e.cliente}
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                    <div><strong>Info:</strong> ${e.referencia_ubicacion || 'Sin detalles'}</div>
+                                </div>
+                                <div style="width: 100%; display: flex; gap: 8px; margin-top: 5px;">
+                                    <a href="${linkNav}" target="_blank" class="btn-primary" style="text-decoration: none; background: var(--success); flex: 1; padding: 10px; font-size: 0.8rem;">
+                                        <i class="fa-solid fa-location-arrow"></i> Navegar a ${e.cliente}
+                                    </a>
+                                </div>
+                            </div>`;
+                    }
+                });
+
+                document.getElementById('driver-delivery-list').innerHTML = htmlHistorial;
+                document.getElementById('lista-clientes-directorio').innerHTML = htmlClientesGPS || '<div class="loading-text">No hay clientes con GPS guardado.</div>';
+
+            } catch (err) { console.error(err); }
+        }
+
+        // ------------------------------------------
+        // INICIO
+        // ------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarSesion();
+            document.getElementById('form-login').addEventListener('submit', (e) => { e.preventDefault(); procesarLogin(document.getElementById('input-codigo').value.trim()); });
+            
+            supabaseClient.channel('chofer-live-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'flota' }, buscarRutaActiva)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, fetchHistorialVentasChofer)
+                .subscribe();
+        });
     </script>
 </body>
 </html>
