@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">- 
+    <title>App Producción - Neve Express</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #111827;
+            --bg-card: #1f2937;
+            --bg-input: #374151;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --primary: #6366f1;
+            --primary-active: #818cf8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border: #374151;
+            --radius: 12px;
+            --nav-height: 65px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            text-align: left;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-online { background-color: var(--success); }
+        .dot-syncing { background-color: var(--warning); animation: pulse 1s infinite; }
+        .dot-offline { background-color: var(--danger); }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 24px;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-success { background-color: var(--success); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-danger { background-color: var(--danger); color: #fff; }
+
+        .list-item {
+            background-color: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .list-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .list-item-title { font-weight: 600; font-size: 1rem; }
+        .text-money { color: var(--success); font-family: monospace; font-size: 0.95rem; }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-input);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            border: 1px solid var(--border);
+        }
+        .qty-control button {
+            background-color: transparent;
+            width: 44px;
+            padding: 10px 0;
+            border-radius: 0;
+            color: var(--text-muted);
+        }
+        .qty-control input {
+            border: none;
+            margin: 0;
+            border-radius: 0;
+            text-align: center;
+            padding: 10px 0;
+            font-weight: 600;
+            -moz-appearance: textfield;
+        }
+        .qty-control input::-webkit-outer-spin-button, .qty-control input::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+        .badge-success { background-color: var(--success); }
+
+        .status-loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--warning);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin: 8px 0;
+        }
+        .spinner { animation: spin 1.5s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .bottom-nav {
+            background-color: var(--bg-card);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            height: var(--nav-height);
+            flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .nav-item span { font-size: 0.7rem; font-weight: 500; text-align: center; }
+        .nav-item.active { color: var(--primary-active); }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal-content {
+            background-color: var(--bg-card);
+            width: 90%;
+            max-width: 400px;
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--warning);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .faltante-item {
+            background-color: var(--bg-base);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--danger);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faltante-nombre {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+        .faltante-cantidad {
+            color: var(--danger);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .lote-ingredientes-card {
+            background-color: var(--bg-input);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            border: 1px solid var(--border);
+        }
+        .lote-ingredientes-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .lote-ingrediente-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            padding: 4px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        .lote-ingrediente-fila:last-child {
+            border-bottom: none;
+        }
+
+        .presentacion-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .presentacion-item input {
+            margin-bottom: 0;
+            flex: 1;
+        }
+        .presentacion-item button {
+            width: auto;
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--danger);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .btn-agregar-presentacion {
+            width: auto;
+            padding: 10px 16px;
+            background-color: transparent;
+            border: 1px dashed var(--border);
+            color: var(--primary);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .presentacion-auto-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--bg-base);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .presentacion-auto-item.seleccionada {
+            border-color: var(--primary);
+            background: #1f2937;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <svg class="icon" viewBox="0 0 24 24" style="margin:0;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            <h1 id="app-title">Inventario</h1>
+        </div>
+        <div class="status-indicator" id="db-status">
+            <div class="status-dot dot-offline" id="db-status-dot"></div>
+            <span id="db-status-text">Cargando...</span>
+        </div>
+    </header>
+
+    <div class="main-content">
+        
+        <!-- VISTA 1: INVENTARIO -->
+        <section id="view-inventario" class="view active">
+            <div class="card">
+                <div class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24" style="margin:0;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    <span id="titulo_inventario">Ingresar Insumo</span>
+                </div>
+                <label>Nombre del Insumo</label>
+                <input type="text" id="inv_nombre" placeholder="Ej. Harina">
+                
+                <div class="row">
+                    <div>
+                        <label>Cantidad</label>
+                        <input type="number" id="inv_cantidad" min="0" step="0.1" placeholder="0.0">
+                    </div>
+                    <div>
+                        <label>Unidad</label>
+                        <select id="inv_unidad">
+                            <option value="kg">kg</option>
+                            <option value="L">Litros</option>
+                            <option value="uds">uds</option>
+                            <option value="g">g</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <label>Costo Total (Bs.)</label>
+                <input type="number" id="inv_costo_total" min="0" step="0.01" placeholder="0.00">
+                
+                <button id="btn_guardar_inventario" onclick="registrarInventario()">Guardar en Almacén</button>
+                <button id="btn_cancelar_inv" class="btn-outline" style="display:none; margin-top:8px;" onclick="cancelarEdicionInsumo()">Cancelar Edición</button>
+            </div>
+
+            <h3 style="font-size:1rem; margin-bottom:12px; color:var(--text-muted);">Stock Actual</h3>
+            <div id="lista-inventario"></div>
+        </section>
+
+        <!-- VISTA 2: FÓRMULAS -->
+        <section id="view-formulas" class="view">
+            <div class="card">
+                <div class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24" style="margin:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span id="titulo_formula">Nueva Fórmula</span>
+                </div>
+                
+                <label>Producto a fabricar</label>
+                <input type="text" id="nuevo_nombre_producto" placeholder="Ej. Cuñapé">
+                
+                <div class="row">
+                    <div>
+                        <label>Bolas por bandeja</label>
+                        <input type="number" id="bolas_por_bandeja" min="1" step="1" placeholder="Ej. 252">
+                    </div>
+                    <div>
+                        <label>Bandejas por lote</label>
+                        <input type="number" id="bandejas_por_lote" min="1" step="1" placeholder="Ej. 22">
+                    </div>
+                </div>
+
+                <div class="card" style="background:var(--bg-base); margin-bottom:16px;">
+                    <label style="color:var(--primary); font-weight:600;">Presentaciones (paquetes)</label>
+                    <div id="lista-presentaciones-temp"></div>
+                    <button type="button" class="btn-agregar-presentacion" onclick="agregarPresentacionTemporal()">
+                        <svg class="icon" style="width:18px;height:18px;margin:0;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Agregar presentación
+                    </button>
+                </div>
+
+                <div style="background:var(--bg-base); padding:12px; border-radius:8px; border:1px solid var(--border); margin-bottom:12px;">
+                    <label style="color:var(--primary);">Agregar Ingrediente (para 1 bandeja)</label>
+                    <select id="select_insumo"></select>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="cantidad_insumo" min="0.1" step="0.1" placeholder="Cant." style="margin:0;">
+                        <button class="btn-outline" style="width:60px; padding:0;" onclick="agregarIngredienteTemporal()">
+                            <svg class="icon" viewBox="0 0 24 24" style="margin:0;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="lista_temporal" style="margin-bottom:12px;"></div>
+
+                <button id="btn_guardar_formula" onclick="guardarFormula()">Guardar Fórmula</button>
+                <button id="btn_cancelar_edicion" class="btn-outline" style="display:none; margin-top:8px;" onclick="cancelarEdicionFormula()">Cancelar Edición</button>
+            </div>
+
+            <h3 style="font-size:1rem; margin-bottom:12px; color:var(--text-muted);">Fórmulas Guardadas</h3>
+            <div id="lista-formulas"></div>
+        </section>
+
+        <!-- VISTA 3: PRODUCCIÓN -->
+        <section id="view-produccion" class="view">
+            <div class="card">
+                <div class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24" style="margin:0;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Orden de Producción
+                </div>
+                
+                <label>Seleccionar Fórmula</label>
+                <select id="producto_fabricar" onchange="actualizarResumenProduccion()"></select>
+                
+                <label>Cantidad de Lotes a producir</label>
+                <input type="number" id="cantidad_lotes" min="1" step="1" value="1" onchange="actualizarResumenProduccion()">
+                
+                <div id="resumen-produccion" style="background:var(--bg-base); padding:12px; border-radius:8px; border:1px solid var(--border); margin-bottom:12px; display:none;">
+                </div>
+
+                <div id="selector-presentacion" style="margin-bottom:12px;">
+                </div>
+                
+                <button onclick="iniciarProduccion()">
+                    Procesar y Enviar a Almacén
+                </button>
+            </div>
+        </section>
+
+        <!-- VISTA 4: ALMACÉN (SEGUIMIENTO) -->
+        <section id="view-almacen" class="view">
+            <h3 style="font-size:1rem; margin-bottom:12px; color:var(--text-muted);">Seguimiento de Lotes</h3>
+            <div id="lista-lotes"></div>
+        </section>
+
+    </div>
+
+    <!-- MODAL DE INVENTARIO INSUFICIENTE -->
+    <div id="modal-faltantes" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <svg class="icon" viewBox="0 0 24 24" style="margin:0; width:28px; height:28px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Inventario Insuficiente
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">Te falta stock en los siguientes insumos para poder producir esta cantidad:</p>
+            
+            <div id="lista-faltantes-content" style="max-height: 250px; overflow-y: auto; margin-bottom: 16px;">
+            </div>
+
+            <button onclick="cerrarModalFaltantes()" style="background-color: var(--bg-input); color: var(--text-main);">Entendido</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE DOBLE CONFIRMACIÓN PARA ACCIONES DE ALTO RIESGO -->
+    <div id="modal-doble-confirmacion" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header" style="color:var(--danger)">
+                <svg class="icon" viewBox="0 0 24 24" style="margin:0; width:28px; height:28px; stroke:var(--danger)"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Confirmación Requerida
+            </div>
+            <p id="modal-confirm-msg" style="font-size: 0.95rem; color: var(--text-main); margin-bottom: 20px;"></p>
+            
+            <!-- Paso 1 -->
+            <div id="modal-confirm-step1">
+                <button onclick="avanzarPasoConfirmacion()" style="background-color:var(--warning); color:#fff; margin-bottom:10px;">Sí, continuar</button>
+                <button onclick="cerrarDobleConfirmacion()" class="btn-outline">Cancelar</button>
+            </div>
+
+            <!-- Paso 2 -->
+            <div id="modal-confirm-step2" style="display:none; background-color:rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); padding:12px; border-radius:8px;">
+                <p style="font-size: 0.85rem; color: var(--danger); margin-bottom: 16px; font-weight:600; text-align:center;">¡ADVERTENCIA! Esta acción no se puede deshacer y alterará permanentemente la base de datos.</p>
+                <button onclick="ejecutarAccionConfirmada()" class="btn-danger" style="margin-bottom:10px;">Estoy 100% seguro, Confirmar</button>
+                <button onclick="cerrarDobleConfirmacion()" class="btn-outline">Abortar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN INFERIOR -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="nav-inventario" onclick="switchTab('inventario', 'Inventario')">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            <span>Inventario</span>
+        </div>
+        <div class="nav-item" id="nav-formulas" onclick="switchTab('formulas', 'Fórmulas')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>Fórmulas</span>
+        </div>
+        <div class="nav-item" id="nav-produccion" onclick="switchTab('produccion', 'Producción')">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Producir</span>
+        </div>
+        <div class="nav-item" id="nav-almacen" onclick="switchTab('almacen', 'Seguimiento Almacén')">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Almacén</span>
+        </div>
+    </nav>
+
+    <!-- Importar Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const SUPABASE_URL = 'https://tecfkdgmfktbuylamljc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlY2ZrZGdtZmt0YnV5bGFtbGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5ODE3MTQsImV4cCI6MjA3MTU1NzcxNH0.pa15Ctn-NaWtbplDZ4r35pxPD-4pA-7e0Q_WwVss9sg';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- SISTEMA DE SINCRONIZACIÓN AUTOMÁTICA Y OFFLINE ---
+        let offlineQueue = JSON.parse(localStorage.getItem('sys_offline_queue')) || [];
+
+        function updateStatusIndicator(state) {
+            const dot = document.getElementById('db-status-dot');
+            const text = document.getElementById('db-status-text');
+            dot.className = 'status-dot'; 
+            
+            if (state === 'syncing') {
+                dot.classList.add('dot-syncing');
+                text.innerText = 'Sincronizando...';
+            } else if (!navigator.onLine || state === 'offline') {
+                dot.classList.add('dot-offline');
+                text.innerText = 'Modo Local';
+            } else {
+                dot.classList.add('dot-online');
+                text.innerText = 'En Línea';
+            }
+        }
+
+        function addOfflineTask(action, table, payload) {
+            offlineQueue.push({ action, table, payload });
+            localStorage.setItem('sys_offline_queue', JSON.stringify(offlineQueue));
+            updateStatusIndicator('offline');
+        }
+
+        async function processOfflineQueue() {
+            if (!navigator.onLine || offlineQueue.length === 0) return;
+            updateStatusIndicator('syncing');
+            
+            let i = 0;
+            while (i < offlineQueue.length) {
+                let task = offlineQueue[i];
+                try {
+                    if (task.action === 'UPSERT') {
+                        await supabaseClient.from(task.table).upsert(task.payload);
+                    } else if (task.action === 'DELETE') {
+                        await supabaseClient.from(task.table).delete().eq('id', task.payload.id);
+                    }
+                    offlineQueue.splice(i, 1);
+                    localStorage.setItem('sys_offline_queue', JSON.stringify(offlineQueue));
+                } catch (e) {
+                    console.error("Fallo sincronizando tarea offline, se reintentará:", e);
+                    break;
+                }
+            }
+            if(offlineQueue.length === 0) updateStatusIndicator('online');
+        }
+
+        async function dbSync(action, table, payload) {
+            if (!navigator.onLine) {
+                addOfflineTask(action, table, payload);
+                return;
+            }
+            updateStatusIndicator('syncing');
+            try {
+                if (action === 'UPSERT') {
+                    const {error} = await supabaseClient.from(table).upsert(payload);
+                    if (error) throw error;
+                } else if (action === 'DELETE') {
+                    const {error} = await supabaseClient.from(table).delete().eq('id', payload.id);
+                    if (error) throw error;
+                }
+                updateStatusIndicator('online');
+                processOfflineQueue(); 
+            } catch (e) {
+                console.error("Error directo de sincronización DB:", e);
+                addOfflineTask(action, table, payload);
+            }
+        }
+
+        window.addEventListener('online', () => {
+            updateStatusIndicator('online');
+            processOfflineQueue();
+        });
+        window.addEventListener('offline', () => {
+            updateStatusIndicator('offline');
+        });
+
+        // --- SISTEMA DE DOBLE CONFIRMACIÓN ---
+        let accionPendiente = null;
+
+        function solicitarConfirmacion(mensaje, callback) {
+            accionPendiente = callback;
+            document.getElementById('modal-confirm-msg').innerText = mensaje;
+            document.getElementById('modal-confirm-step1').style.display = 'block';
+            document.getElementById('modal-confirm-step2').style.display = 'none';
+            document.getElementById('modal-doble-confirmacion').classList.add('active');
+        }
+
+        function avanzarPasoConfirmacion() {
+            document.getElementById('modal-confirm-step1').style.display = 'none';
+            document.getElementById('modal-confirm-step2').style.display = 'block';
+        }
+
+        function cerrarDobleConfirmacion() {
+            document.getElementById('modal-doble-confirmacion').classList.remove('active');
+            accionPendiente = null;
+        }
+
+        function ejecutarAccionConfirmada() {
+            if (accionPendiente) {
+                accionPendiente();
+            }
+            cerrarDobleConfirmacion();
+        }
+
+        // --- LÓGICA PRINCIPAL DE LA APP ---
+        function switchTab(tabId, title) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById('view-' + tabId).classList.add('active');
+            document.getElementById('nav-' + tabId).classList.add('active');
+            document.getElementById('app-title').innerText = title;
+        }
+
+        let inventario = JSON.parse(localStorage.getItem('sys_inventario_app')) || {};
+        let formulas = JSON.parse(localStorage.getItem('sys_formulas_app')) || {};
+        let lotes = JSON.parse(localStorage.getItem('sys_lotes_app')) || [];
+        let contadorLotes = parseInt(localStorage.getItem('sys_contador_app')) || 1;
+        
+        let formulaTemporal = [];
+        let presentacionesTemporal = [];
+        let editandoFormulaId = null;
+        let editandoInsumoId = null;
+        let presentacionSeleccionadaProduccion = null;
+
+        function guardarDatos() {
+            localStorage.setItem('sys_inventario_app', JSON.stringify(inventario));
+            localStorage.setItem('sys_formulas_app', JSON.stringify(formulas));
+            localStorage.setItem('sys_lotes_app', JSON.stringify(lotes));
+            localStorage.setItem('sys_contador_app', contadorLotes.toString());
+        }
+
+        function registrarInventario() {
+            const nombreStr = document.getElementById('inv_nombre').value.trim();
+            const cantidad = parseFloat(document.getElementById('inv_cantidad').value);
+            const unidad = document.getElementById('inv_unidad').value;
+            const costoTotal = parseFloat(document.getElementById('inv_costo_total').value);
+
+            if (!nombreStr || isNaN(cantidad) || cantidad < 0 || isNaN(costoTotal) || costoTotal < 0) {
+                return alert("Verifique los datos ingresados.");
+            }
+
+            const insumoId = nombreStr.toLowerCase().replace(/ /g, '_');
+            const costoUnitarioNuevo = cantidad > 0 ? (costoTotal / cantidad) : 0;
+
+            const ejecutarRegistro = () => {
+                if (editandoInsumoId) {
+                    if (editandoInsumoId !== insumoId) {
+                        Object.values(formulas).forEach(f => {
+                            f.ingredientes.forEach(ing => {
+                                if (ing.id === editandoInsumoId) ing.id = insumoId;
+                            });
+                        });
+                        delete inventario[editandoInsumoId];
+                        dbSync('DELETE', 'inventario', {id: editandoInsumoId});
+                    }
+                    inventario[insumoId] = { nombre: nombreStr, cantidad: cantidad, unidad: unidad, costo_unitario: costoUnitarioNuevo };
+                    dbSync('UPSERT', 'inventario', [{ id: insumoId, nombre: nombreStr, cantidad: cantidad, unidad: unidad, costo_unitario: costoUnitarioNuevo }]);
+                    
+                    if (editandoInsumoId !== insumoId) {
+                        Object.keys(formulas).forEach(fKey => {
+                            let f = formulas[fKey];
+                            dbSync('UPSERT', 'formulas', [{ id: fKey, nombre: f.nombre, bolas_por_bandeja: f.bolas_por_bandeja, bandejas_por_lote: f.bandejas_por_lote, presentaciones: f.presentaciones, ingredientes: f.ingredientes }]);
+                        });
+                    }
+                    cancelarEdicionInsumo();
+                } else {
+                    if (inventario[insumoId]) {
+                        const qAnt = inventario[insumoId].cantidad;
+                        const cAnt = inventario[insumoId].costo_unitario;
+                        const qFinal = qAnt + cantidad;
+                        inventario[insumoId].cantidad = qFinal;
+                        inventario[insumoId].costo_unitario = qFinal > 0 ? ((qAnt * cAnt) + costoTotal) / qFinal : 0;
+                    } else {
+                        inventario[insumoId] = { nombre: nombreStr, cantidad: cantidad, unidad: unidad, costo_unitario: costoUnitarioNuevo };
+                    }
+                    dbSync('UPSERT', 'inventario', [{ id: insumoId, nombre: inventario[insumoId].nombre, cantidad: inventario[insumoId].cantidad, unidad: inventario[insumoId].unidad, costo_unitario: inventario[insumoId].costo_unitario }]);
+                    
+                    document.getElementById('inv_nombre').value = '';
+                    document.getElementById('inv_cantidad').value = '';
+                    document.getElementById('inv_costo_total').value = '';
+                }
+                guardarDatos();
+                actualizarTodo();
+            };
+
+            if (editandoInsumoId) {
+                solicitarConfirmacion(`Estás a punto de modificar el insumo "${nombreStr}". ¿Confirmas esta edición?`, ejecutarRegistro);
+            } else {
+                ejecutarRegistro();
+            }
+        }
+
+        function editarInsumo(id) {
+            const item = inventario[id];
+            editandoInsumoId = id;
+            document.getElementById('inv_nombre').value = item.nombre;
+            document.getElementById('inv_cantidad').value = item.cantidad;
+            document.getElementById('inv_unidad').value = item.unidad;
+            document.getElementById('inv_costo_total').value = (item.cantidad * item.costo_unitario).toFixed(2);
+            document.getElementById('titulo_inventario').innerText = "Editando Insumo";
+            document.getElementById('btn_guardar_inventario').innerText = "Actualizar Insumo";
+            document.getElementById('btn_cancelar_inv').style.display = "block";
+            window.scrollTo(0,0);
+        }
+
+        function cancelarEdicionInsumo() {
+            editandoInsumoId = null;
+            document.getElementById('inv_nombre').value = '';
+            document.getElementById('inv_cantidad').value = '';
+            document.getElementById('inv_costo_total').value = '';
+            document.getElementById('titulo_inventario').innerText = "Ingresar Insumo";
+            document.getElementById('btn_guardar_inventario').innerText = "Guardar en Almacén";
+            document.getElementById('btn_cancelar_inv').style.display = "none";
+        }
+
+        function eliminarInsumo(id) {
+            for (let fId in formulas) {
+                let usado = formulas[fId].ingredientes.some(ing => ing.id === id);
+                if (usado) {
+                    return alert(`No se puede eliminar porque la fórmula "${formulas[fId].nombre}" utiliza este insumo.`);
+                }
+            }
+
+            solicitarConfirmacion(`¿Estás seguro de eliminar "${inventario[id].nombre}" del inventario general?`, () => {
+                delete inventario[id];
+                if (editandoInsumoId === id) cancelarEdicionInsumo();
+                guardarDatos();
+                actualizarTodo();
+                dbSync('DELETE', 'inventario', {id: id});
+            });
+        }
+
+        function ajustarQty(id, delta) {
+            let n = inventario[id].cantidad + delta;
+            inventario[id].cantidad = n < 0 ? 0 : n;
+            guardarDatos();
+            renderizarInventario();
+            dbSync('UPSERT', 'inventario', [{ id: id, nombre: inventario[id].nombre, cantidad: inventario[id].cantidad, unidad: inventario[id].unidad, costo_unitario: inventario[id].costo_unitario }]);
+        }
+
+        function setQty(id, val) {
+            let n = parseFloat(val);
+            inventario[id].cantidad = (isNaN(n) || n < 0) ? 0 : n;
+            guardarDatos();
+            renderizarInventario();
+            dbSync('UPSERT', 'inventario', [{ id: id, nombre: inventario[id].nombre, cantidad: inventario[id].cantidad, unidad: inventario[id].unidad, costo_unitario: inventario[id].costo_unitario }]);
+        }
+
+        function renderizarInventario() {
+            const div = document.getElementById('lista-inventario');
+            div.innerHTML = '';
+            const keys = Object.keys(inventario);
+            if(keys.length === 0) return div.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Sin insumos registrados.</p>';
+
+            keys.forEach(key => {
+                const item = inventario[key];
+                div.innerHTML += `
+                    <div class="list-item">
+                        <div class="list-item-header">
+                            <span class="list-item-title">${item.nombre} <span style="color:var(--text-muted);font-weight:400;font-size:0.8rem">(${item.unidad})</span></span>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="text-money">Bs. ${item.costo_unitario.toFixed(3)}/u</span>
+                                <button class="btn-outline" style="padding: 4px 6px; width: auto; font-size: 0.75rem;" onclick="editarInsumo('${key}')" title="Editar">
+                                    <svg class="icon" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                </button>
+                                <button class="btn-danger" style="padding: 4px 6px; width: auto; font-size: 0.75rem;" onclick="eliminarInsumo('${key}')" title="Eliminar">
+                                    <svg class="icon" style="width:14px;height:14px;margin:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="qty-control">
+                            <button onclick="ajustarQty('${key}', -1)">-</button>
+                            <input type="number" value="${item.cantidad.toFixed(1)}" onchange="setQty('${key}', this.value)">
+                            <button onclick="ajustarQty('${key}', 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function agregarPresentacionTemporal() {
+            presentacionesTemporal.push({ gramaje: 0, bolas_por_paquete: 0 });
+            renderizarPresentacionesTemporal();
+        }
+
+        function eliminarPresentacionTemporal(index) {
+            presentacionesTemporal.splice(index, 1);
+            renderizarPresentacionesTemporal();
+        }
+
+        function actualizarPresentacionTemporal(index, campo, valor) {
+            presentacionesTemporal[index][campo] = parseFloat(valor) || 0;
+        }
+
+        function renderizarPresentacionesTemporal() {
+            const div = document.getElementById('lista-presentaciones-temp');
+            div.innerHTML = '';
+            presentacionesTemporal.forEach((p, i) => {
+                div.innerHTML += `
+                    <div class="presentacion-item">
+                        <input type="number" placeholder="Gramaje (g)" value="${p.gramaje || ''}" 
+                               onchange="actualizarPresentacionTemporal(${i}, 'gramaje', this.value)">
+                        <input type="number" placeholder="Bolas/paquete" value="${p.bolas_por_paquete || ''}" 
+                               onchange="actualizarPresentacionTemporal(${i}, 'bolas_por_paquete', this.value)">
+                        <button onclick="eliminarPresentacionTemporal(${i})" title="Quitar">
+                            <svg class="icon" style="width:16px;height:16px;margin:0;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function agregarIngredienteTemporal() {
+            const id = document.getElementById('select_insumo').value;
+            const cant = parseFloat(document.getElementById('cantidad_insumo').value);
+            if (!id || isNaN(cant) || cant <= 0) return;
+
+            const idx = formulaTemporal.findIndex(i => i.id === id);
+            if (idx !== -1) formulaTemporal[idx].cantidad_necesaria += cant;
+            else formulaTemporal.push({ id: id, cantidad_necesaria: cant });
+
+            document.getElementById('cantidad_insumo').value = '';
+            actualizarListaTemporal();
+        }
+
+        function actualizarListaTemporal() {
+            const div = document.getElementById('lista_temporal');
+            div.innerHTML = '';
+            formulaTemporal.forEach((ing, i) => {
+                const item = inventario[ing.id];
+                if(!item) return;
+                div.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:0.9rem;">
+                        <span>${ing.cantidad_necesaria} ${item.unidad} de <strong>${item.nombre}</strong></span>
+                        <span style="color:var(--danger); font-weight:bold; cursor:pointer; padding:4px;" onclick="eliminarTemporal(${i})">
+                            <svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        function eliminarTemporal(i) {
+            formulaTemporal.splice(i, 1);
+            actualizarListaTemporal();
+        }
+
+        function guardarFormula() {
+            const nom = document.getElementById('nuevo_nombre_producto').value.trim();
+            const bolasBandeja = parseInt(document.getElementById('bolas_por_bandeja').value);
+            const bandejasLote = parseInt(document.getElementById('bandejas_por_lote').value);
+            
+            if (!nom || isNaN(bolasBandeja) || bolasBandeja <= 0 || isNaN(bandejasLote) || bandejasLote <= 0) {
+                return alert("Complete los datos de la fórmula (nombre, bolas por bandeja, bandejas por lote).");
+            }
+            if (formulaTemporal.length === 0) return alert("Agregue al menos un ingrediente.");
+            
+            const presentacionesValidas = presentacionesTemporal.filter(p => p.gramaje > 0 && p.bolas_por_paquete > 0);
+            if (presentacionesValidas.length === 0) {
+                return alert("Debe agregar al menos una presentación (paquete) con gramaje y bolas/paquete válidos.");
+            }
+
+            const fId = editandoFormulaId || (nom.toLowerCase().replace(/ /g, '_') + '_' + Date.now());
+            
+            const ejecutarGuardado = () => {
+                formulas[fId] = {
+                    nombre: nom,
+                    bolas_por_bandeja: bolasBandeja,
+                    bandejas_por_lote: bandejasLote,
+                    presentaciones: presentacionesValidas,
+                    ingredientes: [...formulaTemporal]
+                };
+
+                dbSync('UPSERT', 'formulas', [{
+                    id: fId,
+                    nombre: nom,
+                    bolas_por_bandeja: bolasBandeja,
+                    bandejas_por_lote: bandejasLote,
+                    presentaciones: presentacionesValidas,
+                    ingredientes: [...formulaTemporal]
+                }]);
+
+                guardarDatos();
+                cancelarEdicionFormula();
+                actualizarTodo();
+                switchTab('formulas', 'Fórmulas');
+            };
+
+            if (editandoFormulaId) {
+                solicitarConfirmacion(`Estás a punto de alterar la fórmula de "${nom}". ¿Confirmas esta modificación?`, ejecutarGuardado);
+            } else {
+                ejecutarGuardado();
+            }
+        }
+
+        function editarFormula(id) {
+            const f = formulas[id];
+            editandoFormulaId = id;
+            document.getElementById('nuevo_nombre_producto').value = f.nombre;
+            document.getElementById('bolas_por_bandeja').value = f.bolas_por_bandeja;
+            document.getElementById('bandejas_por_lote').value = f.bandejas_por_lote;
+            formulaTemporal = JSON.parse(JSON.stringify(f.ingredientes));
+            presentacionesTemporal = JSON.parse(JSON.stringify(f.presentaciones || []));
+            
+            document.getElementById('titulo_formula').innerText = "Editando Fórmula";
+            document.getElementById('btn_guardar_formula').innerText = "Actualizar";
+            document.getElementById('btn_cancelar_edicion').style.display = "block";
+            actualizarListaTemporal();
+            renderizarPresentacionesTemporal();
+            window.scrollTo(0,0);
+        }
+
+        function eliminarFormula(id) {
+            solicitarConfirmacion(`¿Estás seguro de eliminar la fórmula "${formulas[id].nombre}" del sistema?`, () => {
+                delete formulas[id];
+                if (editandoFormulaId === id) cancelarEdicionFormula();
+                guardarDatos();
+                actualizarTodo();
+                dbSync('DELETE', 'formulas', {id: id});
+            });
+        }
+
+        function cancelarEdicionFormula() {
+            editandoFormulaId = null;
+            document.getElementById('nuevo_nombre_producto').value = '';
+            document.getElementById('bolas_por_bandeja').value = '';
+            document.getElementById('bandejas_por_lote').value = '';
+            formulaTemporal = [];
+            presentacionesTemporal = [];
+            document.getElementById('titulo_formula').innerText = "Nueva Fórmula";
+            document.getElementById('btn_guardar_formula').innerText = "Guardar Fórmula";
+            document.getElementById('btn_cancelar_edicion').style.display = "none";
+            actualizarListaTemporal();
+            renderizarPresentacionesTemporal();
+        }
+
+        function renderizarFormulas() {
+            const div = document.getElementById('lista-formulas');
+            div.innerHTML = '';
+            const keys = Object.keys(formulas);
+            if(keys.length === 0) return div.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Sin fórmulas.</p>';
+
+            keys.forEach(id => {
+                const f = formulas[id];
+                const presentacionesStr = (f.presentaciones || []).map(p => `${p.gramaje}g (${p.bolas_por_paquete} bolas)`).join(', ');
+                div.innerHTML += `
+                    <div class="list-item">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div class="list-item-title">${f.nombre}</div>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">
+                                    ${f.bolas_por_bandeja} bolas/bandeja · ${f.bandejas_por_lote} bandejas/lote
+                                </div>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">Paquetes: ${presentacionesStr || 'Ninguno'}</div>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn-outline" style="width:auto; padding:8px 10px; font-size:0.85rem;" onclick="editarFormula('${id}')" title="Editar">
+                                    <svg class="icon" style="width:16px;height:16px;margin:0;" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                </button>
+                                <button class="btn-danger" style="width:auto; padding:8px 10px; font-size:0.85rem;" onclick="eliminarFormula('${id}')" title="Eliminar">
+                                    <svg class="icon" style="width:16px;height:16px;margin:0;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function actualizarSelects() {
+            const selProd = document.getElementById('producto_fabricar');
+            const selIns = document.getElementById('select_insumo');
+            selProd.innerHTML = '<option value="">-- Selecciona --</option>';
+            selIns.innerHTML = '';
+            for (const id in formulas) selProd.innerHTML += `<option value="${id}">${formulas[id].nombre}</option>`;
+            for (const key in inventario) selIns.innerHTML += `<option value="${key}">${inventario[key].nombre} (${inventario[key].unidad})</option>`;
+        }
+
+        function actualizarResumenProduccion() {
+            const id = document.getElementById('producto_fabricar').value;
+            const cantLotes = parseInt(document.getElementById('cantidad_lotes').value) || 1;
+            const resumenDiv = document.getElementById('resumen-produccion');
+            const selectorDiv = document.getElementById('selector-presentacion');
+            
+            if (!id || !formulas[id]) {
+                resumenDiv.style.display = 'none';
+                selectorDiv.innerHTML = '';
+                presentacionSeleccionadaProduccion = null;
+                return;
+            }
+
+            const f = formulas[id];
+            const totalBandejas = f.bandejas_por_lote * cantLotes;
+            const totalBolas = f.bolas_por_bandeja * totalBandejas;
+
+            resumenDiv.style.display = 'block';
+            resumenDiv.innerHTML = `
+                <p style="margin:0; font-size:0.9rem;"><strong>Total bandejas:</strong> ${totalBandejas}</p>
+                <p style="margin:4px 0; font-size:0.9rem;"><strong>Total bolas/porciones:</strong> ${totalBolas}</p>
+            `;
+
+            selectorDiv.innerHTML = '<label style="margin-top:12px;">Seleccione la presentación a envasar:</label>';
+            if (f.presentaciones && f.presentaciones.length > 0) {
+                f.presentaciones.forEach((p, idx) => {
+                    const maxPaquetes = Math.floor(totalBolas / p.bolas_por_paquete);
+                    const seleccionada = (presentacionSeleccionadaProduccion === idx) ? 'seleccionada' : '';
+                    selectorDiv.innerHTML += `
+                        <div class="presentacion-auto-item ${seleccionada}" onclick="seleccionarPresentacionAuto(${idx})" id="pres-item-${idx}">
+                            <div>
+                                <strong>${p.gramaje}g</strong> → ${p.bolas_por_paquete} bolas/paquete
+                                <br><small style="color:var(--success);">${maxPaquetes} paquetes automáticos</small>
+                            </div>
+                            <svg class="icon" style="width:20px;height:20px; color:var(--primary); display:${seleccionada ? 'block' : 'none'};" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                    `;
+                });
+                if (presentacionSeleccionadaProduccion === null || presentacionSeleccionadaProduccion >= f.presentaciones.length) {
+                    seleccionarPresentacionAuto(0);
+                }
+            } else {
+                selectorDiv.innerHTML += '<p style="color:var(--text-muted);">No hay presentaciones definidas en esta fórmula.</p>';
+                presentacionSeleccionadaProduccion = null;
+            }
+        }
+
+        function seleccionarPresentacionAuto(index) {
+            presentacionSeleccionadaProduccion = index;
+            document.querySelectorAll('.presentacion-auto-item').forEach(el => el.classList.remove('seleccionada'));
+            const item = document.getElementById('pres-item-' + index);
+            if (item) {
+                item.classList.add('seleccionada');
+                item.querySelector('svg').style.display = 'block';
+            }
+        }
+
+        function mostrarModalFaltantes(faltantes) {
+            const modal = document.getElementById('modal-faltantes');
+            const lista = document.getElementById('lista-faltantes-content');
+            lista.innerHTML = '';
+            
+            faltantes.forEach(f => {
+                lista.innerHTML += `
+                    <div class="faltante-item">
+                        <div class="faltante-nombre">${f.nombre}</div>
+                        <div class="faltante-cantidad">Falta: ${f.falta.toFixed(2)} ${f.unidad}</div>
+                    </div>
+                `;
+            });
+            
+            modal.classList.add('active');
+        }
+
+        function cerrarModalFaltantes() {
+            document.getElementById('modal-faltantes').classList.remove('active');
+        }
+
+        function iniciarProduccion() {
+            const id = document.getElementById('producto_fabricar').value;
+            const cantLotes = parseInt(document.getElementById('cantidad_lotes').value);
+            if (!id || isNaN(cantLotes) || cantLotes <= 0) return alert("Seleccione fórmula y cantidad de lotes válida.");
+
+            const f = formulas[id];
+            if (!f.presentaciones || f.presentaciones.length === 0) return alert("La fórmula no tiene presentaciones definidas.");
+            if (presentacionSeleccionadaProduccion === null || presentacionSeleccionadaProduccion >= f.presentaciones.length) {
+                return alert("Seleccione una presentación de la lista.");
+            }
+
+            const totalBandejas = f.bandejas_por_lote * cantLotes;
+            const totalBolas = f.bolas_por_bandeja * totalBandejas;
+
+            const presentacionElegida = f.presentaciones[presentacionSeleccionadaProduccion];
+            const maxPaquetes = Math.floor(totalBolas / presentacionElegida.bolas_por_paquete);
+            if (maxPaquetes === 0) return alert("No hay suficientes bolas para hacer ni un solo paquete de esta presentación.");
+
+            let faltantes = [];
+            for (let ing of f.ingredientes) {
+                let necesario = ing.cantidad_necesaria * totalBandejas;
+                let disponible = inventario[ing.id] ? inventario[ing.id].cantidad : 0;
+                if (disponible < necesario) {
+                    faltantes.push({
+                        nombre: inventario[ing.id] ? inventario[ing.id].nombre : 'Insumo eliminado/Desconocido',
+                        falta: necesario - disponible,
+                        unidad: inventario[ing.id] ? inventario[ing.id].unidad : 'uds'
+                    });
+                }
+            }
+
+            if (faltantes.length > 0) {
+                mostrarModalFaltantes(faltantes);
+                return;
+            }
+
+            let costoTotal = 0;
+            let ingredientesUsados = [];
+
+            f.ingredientes.forEach(ing => {
+                let gasto = ing.cantidad_necesaria * totalBandejas;
+                let costoDelIngrediente = gasto * inventario[ing.id].costo_unitario;
+                costoTotal += costoDelIngrediente;
+                inventario[ing.id].cantidad -= gasto;
+
+                ingredientesUsados.push({
+                    nombre: inventario[ing.id].nombre,
+                    cantidad: gasto,
+                    unidad: inventario[ing.id].unidad,
+                    costo: costoDelIngrediente
+                });
+            });
+
+            const loteId = 'L-' + String(contadorLotes).padStart(4, '0');
+            const nuevoLote = {
+                id: loteId,
+                producto: f.nombre,
+                lotes_producidos: cantLotes,
+                total_bandejas: totalBandejas,
+                total_bolas: totalBolas,
+                paquetes_producidos: [{
+                    gramaje: presentacionElegida.gramaje,
+                    cantidad: maxPaquetes,
+                    bolas_por_paquete: presentacionElegida.bolas_por_paquete
+                }],
+                costo_lote: costoTotal,
+                estado: 'almacen1',
+                ingredientes_usados: ingredientesUsados,
+                latas: null
+            };
+
+            lotes.unshift(nuevoLote);
+            contadorLotes++;
+
+            // Sincronizar el Lote Creado
+            dbSync('UPSERT', 'lotes', [nuevoLote]);
+
+            // Sincronizar los Insumos descontados
+            f.ingredientes.forEach(ing => {
+                let item = inventario[ing.id];
+                dbSync('UPSERT', 'inventario', [{
+                    id: ing.id,
+                    nombre: item.nombre,
+                    cantidad: item.cantidad,
+                    unidad: item.unidad,
+                    costo_unitario: item.costo_unitario
+                }]);
+            });
+
+            guardarDatos();
+            actualizarTodo();
+            document.getElementById('cantidad_lotes').value = 1;
+            document.getElementById('producto_fabricar').value = '';
+            document.getElementById('resumen-produccion').style.display = 'none';
+            document.getElementById('selector-presentacion').innerHTML = '';
+            presentacionSeleccionadaProduccion = null;
+            switchTab('almacen', 'Seguimiento Almacén');
+        }
+
+        function renderizarLotes() {
+            const div = document.getElementById('lista-lotes');
+            div.innerHTML = '';
+            if(lotes.length === 0) return div.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No hay lotes de producción.</p>';
+
+            lotes.forEach((lote, i) => {
+                let estadoHTML = lote.estado === 'almacen1'
+                    ? `<div class="status-loading">
+                         <svg class="icon spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="30 30" stroke-linecap="round"></circle></svg>
+                         En Almacén 1 (Esperando empaque)
+                       </div>
+                       <button class="btn-success" style="padding:10px; font-size:0.9rem;" onclick="confirmarEmpaque(${i})">
+                         <svg class="icon" style="width:16px;height:16px;margin:0;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg> Confirmar Empaque
+                       </button>`
+                    : `<div style="margin-top:8px;"><span class="badge badge-success">Empacado / Listo</span></div>`;
+
+                let paquetesHTML = '';
+                if (lote.paquetes_producidos && lote.paquetes_producidos.length > 0) {
+                    paquetesHTML = '<div style="font-size:0.85rem; margin:8px 0;"><strong>Paquetes:</strong> ';
+                    paquetesHTML += lote.paquetes_producidos.map(p => `${p.cantidad} x ${p.gramaje}g`).join(', ');
+                    paquetesHTML += '</div>';
+                }
+
+                let tarjetaIngredientes = '';
+                if (lote.ingredientes_usados && lote.ingredientes_usados.length > 0) {
+                    let listaIngredientes = lote.ingredientes_usados.map(ing => `
+                        <div class="lote-ingrediente-fila">
+                            <span>• ${ing.cantidad.toFixed(1)} ${ing.unidad} de <strong>${ing.nombre}</strong></span>
+                            <span class="text-money">Bs. ${ing.costo.toFixed(2)}</span>
+                        </div>
+                    `).join('');
+                    tarjetaIngredientes = `
+                        <div class="lote-ingredientes-card">
+                            <div class="lote-ingredientes-title">Ingredientes Consumidos</div>
+                            ${listaIngredientes}
+                        </div>
+                    `;
+                }
+
+                div.innerHTML += `
+                    <div class="list-item">
+                        <div class="list-item-header">
+                            <span style="font-size:0.8rem; color:var(--text-muted); font-family:monospace;">${lote.id}</span>
+                            <span class="text-money">Bs. ${lote.costo_lote.toFixed(2)}</span>
+                        </div>
+                        <div class="list-item-title">${lote.producto}</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">
+                            ${lote.lotes_producidos} Lote(s) · ${lote.total_bandejas} bandejas · ${lote.total_bolas} bolas
+                        </div>
+                        ${paquetesHTML}
+                        ${tarjetaIngredientes}
+                        ${estadoHTML}
+                    </div>
+                `;
+            });
+        }
+
+        function confirmarEmpaque(index) {
+            lotes[index].estado = 'almacen2';
+            
+            let loteActualizado = lotes[index];
+            loteActualizado.latas = loteActualizado.latas || null;
+            dbSync('UPSERT', 'lotes', [loteActualizado]);
+            
+            guardarDatos();
+            renderizarLotes();
+        }
+
+        function actualizarTodo() {
+            renderizarInventario();
+            renderizarFormulas();
+            actualizarSelects();
+            renderizarLotes();
+        }
+
+        // CARGA INICIAL DESDE SUPABASE AL ABRIR LA APP
+        async function initSync() {
+            updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
+            
+            if (navigator.onLine) {
+                updateStatusIndicator('syncing');
+                await processOfflineQueue();
+                
+                try {
+                    const { data: invData } = await supabaseClient.from('inventario').select('*');
+                    if (invData) {
+                        inventario = {};
+                        invData.forEach(i => inventario[i.id] = {nombre: i.nombre, cantidad: parseFloat(i.cantidad), unidad: i.unidad, costo_unitario: parseFloat(i.costo_unitario)});
+                    }
+                    
+                    const { data: formData } = await supabaseClient.from('formulas').select('*');
+                    if (formData) {
+                        formulas = {};
+                        formData.forEach(f => formulas[f.id] = {nombre: f.nombre, bolas_por_bandeja: f.bolas_por_bandeja, bandejas_por_lote: f.bandejas_por_lote, presentaciones: f.presentaciones, ingredientes: f.ingredientes});
+                    }
+                    
+                    const { data: lotesData } = await supabaseClient.from('lotes').select('*').order('created_at', { ascending: false });
+                    if (lotesData) {
+                        lotes = lotesData;
+                        let maxNum = 0;
+                        lotes.forEach(l => {
+                            let num = parseInt(l.id.replace('L-', ''));
+                            if (num > maxNum) maxNum = num;
+                        });
+                        contadorLotes = maxNum + 1;
+                    }
+                    
+                    guardarDatos();
+                    actualizarTodo();
+                    updateStatusIndicator('online');
+                } catch (e) {
+                    console.error("No se pudo cargar la base de datos externa, usando datos locales:", e);
+                    updateStatusIndicator('offline');
+                }
+            }
+        }
+
+        // Ejecutar al abrir
+        actualizarTodo();
+        initSync();
+    </script>
+</body>
+</html>
