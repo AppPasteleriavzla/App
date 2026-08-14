@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- jsPDF & AutoTable (NUEVO) -->
+    <!-- jsPDF & AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
@@ -417,7 +417,6 @@
                 </h3>
 
                 <div style="margin-bottom: 15px;">
-                    <!-- BOTÓN EXPORTAR GLOBAL ACTUALIZADO -->
                     <button class="btn-primary" style="background-color: #dc2626;" onclick="exportarGlobalPDF()">
                         <i class="fa-solid fa-file-pdf"></i> Exportar Estado Global PDF (Detallado)
                     </button>
@@ -613,7 +612,6 @@
                 <button class="btn-solid" style="background-color: #25D366;" onclick="sendWhatsAppReport()">
                     <i class="fa-brands fa-whatsapp"></i> WhatsApp
                 </button>
-                <!-- BOTÓN EXPORTAR INDIVIDUAL ACTUALIZADO -->
                 <button class="btn-solid" style="background-color: #dc2626;" onclick="exportarIndividualPDF()">
                     <i class="fa-solid fa-file-pdf"></i> PDF Individual
                 </button>
@@ -681,7 +679,7 @@
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
 
         // ------------------------------------------
-        // FINANZAS: CONFIGURACIÓN Y CAJA (CÓDIGO ORIGINAL MANTENIDO)
+        // FINANZAS: CONFIGURACIÓN Y CAJA 
         // ------------------------------------------
         async function fetchConfiguracion() {
             try {
@@ -702,10 +700,207 @@
         async function fetchCaja() { document.getElementById('kpi-caja').innerText = fmtBs(ventasDelDiaBs); }
         function calcularGanancia() { document.getElementById('kpi-ganancia').innerText = fmtBs(ventasDelDiaBs - (unidadesVendidasDia*costoProduccion)); }
 
+        // ==========================================
+        // CHOFERES (NUEVA LÓGICA IMPLEMENTADA)
+        // ==========================================
+        async function fetchChoferes() {
+            try {
+                const { data, error } = await supabaseClient.from('choferes').select('*').order('nombre');
+                if (error) throw error;
+
+                // Llenar los menús desplegables
+                const options = '<option value="">Seleccionar chofer...</option>' + 
+                    data.map(c => `<option value="${c.id}">${c.nombre} (${c.placa})</option>`).join('');
+                
+                document.getElementById('flota-chofer-select').innerHTML = options;
+                document.getElementById('edit-fleet-chofer').innerHTML = options;
+                document.getElementById('activar-chofer').innerHTML = options;
+
+                // Llenar la tabla del directorio de choferes
+                const tbody = document.getElementById('choferes-tbody');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="loading-text">No hay choferes registrados</td></tr>';
+                } else {
+                    tbody.innerHTML = data.map(c => `
+                        <tr>
+                            <td><strong>${c.codigo}</strong></td>
+                            <td>${c.nombre}</td>
+                            <td>${c.placa}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error("Error al cargar los choferes:", error);
+            }
+        }
+
+        // Envío del formulario para crear un nuevo chofer
+        document.getElementById('form-chofer').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-chofer');
+            btn.disabled = true;
+
+            const codigo = document.getElementById('chofer-codigo').value;
+            const nombre = document.getElementById('chofer-nombre').value;
+            const placa = document.getElementById('chofer-placa').value;
+            
+            try {
+                const { error } = await supabaseClient.from('choferes').insert([{ codigo, nombre, placa }]);
+                if (error) throw error;
+                
+                alert("Chofer registrado exitosamente");
+                document.getElementById('form-chofer').reset();
+                fetchChoferes(); // Recargar la lista
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un error al registrar el chofer.");
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ==========================================
+        // STOCK Y FÁBRICA (CÓDIGO MODIFICADO Y CORREGIDO)
+        // ==========================================
+        async function fetchStockFabrica() {
+            try {
+                const { data, error } = await supabaseClient.from('inventario_fabrica').select('*').eq('id', 1).single();
+                
+                if (data) {
+                    stockFábricaLlenos = data.stock_llenos || 0;
+                    stockFábricaVacios = data.stock_vacios || 0;
+                }
+                
+                // Actualizar interfaz
+                document.getElementById('kpi-fabrica').innerText = stockFábricaLlenos;
+                document.getElementById('teorico-llenos').innerText = stockFábricaLlenos;
+                document.getElementById('teorico-vacios').innerText = stockFábricaVacios;
+                calcularDiferenciasInventario();
+
+            } catch (error) {
+                console.error("Aviso: No se pudo cargar el stock. ¿Creaste la tabla inventario_fabrica?", error);
+            }
+        }
+
+        // Envío del formulario para registrar nueva producción
+        document.getElementById('form-produccion').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cantidadStr = document.getElementById('prod-cantidad').value;
+            const cantidad = parseInt(cantidadStr);
+            if (isNaN(cantidad) || cantidad <= 0) return;
+
+            try {
+                const nuevoStock = stockFábricaLlenos + cantidad;
+                
+                // 1. Actualiza en base de datos la tabla de inventario_fabrica
+                const { error: errorInv } = await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: nuevoStock, stock_vacios: stockFábricaVacios });
+                if (errorInv) throw errorInv;
+                
+                // 2. NUEVO: Guarda el registro en la tabla de movimientos para que lo veas en la base de datos
+                await supabaseClient.from('movimientos_fabrica').insert([{
+                    tipo: 'ingreso',
+                    cantidad_llenos: cantidad,
+                    descripcion: 'Producción de botellones'
+                }]);
+                
+                alert(`Se ingresaron ${cantidad} botellones al inventario principal y se registró en movimientos.`);
+                document.getElementById('form-produccion').reset();
+                fetchStockFabrica(); // Refrescar el stock en pantalla
+                
+            } catch (error) {
+                console.error("Error al registrar producción:", error);
+                alert("Hubo un error al guardar en la base de datos: " + error.message + "\n\nPasando a Modo Local.");
+                
+                // Demo Local fallback (En caso de que aún no hayas creado la tabla)
+                stockFábricaLlenos += cantidad;
+                document.getElementById('kpi-fabrica').innerText = stockFábricaLlenos;
+                document.getElementById('teorico-llenos').innerText = stockFábricaLlenos;
+                document.getElementById('form-produccion').reset();
+            }
+        });
+
+        // Calculadora de Diferencias para el arqueo físico
+        function calcularDiferenciasInventario() {
+            const fisicoLlenos = parseInt(document.getElementById('fisico-llenos').value) || 0;
+            const fisicoVacios = parseInt(document.getElementById('fisico-vacios').value) || 0;
+            
+            const difLlenos = fisicoLlenos - stockFábricaLlenos;
+            const difVacios = fisicoVacios - stockFábricaVacios;
+
+            const difLlenosElement = document.getElementById('dif-llenos');
+            const difVaciosElement = document.getElementById('dif-vacios');
+
+            difLlenosElement.innerText = difLlenos;
+            difLlenosElement.className = difLlenos < 0 ? 'acc-credit' : (difLlenos > 0 ? 'acc-debit' : '');
+            
+            difVaciosElement.innerText = difVacios;
+            difVaciosElement.className = difVacios < 0 ? 'acc-credit' : (difVacios > 0 ? 'acc-debit' : '');
+        }
+
+        document.getElementById('fisico-llenos').addEventListener('input', calcularDiferenciasInventario);
+        document.getElementById('fisico-vacios').addEventListener('input', calcularDiferenciasInventario);
+
+        // ==========================================
+        // DESPACHO DE FLOTA (RUTAS) MEJORADO Y CORREGIDO
+        // ==========================================
+        document.getElementById('form-flota').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-flota');
+            
+            const chofer_id = document.getElementById('flota-chofer-select').value;
+            const nombre = document.getElementById('flota-ruta').value;
+            const capacidad = parseInt(document.getElementById('flota-capacidad').value);
+            
+            if(!chofer_id) return alert("Por favor, seleccione un chofer.");
+            if(capacidad <= 0) return alert("Ingrese una capacidad válida.");
+            if(capacidad > stockFábricaLlenos) {
+                return alert(`No hay suficiente stock en fábrica. Stock actual: ${stockFábricaLlenos}`);
+            }
+
+            btn.disabled = true;
+
+            try {
+                // Insertar nueva ruta
+                const { error: insertError } = await supabaseClient.from('flota').insert([{ 
+                    nombre, 
+                    chofer_id, 
+                    capacidad_maxima: capacidad, 
+                    stock_actual: capacidad,
+                    estado: 'ruta'
+                }]);
+                if (insertError) throw insertError;
+                
+                // Restar la carga de la fábrica principal
+                const { error: updateError } = await supabaseClient.from('inventario_fabrica').upsert({ 
+                    id: 1, 
+                    stock_llenos: stockFábricaLlenos - capacidad, 
+                    stock_vacios: stockFábricaVacios 
+                });
+                if (updateError) throw updateError;
+                
+                // NUEVO: Registrar movimiento de salida en fábrica para tu historial
+                await supabaseClient.from('movimientos_fabrica').insert([{
+                    tipo: 'despacho',
+                    cantidad_llenos: -capacidad,
+                    descripcion: `Despacho a ruta: ${nombre}`
+                }]);
+                
+                alert(`Ruta "${nombre}" despachada exitosamente con ${capacidad} botellones.`);
+                document.getElementById('form-flota').reset();
+                fetchFlota();
+                fetchStockFabrica(); // Refrescar el contador de la fábrica
+
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un error al despachar la unidad: " + error.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
         // ------------------------------------------
-        // CHOFERES Y FLOTA (CÓDIGO ORIGINAL MANTENIDO)
+        // LISTADO DE FLOTA Y ENTREGAS 
         // ------------------------------------------
-        async function fetchChoferesDropdown() { /* Lógica de carga */ }
         async function fetchFlota() {
             try {
                 const { data: flotaData, error } = await supabaseClient.from('flota').select('*, choferes(codigo, nombre, placa)').order('created_at', { ascending: false });
@@ -713,7 +908,6 @@
                 const fleetContainer = document.getElementById('fleet-list');
                 let html = '';
                 const activas = flotaData.filter(f => f.estado === 'ruta');
-                const inactivas = flotaData.filter(f => f.estado === 'planta');
                 flotaGlobalActiva = activas;
 
                 activas.forEach(f => {
@@ -732,12 +926,12 @@
                             </div>
                         </div>`;
                 });
-                fleetContainer.innerHTML = html || '<div class="loading-text">No hay unidades registradas.</div>';
+                fleetContainer.innerHTML = html || '<div class="loading-text">No hay unidades en ruta en este momento.</div>';
             } catch (error) {}
         }
 
         // ------------------------------------------
-        // MODAL GESTIÓN
+        // MODAL GESTIÓN DE FLOTA
         // ------------------------------------------
         function openFleetModal(id, nombre, max, stock, choferId) {
             currentFleetId = id; currentFleetMax = max; currentFleetStock = stock; currentFleetName = nombre; currentFleetChoferId = choferId;
@@ -759,7 +953,7 @@
         function openActivarFlotaModal() {} function closeActivarFlotaModal() {}
 
         // ------------------------------------------
-        // ENTREGAS Y GRÁFICOS
+        // ENTREGAS E HISTORIAL
         // ------------------------------------------
         async function fetchEntregas() {
             try {
@@ -795,16 +989,12 @@
             } catch (error) {}
         }
 
-        async function fetchStockFabrica() {} async function fetchAsientosContables() {}
-        
-        function sendWhatsAppReport() {
-            alert("Reporte de WhatsApp enviado");
-        }
+        async function fetchAsientosContables() {}
+        function sendWhatsAppReport() { alert("Reporte de WhatsApp enviado"); }
 
         // ==========================================
-        // EXPORTACIÓN DE PDF - jsPDF (ACTUALIZADO SEGÚN REQUERIMIENTO)
+        // EXPORTACIÓN DE PDF - jsPDF
         // ==========================================
-
         window.jsPDF = window.jspdf.jsPDF;
 
         // 1. REPORTE INDIVIDUAL DETALLADO
@@ -831,9 +1021,8 @@
                 resumenPagos[metodo].total += amt;
             });
 
-            // "Botellas que retornaron" = sobrantes físicos en la flota actual
             const retornados = currentFleetStock; 
-            const vacios = totalVendido; // Basado en el recambio habitual 1x1
+            const vacios = totalVendido;
 
             // Título
             doc.setFontSize(18);
@@ -937,7 +1126,7 @@
                 granTotalDespachado += f.capacidad_maxima;
                 granTotalVendido += vendido;
                 granTotalIngresos += ingresos;
-                granTotalRetornados += f.stock_actual; // Sobrantes físicos de llenos
+                granTotalRetornados += f.stock_actual;
 
                 return [
                     f.nombre,
@@ -995,11 +1184,13 @@
             doc.save(`Reporte_Global_AquaVita.pdf`);
         }
         
-        // ------------------------------------------
-        // INICIO
-        // ------------------------------------------
+        // ==========================================
+        // INICIO - SE EJECUTA AL CARGAR LA PÁGINA
+        // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             fetchConfiguracion(); 
+            fetchChoferes();      // <--- AHORA CARGA LOS CHOFERES
+            fetchStockFabrica();  // <--- AHORA CARGA EL STOCK
             fetchFlota();
             fetchEntregas();
         });
