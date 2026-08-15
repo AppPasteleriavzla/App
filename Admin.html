@@ -16,6 +16,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
+    <!-- Leaflet.js para el Mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
         :root {
             --bg-body: #f8fafc;
@@ -92,7 +96,7 @@
             box-shadow: var(--shadow-nav);
             display: flex;
             justify-content: space-around;
-            padding: 10px 5px;
+            padding: 10px 2px;
             padding-bottom: env(safe-area-inset-bottom, 15px);
             z-index: 999;
         }
@@ -103,11 +107,11 @@
             align-items: center;
             gap: 5px;
             color: var(--text-muted);
-            font-size: 0.65rem;
+            font-size: 0.60rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            width: 20%;
+            width: 16.66%;
         }
 
         .nav-item i { font-size: 1.25rem; margin-bottom: 2px; transition: transform 0.2s; }
@@ -143,7 +147,7 @@
         .admin-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 1.5rem; }
         .form-card { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); }
         .form-title { font-size: 0.9rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: var(--primary-dark); }
-        .input-group { margin-bottom: 12px; }
+        .input-group { margin-bottom: 12px; text-align: left; }
         .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-align: left; }
         .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.9rem; outline: none; transition: border-color 0.2s; background: var(--bg-body); color: var(--text-main); text-align: left; }
         .input-group input:focus, .input-group select:focus { border-color: var(--primary); background: var(--surface); }
@@ -153,6 +157,7 @@
         .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
         .btn-secondary { background: #10b981; }
         .btn-dark { background: #0f172a; }
+        .btn-solid-green { background-color: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-family: inherit; font-size: 0.9rem; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; text-align: center; }
 
         /* --- TABLAS --- */
         .table-container { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid var(--border); }
@@ -190,7 +195,7 @@
         /* --- ENTREGAS --- */
         .delivery-list-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
         .delivery-item { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.9rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
-        .delivery-left { display: flex; align-items: center; gap: 12px; }
+        .delivery-left { display: flex; align-items: center; gap: 12px; text-align: left; }
         .truck-avatar { width: 38px; height: 38px; border-radius: 10px; background-color: var(--surface-subtle); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--primary-dark); font-size: 0.9rem; }
         .delivery-client { font-size: 0.88rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
         .delivery-meta-sub { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
@@ -203,13 +208,15 @@
         .pay-credito { background: #fef3c7; color: #b45309; }
         .pay-transferencia { background: #f3e8ff; color: #7e22ce; }
 
+        .client-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #e0f2fe; color: #0369a1; font-weight: bold; }
+
         /* --- GRÁFICOS --- */
         .chart-card { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
         .chart-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px dashed var(--border); }
-        .chart-stat-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-        .chart-stat-val { font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
+        .chart-stat-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; text-align: left;}
+        .chart-stat-val { font-size: 0.95rem; font-weight: 800; color: var(--text-main); text-align: left;}
         .chart-container { position: relative; height: 220px; width: 100%; }
-        .loading-text { text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; padding: 20px; }
+        .loading-text { text-align: left; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; padding: 20px; }
 
         /* --- MODALES --- */
         .modal-overlay {
@@ -219,7 +226,7 @@
             padding: 20px;
         }
         .modal-container {
-            background: var(--surface); width: 100%; max-width: 400px;
+            background: var(--surface); width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto;
             border-radius: 12px; padding: 20px; text-align: left;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
@@ -236,6 +243,7 @@
         }
         .btn-solid-danger { background-color: var(--danger); }
 
+        #map { z-index: 1; }
     </style>
 </head>
 <body>
@@ -272,7 +280,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-top">
-                        <span class="kpi-title">En Ruta</span>
+                        <span class="kpi-title">En Ruta (Sobrantes)</span>
                         <div class="kpi-icon-wrapper"><i class="fa-solid fa-truck-fast"></i></div>
                     </div>
                     <div class="kpi-value" id="kpi-unidades">0</div>
@@ -301,6 +309,44 @@
                 <div class="chart-container">
                     <canvas id="fluidChart"></canvas>
                 </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA MAPA -->
+        <div id="screen-mapa" class="screen">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Clientes por Zona</h2>
+                <span class="section-badge">Logística</span>
+            </div>
+            
+            <div class="form-card" style="margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Día de Visita</label>
+                        <select id="map-dia" onchange="cargarMapaYClientes()">
+                            <option value="Lunes">Lunes</option>
+                            <option value="Martes">Martes</option>
+                            <option value="Miércoles">Miércoles</option>
+                            <option value="Jueves">Jueves</option>
+                            <option value="Viernes">Viernes</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Zona</label>
+                        <select id="map-zona" onchange="cargarMapaYClientes()">
+                            <option value="Zona 1">Zona 1</option>
+                            <option value="Zona 2">Zona 2</option>
+                            <option value="Zona 3">Zona 3</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="map" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid var(--border);"></div>
+            </div>
+
+            <h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 10px; text-align: left;">Directorio Ordenado</h3>
+            <div id="lista-clientes-zona" class="delivery-list-wrapper">
+                <div class="loading-text" style="text-align: left;">Cargando clientes...</div>
             </div>
         </div>
 
@@ -412,7 +458,7 @@
 
                 <hr style="margin: 5px 0; border: 0; border-top: 1px dashed var(--border);">
                 
-                <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 10px;">
+                <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 10px; text-align: left;">
                     <i class="fa-solid fa-map-location-dot"></i> Todas las Unidades
                 </h3>
 
@@ -423,7 +469,7 @@
                 </div>
                 
                 <div class="fleet-wrapper" id="fleet-list">
-                    <div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando flota...</div>
+                    <div class="loading-text" style="text-align: left;"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando flota...</div>
                 </div>
 
                 <hr style="margin: 5px 0; border: 0; border-top: 1px dashed var(--border);">
@@ -475,7 +521,7 @@
             </div>
             
             <div class="delivery-list-wrapper" id="delivery-list">
-                <div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando entregas...</div>
+                <div class="loading-text" style="text-align: left;"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando entregas...</div>
             </div>
         </div>
 
@@ -506,6 +552,24 @@
             </div>
 
             <div class="admin-section">
+                <div class="form-card">
+                    <div class="form-title" style="color: var(--primary);"><i class="fa-solid fa-hand-holding-dollar"></i> Liquidación de Comisiones</div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; text-align: left;">Calculado en base a los productos despachados en ruta.</p>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Chofer / Unidad</th>
+                                    <th>Monto Comisión</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comisiones-tbody">
+                                <tr><td colspan="2" class="loading-text">Cargando reporte de comisiones...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="form-card">
                     <div class="form-title"><i class="fa-solid fa-tags"></i> Configuración de Precios</div>
                     <form id="form-configuracion">
@@ -572,6 +636,7 @@
 
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchScreen('inicio', this)"><i class="fa-solid fa-house"></i><span>Inicio</span></div>
+        <div class="nav-item" onclick="switchScreen('mapa', this)"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
         <div class="nav-item" onclick="switchScreen('fabrica', this)"><i class="fa-solid fa-industry"></i><span>Fábrica</span></div>
         <div class="nav-item" onclick="switchScreen('rutas', this)"><i class="fa-solid fa-truck-fast"></i><span>Rutas</span></div>
         <div class="nav-item" onclick="switchScreen('entregas', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Entregas</span></div>
@@ -589,7 +654,12 @@
             <div class="modal-stat">
                 <p>Dinero Generado (Hoy): <span id="modal-fleet-income">Bs. 0.00</span></p>
                 <p>Botellones Entregados: <span id="modal-fleet-units">0</span></p>
+                <p>Comisión del Chofer: <span id="modal-fleet-comision">Bs. 0.00</span></p>
             </div>
+            
+            <button class="btn-solid-green" style="margin-bottom: 20px;" onclick="abrirModalVenta()">
+                <i class="fa-solid fa-cart-plus"></i> Registrar Venta a Cliente
+            </button>
             
             <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-align: left;">1. Recargar Unidad (Ingreso Extra)</h4>
             <div class="input-group" style="margin-bottom: 15px;">
@@ -624,9 +694,52 @@
         </div>
     </div>
 
-    <!-- MODALES EDITAR Y ACTIVAR FLOTA... -->
+    <!-- MODAL REGISTRO DE VENTA -->
+    <div id="ventaModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-invoice-dollar"></i> Registrar Venta</h3>
+                <button class="modal-close" onclick="cerrarModalVenta()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-registro-venta">
+                <div class="input-group">
+                    <label>Seleccionar Cliente de la Zona</label>
+                    <select id="venta-cliente" required>
+                        <option value="">Cargando clientes...</option>
+                    </select>
+                </div>
+                
+                <h4 style="font-size: 0.8rem; margin: 15px 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; text-align: left;">Productos y Comisiones</h4>
+                <div id="lista-productos-venta">
+                    <!-- Se llena con Supabase -->
+                </div>
+
+                <h4 style="font-size: 0.8rem; margin: 15px 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; text-align: left;">Control de Envases Reales</h4>
+                <div class="input-group">
+                    <label>Botellones Vacíos RECUPERADOS (Físico)</label>
+                    <input type="number" id="venta-vacios-devueltos" value="0" min="0">
+                </div>
+
+                <h4 style="font-size: 0.8rem; margin: 15px 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; text-align: left;">Pago</h4>
+                <div class="input-group">
+                    <label>Método de Pago</label>
+                    <select id="venta-metodo-pago" required>
+                        <option value="efectivo">Efectivo (Contado)</option>
+                        <option value="qr">Pago QR / Transferencia</option>
+                        <option value="credito">Crédito</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-solid-green">
+                    <i class="fa-solid fa-check-double"></i> Confirmar Venta
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALES EDITAR Y ACTIVAR FLOTA -->
     <div id="editFleetModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3><i class="fa-solid fa-pen-to-square"></i> Editar Flota</h3><button class="modal-close" onclick="closeEditFleetModal()"><i class="fa-solid fa-xmark"></i></button></div><div class="input-group"><label>Nombre de la Ruta</label><input type="text" id="edit-fleet-name" placeholder="Nombre de la ruta"></div><div class="input-group"><label>Seleccionar Chofer</label><select id="edit-fleet-chofer" required><option value="">Cargando...</option></select></div><button class="btn-primary" onclick="saveFleetEdit()" style="margin-top: 15px;"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button></div></div>
-    <div id="activarFlotaModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3><i class="fa-solid fa-truck-moving"></i> Activar Ruta</h3><button class="modal-close" onclick="closeActivarFlotaModal()"><i class="fa-solid fa-xmark"></i></button></div><p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Estás reactivando una ruta que ya finalizó. Elige el chofer, la zona y cuántos botellones cargarás.</p><div class="input-group"><label>Chofer asignado</label><select id="activar-chofer" required></select></div><div class="input-group"><label>Nombre de la Ruta / Zona</label><input type="text" id="activar-ruta" placeholder="Nombre de la ruta" required></div><div class="input-group"><label>Botellones a despachar</label><input type="number" id="activar-cantidad" placeholder="Ej: 100" min="1" required></div><button class="btn-primary" onclick="activarFlota()" style="margin-top: 15px;"><i class="fa-solid fa-play"></i> Activar y Despachar</button></div></div>
+    <div id="activarFlotaModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3><i class="fa-solid fa-truck-moving"></i> Activar Ruta</h3><button class="modal-close" onclick="closeActivarFlotaModal()"><i class="fa-solid fa-xmark"></i></button></div><p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; text-align: left;">Estás reactivando una ruta que ya finalizó. Elige el chofer, la zona y cuántos botellones cargarás.</p><div class="input-group"><label>Chofer asignado</label><select id="activar-chofer" required></select></div><div class="input-group"><label>Nombre de la Ruta / Zona</label><input type="text" id="activar-ruta" placeholder="Nombre de la ruta" required></div><div class="input-group"><label>Botellones a despachar</label><input type="number" id="activar-cantidad" placeholder="Ej: 100" min="1" required></div><button class="btn-primary" onclick="activarFlota()" style="margin-top: 15px;"><i class="fa-solid fa-play"></i> Activar y Despachar</button></div></div>
 
     <script>
         // ==========================================
@@ -636,303 +749,489 @@
         let precioVenta = 15;
         let ventasDelDiaBs = 0;
         let unidadesVendidasDia = 0;
-        
         let stockFábricaLlenos = 0;
         let stockFábricaVacios = 0;
         let fluidChartInstance = null;
-        
         let entregasGlobales = []; 
         let flotaGlobalActiva = [];
-        
         let currentFleetId = null;
         let currentFleetMax = 0;
         let currentFleetStock = 0;
         let currentFleetName = ''; 
         let currentFleetChoferId = null;
-
         let flotaAReactivar = null;
+        let map;
+        let mapMarkers = [];
+        let productosGlobal = [];
+        let clientesGlobal = [];
+        let reporteComisionesGlobal = {}; // Guarda comisiones por nombre de flota
+
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://wzixsohxprcobfsmiksf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6aXhzb2h4cHJjb2Jmc21pa3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0Njg1MjUsImV4cCI6MjA5NzA0NDUyNX0.xBVJVEKVBoKjVzOt9TtrDtD1XkAMriq-de4yZdV9nHE';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        const fmtBs = (val) => `Bs. ${Number(val).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const formatTime = (dateString) => new Date(dateString).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
 
         // ==========================================
-        // CONTROL DE NAVEGACIÓN
+        // NAVEGACIÓN
         // ==========================================
         function switchScreen(screenName, navElement) {
             document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             document.getElementById('screen-' + screenName).classList.add('active');
-            navElement.classList.add('active');
-            if (screenName === 'inicio' && fluidChartInstance) {
-                fluidChartInstance.resize();
+            if(navElement) navElement.classList.add('active');
+            if (screenName === 'inicio' && fluidChartInstance) fluidChartInstance.resize();
+            if (screenName === 'mapa') {
+                setTimeout(() => { if(map) map.invalidateSize(); }, 300);
+                cargarMapaYClientes();
+            }
+            if (screenName === 'finanzas') fetchCaja();
+        }
+
+        // ==========================================
+        // MAPAS Y CLIENTES + FLOTA
+        // ==========================================
+        function inicializarMapa() {
+            map = L.map('map').setView([-17.7833, -63.1821], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+        }
+
+        async function cargarMapaYClientes() {
+            if(!map) inicializarMapa();
+            const dia = document.getElementById('map-dia').value;
+            const zona = document.getElementById('map-zona').value;
+            mapMarkers.forEach(m => map.removeLayer(m));
+            mapMarkers = [];
+            const bounds = L.latLngBounds();
+
+            try {
+                // 1. Clientes de la zona/día
+                const { data: clientes, error: errClientes } = await supabaseClient
+                    .from('clientes')
+                    .select('*')
+                    .eq('dia_visita', dia)
+                    .eq('zona', zona)
+                    .order('orden_visita');
+                if (errClientes) throw errClientes;
+                clientesGlobal = clientes || [];
+
+                const selectCliente = document.getElementById('venta-cliente');
+                selectCliente.innerHTML = '<option value="">Seleccionar Cliente...</option>' + 
+                    clientesGlobal.map(c => `<option value="${c.id}">${c.nombre} (Envases: ${c.saldo_envases_prestados})</option>`).join('');
+
+                const listaContenedor = document.getElementById('lista-clientes-zona');
+                let htmlLista = '';
+                clientesGlobal.forEach(cliente => {
+                    if (cliente.latitud && cliente.longitud) {
+                        const marker = L.marker([cliente.latitud, cliente.longitud])
+                            .addTo(map)
+                            .bindPopup(`<b>Cliente:</b> ${cliente.nombre}<br>Envases prestados: ${cliente.saldo_envases_prestados}`);
+                        mapMarkers.push(marker);
+                        bounds.extend([cliente.latitud, cliente.longitud]);
+                    }
+                    htmlLista += `<div class="delivery-item">
+                        <div class="delivery-left">
+                            <div class="truck-avatar" style="background: var(--primary-light); color: var(--primary);">${cliente.orden_visita}</div>
+                            <div><div class="delivery-client">${cliente.nombre}</div>
+                            <div class="delivery-meta-sub"><span class="client-badge"><i class="fa-solid fa-bottle-water"></i> ${cliente.saldo_envases_prestados} envases</span></div></div>
+                        </div></div>`;
+                });
+                listaContenedor.innerHTML = htmlLista || '<div class="loading-text">No hay clientes para este día/zona.</div>';
+
+                // 2. Flota en ruta (choferes con GPS)
+                const { data: flotaRuta, error: errFlota } = await supabaseClient
+                    .from('flota')
+                    .select('id, nombre, latitud, longitud, choferes(nombre)')
+                    .eq('estado', 'ruta')
+                    .not('latitud', 'is', null)
+                    .not('longitud', 'is', null);
+                if (errFlota) throw errFlota;
+
+                (flotaRuta || []).forEach(f => {
+                    const marker = L.marker([f.latitud, f.longitud], {
+                        icon: L.divIcon({
+                            className: 'custom-div-icon',
+                            html: '<i class="fa-solid fa-truck" style="color:#0284c7; font-size:20px;"></i>',
+                            iconSize: [20,20]
+                        })
+                    }).addTo(map)
+                      .bindPopup(`<b>Unidad:</b> ${f.nombre}<br><b>Chofer:</b> ${f.choferes ? f.choferes.nombre : 'N/A'}`);
+                    mapMarkers.push(marker);
+                    bounds.extend([f.latitud, f.longitud]);
+                });
+
+                if (mapMarkers.length > 0) map.fitBounds(bounds, { padding: [20, 20] });
+            } catch (error) {
+                console.error("Error en mapa:", error);
+                document.getElementById('lista-clientes-zona').innerHTML = `<div class="loading-text">Error cargando datos del mapa.</div>`;
             }
         }
 
         // ==========================================
-        // INICIALIZACIÓN SUPABASE
+        // PRODUCTOS Y VENTA ADMIN
         // ==========================================
-        const { createClient } = supabase;
-        const supabaseUrl = 'https://wzixsohxprcobfsmiksf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6aXhzb2h4cHJjb2Jmc21pa3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0Njg1MjUsImV4cCI6MjA5NzA0NDUyNX0.xBVJVEKVBoKjVzOt9TtrDtD1XkAMriq-de4yZdV9nHE';
-        const supabaseClient = createClient(supabaseUrl, supabaseKey);
-        
-        const fmtBs = (val) => `Bs. ${Number(val).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-        const formatTime = (dateString) => new Date(dateString).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
+        async function cargarProductos() {
+            try {
+                const { data, error } = await supabaseClient.from('productos').select('*');
+                if (error) throw error;
+                productosGlobal = data || [];
+                document.getElementById('lista-productos-venta').innerHTML = productosGlobal.map(p => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:var(--surface-subtle); padding:8px; border-radius:8px;">
+                        <div style="text-align:left;">
+                            <span style="font-weight:700; font-size:0.85rem;">${p.nombre}</span><br>
+                            <small style="color:var(--text-muted);">Bs.${p.precio_venta} (Comisión: Bs.${p.comision_chofer})</small>
+                        </div>
+                        <input type="number" id="prod_qty_${p.id}" placeholder="Cant." min="0" value="0" style="width:70px; padding:6px; border:1px solid var(--border); border-radius:6px; text-align:center;">
+                    </div>`).join('');
+            } catch (error) {
+                console.error("Error cargando productos:", error);
+            }
+        }
 
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+        function abrirModalVenta() {
+            document.getElementById('fleetModal').style.display = 'none';
+            document.getElementById('ventaModal').style.display = 'flex';
+        }
+        function cerrarModalVenta() {
+            document.getElementById('ventaModal').style.display = 'none';
+        }
 
-        // ------------------------------------------
-        // FINANZAS: CONFIGURACIÓN Y CAJA 
-        // ------------------------------------------
+        document.getElementById('form-registro-venta').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.querySelector('#form-registro-venta button[type="submit"]');
+            const clienteId = document.getElementById('venta-cliente').value;
+            const vaciosDevueltos = parseInt(document.getElementById('venta-vacios-devueltos').value) || 0;
+            const metodoPago = document.getElementById('venta-metodo-pago').value;
+            if (!clienteId) return alert("Debes seleccionar un cliente registrado.");
+
+            let detallesVenta = [];
+            let totalCobrar = 0;
+            let botellonesEntregados = 0;
+            productosGlobal.forEach(p => {
+                const qtyInput = document.getElementById(`prod_qty_${p.id}`);
+                const cantidad = parseInt(qtyInput ? qtyInput.value : 0) || 0;
+                if (cantidad > 0) {
+                    detallesVenta.push({ producto_id: p.id, cantidad, precio_unitario: p.precio_venta, comision_unitaria: p.comision_chofer });
+                    totalCobrar += cantidad * p.precio_venta;
+                    if (p.requiere_envase) botellonesEntregados += cantidad;
+                }
+            });
+            if (detallesVenta.length === 0) return alert("Debe ingresar al menos 1 producto.");
+            btn.disabled = true;
+
+            try {
+                const { data: nuevaEntrega, error: errorEntrega } = await supabaseClient
+                    .from('entregas')
+                    .insert([{
+                        flota_id: currentFleetId,
+                        cliente_id: clienteId,
+                        cliente: document.getElementById('venta-cliente').options[document.getElementById('venta-cliente').selectedIndex].text,
+                        unidades: botellonesEntregados,
+                        metodo_pago: metodoPago,
+                        total: totalCobrar,
+                        vacios_devueltos: vaciosDevueltos
+                    }])
+                    .select().single();
+                if (errorEntrega) throw errorEntrega;
+
+                const detallesParaInsertar = detallesVenta.map(d => ({ entrega_id: nuevaEntrega.id, ...d }));
+                await supabaseClient.from('entregas_detalles').insert(detallesParaInsertar);
+
+                const variacionEnvases = botellonesEntregados - vaciosDevueltos;
+                const { data: clienteObj } = await supabaseClient.from('clientes').select('saldo_envases_prestados').eq('id', clienteId).single();
+                const nuevoSaldo = (clienteObj ? clienteObj.saldo_envases_prestados : 0) + variacionEnvases;
+                await supabaseClient.from('clientes').update({ saldo_envases_prestados: nuevoSaldo }).eq('id', clienteId);
+
+                const nuevoStockCamion = currentFleetStock - botellonesEntregados;
+                await supabaseClient.from('flota').update({ stock_actual: Math.max(0, nuevoStockCamion) }).eq('id', currentFleetId);
+
+                alert(`Venta guardada. Cobrar: Bs. ${totalCobrar}`);
+                document.getElementById('form-registro-venta').reset();
+                cerrarModalVenta();
+                cargarMapaYClientes();
+                fetchFlota();
+                fetchEntregas();
+            } catch (error) {
+                alert("Error al procesar la venta: " + error.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ==========================================
+        // CONFIGURACIÓN Y CAJA
+        // ==========================================
         async function fetchConfiguracion() {
             try {
                 const { data, error } = await supabaseClient.from('configuracion_empresa').select('*').eq('id', 1).single();
-                if (error && error.code !== 'PGRST116') throw error; 
+                if (error && error.code !== 'PGRST116') throw error;
                 if (data) {
-                    costoProduccion = parseFloat(data.costo_produccion);
-                    precioVenta = parseFloat(data.precio_venta);
+                    costoProduccion = parseFloat(data.costo_produccion) || 0;
+                    precioVenta = parseFloat(data.precio_venta) || 0;
                     document.getElementById('conf-costo').value = costoProduccion;
                     document.getElementById('conf-venta').value = precioVenta;
-                    calcularGanancia(); 
+                    calcularGanancia();
                 }
-            } catch (error) {}
+            } catch (error) { console.error("Configuración:", error); }
         }
 
-        document.getElementById('form-configuracion').addEventListener('submit', async (e) => { e.preventDefault(); alert("Configuración guardada."); });
-        document.getElementById('form-caja').addEventListener('submit', async (e) => { e.preventDefault(); alert("Movimiento guardado."); });
-        async function fetchCaja() { document.getElementById('kpi-caja').innerText = fmtBs(ventasDelDiaBs); }
-        function calcularGanancia() { document.getElementById('kpi-ganancia').innerText = fmtBs(ventasDelDiaBs - (unidadesVendidasDia*costoProduccion)); }
+        document.getElementById('form-configuracion').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const costo = parseFloat(document.getElementById('conf-costo').value);
+            const venta = parseFloat(document.getElementById('conf-venta').value);
+            try {
+                const { error } = await supabaseClient.from('configuracion_empresa').upsert({ id: 1, costo_produccion: costo, precio_venta: venta });
+                if (error) throw error;
+                costoProduccion = costo; precioVenta = venta;
+                alert("Configuración guardada correctamente.");
+                calcularGanancia();
+            } catch (error) {
+                alert("Error al guardar configuración: " + error.message);
+            }
+        });
+
+        document.getElementById('form-caja').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tipo = document.getElementById('caja-tipo').value;
+            const monto = parseFloat(document.getElementById('caja-monto').value);
+            const descripcion = document.getElementById('caja-desc').value;
+            try {
+                const { error } = await supabaseClient.from('movimientos_caja').insert([{ tipo, monto, descripcion }]);
+                if (error) throw error;
+                alert("Movimiento registrado.");
+                document.getElementById('form-caja').reset();
+                fetchCaja();
+            } catch (error) {
+                alert("Error al registrar movimiento: " + error.message);
+            }
+        });
+
+        async function fetchCaja() {
+            try {
+                const { data: movimientos, error: errMov } = await supabaseClient
+                    .from('movimientos_caja')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+                if (errMov) throw errMov;
+
+                let totalCaja = 0;
+                (movimientos || []).forEach(m => {
+                    totalCaja += m.tipo === 'ingreso' ? m.monto : -m.monto;
+                });
+                // Sumar ventas de choferes (entregas en efectivo/qr)
+                const { data: ventas, error: errVentas } = await supabaseClient
+                    .from('entregas')
+                    .select('total, metodo_pago')
+                    .in('metodo_pago', ['Efectivo', 'QR', 'Transferencia']);
+                if (errVentas) throw errVentas;
+                (ventas || []).forEach(v => totalCaja += parseFloat(v.total));
+
+                document.getElementById('kpi-caja').innerText = fmtBs(totalCaja);
+
+                const tbody = document.getElementById('caja-tbody');
+                if (movimientos && movimientos.length > 0) {
+                    tbody.innerHTML = movimientos.map(m => `
+                        <tr>
+                            <td>${formatTime(m.created_at)}</td>
+                            <td>${m.descripcion}</td>
+                            <td class="${m.tipo === 'ingreso' ? 'acc-debit' : 'acc-credit'}">${m.tipo === 'ingreso' ? '+' : '-'}${fmtBs(m.monto)}</td>
+                        </tr>`).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3" class="loading-text">Sin movimientos manuales.</td></tr>';
+                }
+            } catch (error) {
+                console.error("Error en caja:", error);
+            }
+        }
+
+        function calcularGanancia() {
+            const gananciaBruta = ventasDelDiaBs - (unidadesVendidasDia * costoProduccion);
+            const comisiones = Object.values(reporteComisionesGlobal).reduce((acc, val) => acc + val, 0);
+            document.getElementById('kpi-ganancia').innerText = fmtBs(gananciaBruta - comisiones);
+        }
 
         // ==========================================
-        // CHOFERES (NUEVA LÓGICA IMPLEMENTADA)
+        // CHOFERES
         // ==========================================
         async function fetchChoferes() {
             try {
                 const { data, error } = await supabaseClient.from('choferes').select('*').order('nombre');
                 if (error) throw error;
-
-                // Llenar los menús desplegables
                 const options = '<option value="">Seleccionar chofer...</option>' + 
                     data.map(c => `<option value="${c.id}">${c.nombre} (${c.placa})</option>`).join('');
-                
                 document.getElementById('flota-chofer-select').innerHTML = options;
                 document.getElementById('edit-fleet-chofer').innerHTML = options;
                 document.getElementById('activar-chofer').innerHTML = options;
-
-                // Llenar la tabla del directorio de choferes
                 const tbody = document.getElementById('choferes-tbody');
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="loading-text">No hay choferes registrados</td></tr>';
-                } else {
-                    tbody.innerHTML = data.map(c => `
-                        <tr>
-                            <td><strong>${c.codigo}</strong></td>
-                            <td>${c.nombre}</td>
-                            <td>${c.placa}</td>
-                        </tr>
-                    `).join('');
-                }
+                tbody.innerHTML = data.length ? data.map(c => `<tr><td><strong>${c.codigo}</strong></td><td>${c.nombre}</td><td>${c.placa}</td></tr>`).join('') : '<tr><td colspan="3">No hay choferes.</td></tr>';
             } catch (error) {
-                console.error("Error al cargar los choferes:", error);
+                console.error("Error choferes:", error);
             }
         }
 
-        // Envío del formulario para crear un nuevo chofer
         document.getElementById('form-chofer').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-submit-chofer');
             btn.disabled = true;
-
-            const codigo = document.getElementById('chofer-codigo').value;
-            const nombre = document.getElementById('chofer-nombre').value;
-            const placa = document.getElementById('chofer-placa').value;
-            
             try {
-                const { error } = await supabaseClient.from('choferes').insert([{ codigo, nombre, placa }]);
+                const { error } = await supabaseClient.from('choferes').insert([{
+                    codigo: document.getElementById('chofer-codigo').value,
+                    nombre: document.getElementById('chofer-nombre').value,
+                    placa: document.getElementById('chofer-placa').value
+                }]);
                 if (error) throw error;
-                
-                alert("Chofer registrado exitosamente");
+                alert("Chofer registrado.");
                 document.getElementById('form-chofer').reset();
-                fetchChoferes(); // Recargar la lista
+                fetchChoferes();
             } catch (error) {
-                console.error(error);
-                alert("Hubo un error al registrar el chofer.");
-            } finally {
-                btn.disabled = false;
-            }
+                alert("Error: " + error.message);
+            } finally { btn.disabled = false; }
         });
 
         // ==========================================
-        // STOCK Y FÁBRICA (CÓDIGO MODIFICADO Y CORREGIDO)
+        // STOCK Y FÁBRICA
         // ==========================================
         async function fetchStockFabrica() {
             try {
                 const { data, error } = await supabaseClient.from('inventario_fabrica').select('*').eq('id', 1).single();
-                
                 if (data) {
                     stockFábricaLlenos = data.stock_llenos || 0;
                     stockFábricaVacios = data.stock_vacios || 0;
                 }
-                
-                // Actualizar interfaz
                 document.getElementById('kpi-fabrica').innerText = stockFábricaLlenos;
                 document.getElementById('teorico-llenos').innerText = stockFábricaLlenos;
                 document.getElementById('teorico-vacios').innerText = stockFábricaVacios;
                 calcularDiferenciasInventario();
-
-            } catch (error) {
-                console.error("Aviso: No se pudo cargar el stock. ¿Creaste la tabla inventario_fabrica?", error);
-            }
+            } catch (error) { console.error("Stock fábrica:", error); }
         }
 
-        // Envío del formulario para registrar nueva producción
         document.getElementById('form-produccion').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const cantidadStr = document.getElementById('prod-cantidad').value;
-            const cantidad = parseInt(cantidadStr);
+            const cantidad = parseInt(document.getElementById('prod-cantidad').value);
             if (isNaN(cantidad) || cantidad <= 0) return;
-
             try {
                 const nuevoStock = stockFábricaLlenos + cantidad;
-                
-                // 1. Actualiza en base de datos la tabla de inventario_fabrica
-                const { error: errorInv } = await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: nuevoStock, stock_vacios: stockFábricaVacios });
-                if (errorInv) throw errorInv;
-                
-                // 2. NUEVO: Guarda el registro en la tabla de movimientos para que lo veas en la base de datos
-                await supabaseClient.from('movimientos_fabrica').insert([{
-                    tipo: 'ingreso',
-                    cantidad_llenos: cantidad,
-                    descripcion: 'Producción de botellones'
-                }]);
-                
-                alert(`Se ingresaron ${cantidad} botellones al inventario principal y se registró en movimientos.`);
+                await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: nuevoStock, stock_vacios: stockFábricaVacios });
+                await supabaseClient.from('movimientos_fabrica').insert([{ tipo: 'ingreso', cantidad_llenos: cantidad, descripcion: 'Producción de botellones' }]);
+                alert(`Se ingresaron ${cantidad} botellones.`);
                 document.getElementById('form-produccion').reset();
-                fetchStockFabrica(); // Refrescar el stock en pantalla
-                
+                fetchStockFabrica();
             } catch (error) {
-                console.error("Error al registrar producción:", error);
-                alert("Hubo un error al guardar en la base de datos: " + error.message + "\n\nPasando a Modo Local.");
-                
-                // Demo Local fallback (En caso de que aún no hayas creado la tabla)
-                stockFábricaLlenos += cantidad;
-                document.getElementById('kpi-fabrica').innerText = stockFábricaLlenos;
-                document.getElementById('teorico-llenos').innerText = stockFábricaLlenos;
-                document.getElementById('form-produccion').reset();
+                alert("Error: " + error.message);
             }
         });
 
-        // Calculadora de Diferencias para el arqueo físico
         function calcularDiferenciasInventario() {
             const fisicoLlenos = parseInt(document.getElementById('fisico-llenos').value) || 0;
             const fisicoVacios = parseInt(document.getElementById('fisico-vacios').value) || 0;
-            
             const difLlenos = fisicoLlenos - stockFábricaLlenos;
             const difVacios = fisicoVacios - stockFábricaVacios;
-
             const difLlenosElement = document.getElementById('dif-llenos');
             const difVaciosElement = document.getElementById('dif-vacios');
-
             difLlenosElement.innerText = difLlenos;
             difLlenosElement.className = difLlenos < 0 ? 'acc-credit' : (difLlenos > 0 ? 'acc-debit' : '');
-            
             difVaciosElement.innerText = difVacios;
             difVaciosElement.className = difVacios < 0 ? 'acc-credit' : (difVacios > 0 ? 'acc-debit' : '');
         }
-
         document.getElementById('fisico-llenos').addEventListener('input', calcularDiferenciasInventario);
         document.getElementById('fisico-vacios').addEventListener('input', calcularDiferenciasInventario);
 
+        document.getElementById('btn-guardar-arqueo').addEventListener('click', async () => {
+            const fisicoLlenos = parseInt(document.getElementById('fisico-llenos').value) || 0;
+            const fisicoVacios = parseInt(document.getElementById('fisico-vacios').value) || 0;
+            try {
+                await supabaseClient.from('conciliaciones').insert([
+                    { concepto: 'Fábrica Llenos', stock_teorico: stockFábricaLlenos, stock_fisico: fisicoLlenos },
+                    { concepto: 'Envases Vacíos', stock_teorico: stockFábricaVacios, stock_fisico: fisicoVacios }
+                ]);
+                alert("Arqueo guardado.");
+            } catch (error) { alert("Error: " + error.message); }
+        });
+
+        async function fetchAsientosContables() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('asientos_contables')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+                if (error) throw error;
+                const tbody = document.getElementById('asientos-tbody');
+                if (data && data.length) {
+                    tbody.innerHTML = data.map(a => `
+                        <tr>
+                            <td>${formatTime(a.created_at)}</td>
+                            <td>${a.concepto}</td>
+                            <td class="acc-debit">${a.cuenta_debe} Bs.${a.monto}</td>
+                            <td class="acc-credit">${a.cuenta_haber} Bs.${a.monto}</td>
+                        </tr>`).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="loading-text">No hay asientos registrados.</td></tr>';
+                }
+            } catch (error) { console.error("Asientos:", error); }
+        }
+
         // ==========================================
-        // DESPACHO DE FLOTA (RUTAS) MEJORADO Y CORREGIDO
+        // DESPACHO DE FLOTA
         // ==========================================
         document.getElementById('form-flota').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-submit-flota');
-            
             const chofer_id = document.getElementById('flota-chofer-select').value;
             const nombre = document.getElementById('flota-ruta').value;
             const capacidad = parseInt(document.getElementById('flota-capacidad').value);
-            
-            if(!chofer_id) return alert("Por favor, seleccione un chofer.");
-            if(capacidad <= 0) return alert("Ingrese una capacidad válida.");
-            if(capacidad > stockFábricaLlenos) {
-                return alert(`No hay suficiente stock en fábrica. Stock actual: ${stockFábricaLlenos}`);
-            }
-
+            if (!chofer_id) return alert("Seleccione un chofer.");
+            if (capacidad <= 0) return alert("Capacidad inválida.");
+            if (capacidad > stockFábricaLlenos) return alert(`Stock insuficiente. Stock actual: ${stockFábricaLlenos}`);
             btn.disabled = true;
-
             try {
-                // Insertar nueva ruta
-                const { error: insertError } = await supabaseClient.from('flota').insert([{ 
-                    nombre, 
-                    chofer_id, 
-                    capacidad_maxima: capacidad, 
-                    stock_actual: capacidad,
-                    estado: 'ruta'
-                }]);
-                if (insertError) throw insertError;
-                
-                // Restar la carga de la fábrica principal
-                const { error: updateError } = await supabaseClient.from('inventario_fabrica').upsert({ 
-                    id: 1, 
-                    stock_llenos: stockFábricaLlenos - capacidad, 
-                    stock_vacios: stockFábricaVacios 
-                });
-                if (updateError) throw updateError;
-                
-                // NUEVO: Registrar movimiento de salida en fábrica para tu historial
-                await supabaseClient.from('movimientos_fabrica').insert([{
-                    tipo: 'despacho',
-                    cantidad_llenos: -capacidad,
-                    descripcion: `Despacho a ruta: ${nombre}`
-                }]);
-                
-                alert(`Ruta "${nombre}" despachada exitosamente con ${capacidad} botellones.`);
+                await supabaseClient.from('flota').insert([{ nombre, chofer_id, capacidad_maxima: capacidad, stock_actual: capacidad, estado: 'ruta' }]);
+                await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: stockFábricaLlenos - capacidad, stock_vacios: stockFábricaVacios });
+                await supabaseClient.from('movimientos_fabrica').insert([{ tipo: 'despacho', cantidad_llenos: -capacidad, descripcion: `Despacho a ruta: ${nombre}` }]);
+                alert(`Ruta "${nombre}" despachada.`);
                 document.getElementById('form-flota').reset();
-                fetchFlota();
-                fetchStockFabrica(); // Refrescar el contador de la fábrica
-
-            } catch (error) {
-                console.error(error);
-                alert("Hubo un error al despachar la unidad: " + error.message);
-            } finally {
-                btn.disabled = false;
-            }
+                fetchFlota(); fetchStockFabrica();
+            } catch (error) { alert("Error: " + error.message); } finally { btn.disabled = false; }
         });
 
-        // ------------------------------------------
-        // LISTADO DE FLOTA Y ENTREGAS 
-        // ------------------------------------------
+        // ==========================================
+        // LISTA DE FLOTA
+        // ==========================================
         async function fetchFlota() {
             try {
-                const { data: flotaData, error } = await supabaseClient.from('flota').select('*, choferes(codigo, nombre, placa)').order('created_at', { ascending: false });
+                const { data: flotaData, error } = await supabaseClient.from('flota').select('*, choferes(nombre, placa)').order('created_at', { ascending: false });
                 if (error) throw error;
                 const fleetContainer = document.getElementById('fleet-list');
-                let html = '';
                 const activas = flotaData.filter(f => f.estado === 'ruta');
                 flotaGlobalActiva = activas;
+                let totalEnLaCalle = 0;
+                activas.forEach(f => totalEnLaCalle += (f.stock_actual || 0));
+                document.getElementById('kpi-unidades').innerText = totalEnLaCalle;
 
+                let html = '';
                 activas.forEach(f => {
                     const porcentaje = Math.max(0, Math.min(100, (f.stock_actual / f.capacidad_maxima) * 100));
                     const barClass = porcentaje < 25 ? 'inventory-fill low' : 'inventory-fill';
-                    html += `
-                        <div class="fleet-card">
-                            <div class="fleet-header"><div class="fleet-name"><i class="fa-solid fa-truck"></i> ${f.nombre}</div><div class="fleet-trip">En curso</div></div>
-                            <div class="fleet-chofer"><i class="fa-solid fa-id-card"></i> <strong>${f.choferes ? f.choferes.nombre : 'N/A'}</strong></div>
-                            <div class="inventory-bar"><div class="${barClass}" style="width: ${porcentaje}%"></div></div>
-                            <div class="fleet-footer"><span>Stock Físico: ${f.stock_actual} / Despachado: ${f.capacidad_maxima}</span><span class="status-ruta">En Ruta</span></div>
-                            <div style="display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px;">
-                                <button class="btn-sm-manage" onclick="openFleetModal('${f.id}', '${f.nombre}', ${f.capacidad_maxima}, ${f.stock_actual}, '${f.chofer_id}')">
-                                    <i class="fa-solid fa-list-check"></i> Gestionar / Liquidar
-                                </button>
-                            </div>
-                        </div>`;
+                    html += `<div class="fleet-card">
+                        <div class="fleet-header"><div class="fleet-name"><i class="fa-solid fa-truck"></i> ${f.nombre}</div><div class="fleet-trip">En curso</div></div>
+                        <div class="fleet-chofer"><i class="fa-solid fa-id-card"></i> <strong>${f.choferes ? f.choferes.nombre : 'N/A'}</strong></div>
+                        <div class="inventory-bar"><div class="${barClass}" style="width: ${porcentaje}%"></div></div>
+                        <div class="fleet-footer"><span>Stock Físico: ${f.stock_actual} / Despachado: ${f.capacidad_maxima}</span><span class="status-ruta">En Ruta</span></div>
+                        <div style="display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px;">
+                            <button class="btn-sm-manage" onclick="openFleetModal('${f.id}', '${f.nombre}', ${f.capacidad_maxima}, ${f.stock_actual}, '${f.chofer_id}')">
+                                <i class="fa-solid fa-list-check"></i> Gestionar / Liquidar
+                            </button>
+                        </div>
+                    </div>`;
                 });
-                fleetContainer.innerHTML = html || '<div class="loading-text">No hay unidades en ruta en este momento.</div>';
-            } catch (error) {}
+                fleetContainer.innerHTML = html || '<div class="loading-text">No hay unidades en ruta.</div>';
+            } catch (error) { console.error(error); }
         }
 
-        // ------------------------------------------
-        // MODAL GESTIÓN DE FLOTA
-        // ------------------------------------------
         function openFleetModal(id, nombre, max, stock, choferId) {
             currentFleetId = id; currentFleetMax = max; currentFleetStock = stock; currentFleetName = nombre; currentFleetChoferId = choferId;
             document.getElementById('modal-fleet-name').innerHTML = `<i class="fa-solid fa-truck"></i> ${nombre}`;
@@ -942,134 +1241,204 @@
             });
             document.getElementById('modal-fleet-income').innerText = fmtBs(totalIncome);
             document.getElementById('modal-fleet-units').innerText = totalUnits;
+            const comision = reporteComisionesGlobal[nombre] || 0;
+            document.getElementById('modal-fleet-comision').innerText = fmtBs(comision);
             document.getElementById('fleetModal').style.display = 'flex';
         }
 
         function closeFleetModal() { document.getElementById('fleetModal').style.display = 'none'; }
-        async function rechargeFleet() { closeFleetModal(); alert("Recarga registrada."); }
-        async function closeRoute() { closeFleetModal(); alert("Ruta cerrada."); }
-        
-        function openEditFleetModal() {} function closeEditFleetModal() {}
-        function openActivarFlotaModal() {} function closeActivarFlotaModal() {}
 
-        // ------------------------------------------
-        // ENTREGAS E HISTORIAL
-        // ------------------------------------------
-        async function fetchEntregas() {
+        async function rechargeFleet() {
+            const cantidad = parseInt(document.getElementById('modal-recharge-qty').value);
+            if (isNaN(cantidad) || cantidad <= 0) return alert("Cantidad inválida.");
+            if (cantidad > stockFábricaLlenos) return alert(`Stock insuficiente en fábrica. Actual: ${stockFábricaLlenos}`);
             try {
-                const { data: entregas, error } = await supabaseClient.from('entregas').select(`id, cliente, unidades, metodo_pago, total, created_at, flota ( nombre )`).order('created_at', { ascending: false });
-                if (error) throw error;
-                entregasGlobales = entregas;
-                
-                let totalIngresos = 0, totalUnidades = 0;
-                entregas.forEach(e => { totalIngresos += Number(e.total); totalUnidades += Number(e.unidades); });
-                
-                ventasDelDiaBs = totalIngresos; unidadesVendidasDia = totalUnidades;
-                calcularGanancia();
-                
-                document.getElementById('kpi-ingresos').innerText = fmtBs(totalIngresos);
-                document.getElementById('kpi-unidades').innerText = totalUnidades;
-                
-                const listContainer = document.getElementById('delivery-list');
-                let html = '';
-                entregas.forEach(e => {
-                    html += `
-                        <div class="delivery-item">
-                            <div class="delivery-left">
-                                <div class="truck-avatar"><i class="fa-solid fa-truck-droplet"></i></div>
-                                <div><div class="delivery-client">${e.cliente}</div><div class="delivery-meta-sub"><span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span> • <span>${e.flota ? e.flota.nombre : 'S/R'}</span></div></div>
-                            </div>
-                            <div class="delivery-right">
-                                <div class="delivery-price">${fmtBs(e.total)}</div>
-                                <span class="payment-pill pay-efectivo">${e.metodo_pago} (${e.unidades} u.)</span>
-                            </div>
-                        </div>`;
-                });
-                listContainer.innerHTML = html || `<div class="loading-text">No hay entregas registradas hoy.</div>`;
-            } catch (error) {}
+                const nuevoStockFlota = currentFleetStock + cantidad;
+                const nuevaCapacidadMaxima = currentFleetMax + cantidad;
+                await supabaseClient.from('flota').update({ stock_actual: nuevoStockFlota, capacidad_maxima: nuevaCapacidadMaxima }).eq('id', currentFleetId);
+                await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: stockFábricaLlenos - cantidad, stock_vacios: stockFábricaVacios });
+                await supabaseClient.from('movimientos_fabrica').insert([{ tipo: 'despacho', cantidad_llenos: -cantidad, descripcion: `Recarga a ${currentFleetName}` }]);
+                alert(`Recarga exitosa de ${cantidad} botellones.`);
+                document.getElementById('modal-recharge-qty').value = '';
+                closeFleetModal(); fetchFlota(); fetchStockFabrica();
+            } catch (error) { alert("Error: " + error.message); }
         }
 
-        async function fetchAsientosContables() {}
-        function sendWhatsAppReport() { alert("Reporte de WhatsApp enviado"); }
+        async function closeRoute() {
+            const sobrantesLlenos = parseInt(document.getElementById('modal-return-qty').value) || 0;
+            try {
+                // Obtener stock actual real de la flota
+                const { data: flotaActual, error: errFlotaGet } = await supabaseClient
+                    .from('flota')
+                    .select('stock_actual, capacidad_maxima')
+                    .eq('id', currentFleetId)
+                    .single();
+                if (errFlotaGet) throw errFlotaGet;
+                const stockReal = flotaActual.stock_actual;
+
+                // Calcular vacíos retornados: los vendidos menos los devueltos
+                const entregasDeFlota = entregasGlobales.filter(e => e.flota && e.flota.nombre === currentFleetName);
+                const totalVendido = entregasDeFlota.reduce((acc, e) => acc + Number(e.unidades), 0);
+                const totalVaciosDevueltos = entregasDeFlota.reduce((acc, e) => acc + (e.vacios_devueltos || 0), 0);
+                const vaciosRetornados = totalVendido - totalVaciosDevueltos;
+
+                // Actualizar flota a estado 'planta'
+                await supabaseClient.from('flota').update({ estado: 'planta', stock_actual: 0 }).eq('id', currentFleetId);
+
+                // Actualizar inventario de fábrica: sumar sobrantes llenos y vacíos
+                const nuevoStockLlenos = stockFábricaLlenos + sobrantesLlenos;
+                const nuevoStockVacios = stockFábricaVacios + vaciosRetornados;
+                await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: nuevoStockLlenos, stock_vacios: nuevoStockVacios });
+
+                // Registrar movimiento
+                await supabaseClient.from('movimientos_fabrica').insert([{
+                    tipo: 'retorno',
+                    cantidad_llenos: sobrantesLlenos,
+                    cantidad_vacios: vaciosRetornados,
+                    descripcion: `Retorno de ruta ${currentFleetName}`
+                }]);
+
+                alert(`Ruta ${currentFleetName} cerrada. Sobrantes: ${sobrantesLlenos} llenos, ${vaciosRetornados} vacíos.`);
+                closeFleetModal();
+                fetchFlota(); fetchStockFabrica();
+            } catch (error) {
+                alert("Error al cerrar ruta: " + error.message);
+            }
+        }
+
+        function openEditFleetModal() {} 
+        function closeEditFleetModal() {}
+        function openActivarFlotaModal() {} 
+        function closeActivarFlotaModal() {}
+        function saveFleetEdit() {}
+        function activarFlota() {}
 
         // ==========================================
-        // EXPORTACIÓN DE PDF - jsPDF
+        // ENTREGAS Y COMISIONES
+        // ==========================================
+        async function fetchEntregas() {
+            try {
+                const { data: entregas, error } = await supabaseClient
+                    .from('entregas')
+                    .select(`id, cliente, unidades, metodo_pago, total, created_at, vacios_devueltos,
+                             flota ( nombre ), entregas_detalles ( cantidad, comision_unitaria )`)
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+                entregasGlobales = entregas || [];
+                
+                let totalIngresos = 0, totalUnidades = 0;
+                let reporteComisiones = {};
+
+                entregasGlobales.forEach(e => {
+                    totalIngresos += Number(e.total);
+                    totalUnidades += Number(e.unidades);
+                    if (e.flota && e.entregas_detalles) {
+                        const nombreFlota = e.flota.nombre;
+                        if (!reporteComisiones[nombreFlota]) reporteComisiones[nombreFlota] = 0;
+                        e.entregas_detalles.forEach(detalle => {
+                            reporteComisiones[nombreFlota] += detalle.cantidad * detalle.comision_unitaria;
+                        });
+                    }
+                });
+                reporteComisionesGlobal = reporteComisiones;
+                ventasDelDiaBs = totalIngresos; unidadesVendidasDia = totalUnidades;
+                calcularGanancia();
+                document.getElementById('kpi-ingresos').innerText = fmtBs(totalIngresos);
+
+                // Tabla de comisiones
+                const tbodyComisiones = document.getElementById('comisiones-tbody');
+                if (Object.keys(reporteComisiones).length > 0) {
+                    tbodyComisiones.innerHTML = Object.keys(reporteComisiones).map(flota => `
+                        <tr>
+                            <td><strong>${flota}</strong></td>
+                            <td class="acc-debit">${fmtBs(reporteComisiones[flota])}</td>
+                        </tr>`).join('');
+                } else {
+                    tbodyComisiones.innerHTML = '<tr><td colspan="2" class="loading-text">Sin datos de comisiones aún.</td></tr>';
+                }
+
+                // Lista de entregas
+                const listContainer = document.getElementById('delivery-list');
+                let html = '';
+                entregasGlobales.forEach(e => {
+                    html += `<div class="delivery-item">
+                        <div class="delivery-left">
+                            <div class="truck-avatar"><i class="fa-solid fa-truck-droplet"></i></div>
+                            <div><div class="delivery-client">${e.cliente}</div>
+                            <div class="delivery-meta-sub"><span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span> • <span>${e.flota ? e.flota.nombre : 'S/R'}</span></div></div>
+                        </div>
+                        <div class="delivery-right">
+                            <div class="delivery-price">${fmtBs(e.total)}</div>
+                            <span class="payment-pill pay-efectivo">${e.metodo_pago} (${e.unidades} u.)</span>
+                        </div>
+                    </div>`;
+                });
+                listContainer.innerHTML = html || '<div class="loading-text">No hay entregas registradas hoy.</div>';
+            } catch (error) { console.error(error); }
+        }
+
+        function sendWhatsAppReport() { alert("Reporte de WhatsApp enviado."); }
+
+        // ==========================================
+        // EXPORTACIÓN PDF MEJORADA
         // ==========================================
         window.jsPDF = window.jspdf.jsPDF;
 
-        // 1. REPORTE INDIVIDUAL DETALLADO
         function exportarIndividualPDF() {
             const doc = new jsPDF();
-            
-            // Entregas filtradas para esta flota
             const entregasFlota = entregasGlobales.filter(e => e.flota && e.flota.nombre === currentFleetName);
             
-            let totalVendido = 0;
-            let totalIngresos = 0;
+            let totalVendido = 0, totalIngresos = 0;
             let resumenPagos = {};
-
             entregasFlota.forEach(e => {
                 const qty = Number(e.unidades);
                 const amt = Number(e.total);
                 const metodo = (e.metodo_pago || 'Desconocido').toUpperCase();
-                
                 totalVendido += qty;
                 totalIngresos += amt;
-                
-                if(!resumenPagos[metodo]) resumenPagos[metodo] = { unidades: 0, total: 0 };
+                if (!resumenPagos[metodo]) resumenPagos[metodo] = { unidades: 0, total: 0 };
                 resumenPagos[metodo].unidades += qty;
                 resumenPagos[metodo].total += amt;
             });
 
-            const retornados = currentFleetStock; 
-            const vacios = totalVendido;
+            const comisionChofer = reporteComisionesGlobal[currentFleetName] || 0;
+            const costoProd = totalVendido * costoProduccion;
+            const gananciaNetaPlanta = totalIngresos - comisionChofer - costoProd;
 
-            // Título
             doc.setFontSize(18);
             doc.text("Reporte de Ruta Individual - AquaVita", 14, 20);
             doc.setFontSize(11);
             doc.text(`Unidad / Camión: ${currentFleetName}`, 14, 28);
-            doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString('es-BO')} ${new Date().toLocaleTimeString('es-BO')}`, 14, 34);
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-BO')} ${new Date().toLocaleTimeString('es-BO')}`, 14, 34);
 
-            // Tabla Resumen de Inventario
             doc.autoTable({
                 startY: 40,
-                head: [['Resumen General de Inventario', 'Cantidad / Monto']],
+                head: [['Resumen General', 'Monto']],
                 body: [
-                    ['Total Despachado a Ruta (Llenos)', `${currentFleetMax} botellones`],
-                    ['Cantidad de Ventas (Entregados)', `${totalVendido} botellones`],
-                    ['Botellas que Retornaron a Planta (Sobrantes Llenos)', `${retornados} botellones`],
-                    ['Botellas Vacías Recolectadas (Estimado)', `${vacios} botellones`],
-                    ['Ingreso Total Generado', fmtBs(totalIngresos)]
+                    ['Despachado (Llenos)', `${currentFleetMax} botellones`],
+                    ['Ventas (Entregados)', `${totalVendido} botellones`],
+                    ['Sobrantes (Llenos)', `${currentFleetStock} botellones`],
+                    ['Ingresos Brutos', fmtBs(totalIngresos)],
+                    ['Comisión del Chofer', fmtBs(comisionChofer)],
+                    ['Costo de Producción', fmtBs(costoProd)],
+                    ['Ganancia Neta del Dueño', fmtBs(gananciaNetaPlanta)]
                 ],
                 theme: 'grid',
                 headStyles: { fillColor: [2, 132, 199] }
             });
 
-            // Tabla Ventas por Método de Pago
-            const pagosBody = Object.keys(resumenPagos).map(m => [
-                m, 
-                `${resumenPagos[m].unidades} botellones`, 
-                fmtBs(resumenPagos[m].total)
-            ]);
+            const pagosBody = Object.keys(resumenPagos).map(m => [m, `${resumenPagos[m].unidades} botellones`, fmtBs(resumenPagos[m].total)]);
+            if (pagosBody.length > 0) {
+                doc.autoTable({
+                    startY: doc.lastAutoTable.finalY + 10,
+                    head: [['Método de Pago', 'Cantidad', 'Ingreso']],
+                    body: pagosBody,
+                    theme: 'grid',
+                    headStyles: { fillColor: [16, 185, 129] }
+                });
+            }
 
-            doc.autoTable({
-                startY: doc.lastAutoTable.finalY + 10,
-                head: [['Método de Pago', 'Cantidad de Venta', 'Ingreso']],
-                body: pagosBody,
-                theme: 'grid',
-                headStyles: { fillColor: [16, 185, 129] }
-            });
-
-            // Tabla Detallada de Clientes y Entregas
-            const entregasBody = entregasFlota.map(e => [
-                formatTime(e.created_at),
-                e.cliente,
-                `${e.unidades} u.`,
-                e.metodo_pago,
-                fmtBs(e.total)
-            ]);
-
+            const entregasBody = entregasFlota.map(e => [formatTime(e.created_at), e.cliente, `${e.unidades} u.`, e.metodo_pago, fmtBs(e.total)]);
             if (entregasBody.length > 0) {
                 doc.autoTable({
                     startY: doc.lastAutoTable.finalY + 10,
@@ -1078,121 +1447,84 @@
                     theme: 'striped',
                     headStyles: { fillColor: [71, 85, 105] }
                 });
-            } else {
-                doc.setFontSize(10);
-                doc.text("No se registraron entregas en la app para esta ruta hoy.", 14, doc.lastAutoTable.finalY + 10);
             }
-
             doc.save(`Reporte_Ruta_${currentFleetName.replace(/ /g, '_')}.pdf`);
         }
 
-        // 2. REPORTE GLOBAL DE TODAS LAS RUTAS
         function exportarGlobalPDF() {
             if (flotaGlobalActiva.length === 0) {
                 alert("No hay unidades activas para exportar.");
                 return;
             }
-
             const doc = new jsPDF();
-            
             doc.setFontSize(18);
             doc.text("Reporte Global de Flotas - AquaVita", 14, 20);
             doc.setFontSize(11);
-            doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString('es-BO')} ${new Date().toLocaleTimeString('es-BO')}`, 14, 28);
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-BO')} ${new Date().toLocaleTimeString('es-BO')}`, 14, 28);
 
-            let granTotalDespachado = 0;
-            let granTotalVendido = 0;
-            let granTotalIngresos = 0;
-            let granTotalRetornados = 0;
-            let resumenPagosGlobal = {};
-
-            const flotaBody = flotaGlobalActiva.map(f => {
-                let vendido = 0, ingresos = 0;
+            let totalDespachado = 0, totalVendido = 0, totalIngresos = 0, totalComisiones = 0, totalCosto = 0;
+            const resumenPorFlota = flotaGlobalActiva.map(f => {
                 const entregasFlota = entregasGlobales.filter(e => e.flota && e.flota.nombre === f.nombre);
-                
+                let vendido = 0, ingresos = 0;
                 entregasFlota.forEach(e => {
                     const qty = Number(e.unidades);
                     const amt = Number(e.total);
-                    const metodo = (e.metodo_pago || 'Desconocido').toUpperCase();
-                    
                     vendido += qty;
                     ingresos += amt;
-                    
-                    if(!resumenPagosGlobal[metodo]) resumenPagosGlobal[metodo] = { unidades: 0, total: 0 };
-                    resumenPagosGlobal[metodo].unidades += qty;
-                    resumenPagosGlobal[metodo].total += amt;
                 });
+                const comision = reporteComisionesGlobal[f.nombre] || 0;
+                const costo = vendido * costoProduccion;
+                const gananciaNeta = ingresos - comision - costo;
 
-                granTotalDespachado += f.capacidad_maxima;
-                granTotalVendido += vendido;
-                granTotalIngresos += ingresos;
-                granTotalRetornados += f.stock_actual;
+                totalDespachado += f.capacidad_maxima;
+                totalVendido += vendido;
+                totalIngresos += ingresos;
+                totalComisiones += comision;
+                totalCosto += costo;
 
-                return [
-                    f.nombre,
-                    f.choferes ? f.choferes.nombre : 'S/A',
-                    f.capacidad_maxima,
-                    vendido,
-                    f.stock_actual,
-                    fmtBs(ingresos)
-                ];
+                return [f.nombre, f.choferes ? f.choferes.nombre : 'S/A', f.capacidad_maxima, vendido, f.stock_actual, fmtBs(ingresos), fmtBs(comision), fmtBs(gananciaNeta)];
             });
 
-            // Tabla Resumen Global
+            const gananciaNetaGlobal = totalIngresos - totalComisiones - totalCosto;
+
             doc.autoTable({
                 startY: 35,
-                head: [['Concepto (Sumatoria de todas las Rutas)', 'Cantidad / Monto']],
+                head: [['Concepto', 'Total']],
                 body: [
-                    ['Total General Despachado (Llenos)', `${granTotalDespachado} botellones`],
-                    ['Total General de Ventas', `${granTotalVendido} botellones`],
-                    ['Total de Botellas que Retornaron (Llenos)', `${granTotalRetornados} botellones`],
-                    ['Total Botellas Vacías Recolectadas', `${granTotalVendido} botellones`],
-                    ['Total Ingresos Generados', fmtBs(granTotalIngresos)]
+                    ['Total Despachado (Llenos)', `${totalDespachado} botellones`],
+                    ['Total Ventas (Entregados)', `${totalVendido} botellones`],
+                    ['Ingresos Brutos', fmtBs(totalIngresos)],
+                    ['Comisiones de Choferes', fmtBs(totalComisiones)],
+                    ['Costo de Producción', fmtBs(totalCosto)],
+                    ['Ganancia Neta del Dueño', fmtBs(gananciaNetaGlobal)]
                 ],
                 theme: 'grid',
                 headStyles: { fillColor: [2, 132, 199] }
             });
 
-            // Tabla Ventas por Método de Pago (Global)
-            const pagosBody = Object.keys(resumenPagosGlobal).map(m => [
-                m, 
-                `${resumenPagosGlobal[m].unidades} botellones`, 
-                fmtBs(resumenPagosGlobal[m].total)
-            ]);
-
-            if (pagosBody.length > 0) {
-                doc.autoTable({
-                    startY: doc.lastAutoTable.finalY + 10,
-                    head: [['Método de Pago (Global)', 'Cantidad de Venta', 'Ingreso Consolidado']],
-                    body: pagosBody,
-                    theme: 'grid',
-                    headStyles: { fillColor: [16, 185, 129] }
-                });
-            }
-
-            // Tabla Desglose por Camión
-            if (flotaBody.length > 0) {
-                doc.autoTable({
-                    startY: doc.lastAutoTable.finalY + 10,
-                    head: [['Ruta/Unidad', 'Chofer', 'Despachado', 'Vendido', 'Retornaron (Sobran)', 'Ingresos']],
-                    body: flotaBody,
-                    theme: 'striped',
-                    headStyles: { fillColor: [71, 85, 105] }
-                });
-            }
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 10,
+                head: [['Ruta/Unidad', 'Chofer', 'Despachado', 'Vendido', 'Sobran', 'Ingresos', 'Comisión', 'Ganancia Neta']],
+                body: resumenPorFlota,
+                theme: 'striped',
+                headStyles: { fillColor: [71, 85, 105] }
+            });
 
             doc.save(`Reporte_Global_AquaVita.pdf`);
         }
-        
+
         // ==========================================
-        // INICIO - SE EJECUTA AL CARGAR LA PÁGINA
+        // INICIALIZACIÓN
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
-            fetchConfiguracion(); 
-            fetchChoferes();      // <--- AHORA CARGA LOS CHOFERES
-            fetchStockFabrica();  // <--- AHORA CARGA EL STOCK
+            fetchConfiguracion();
+            fetchChoferes();
+            fetchStockFabrica();
             fetchFlota();
             fetchEntregas();
+            fetchAsientosContables();
+            cargarProductos();
+            fetchCaja();
         });
     </script>
 </body>
