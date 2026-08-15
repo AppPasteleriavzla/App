@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Migo Chofer - App de Transporte Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --primary: #D1E835;
+      --primary-active: #B0C928;
+      --primary-light: #F0F7CC;
+      --bg-light: #F9F9F9;
+      --white: #FFFFFF;
+      --text-dark: #1C1C1C;
+      --text-muted: #888888;
+      --border-color: #EEEEEE;
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.05);
+      --shadow-md: 0 -4px 20px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+      --success: #D1E835;
+      --nav-height: 70px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #E5E5E5;
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      color: var(--text-dark);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      height: 100dvh;
+      max-height: 900px;
+      background: var(--bg-light);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    .hidden { display: none !important; }
+
+    /* PANTALLA DE INICIO */
+    #start-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--white);
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 0;
+      overflow-y: auto;
+    }
+
+    #start-screen img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+    }
+
+    .btn-start {
+      background: var(--primary);
+      color: var(--text-dark);
+      border: none;
+      padding: 1.2rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(209, 232, 53, 0.5);
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-start:active {
+      transform: scale(0.95);
+      background: var(--primary-active);
+    }
+
+    /* PANTALLA DE SELECCIÓN DE VEHÍCULO */
+    #vehicle-select-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--white);
+      z-index: 2900;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      overflow-y: auto;
+      transition: opacity 0.4s ease;
+    }
+    #vehicle-select-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .back-button {
+      background: none;
+      border: none;
+      color: var(--text-dark);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      transition: 0.2s;
+    }
+    .back-button:active {
+      transform: scale(0.9);
+    }
+
+    .vehicle-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .vehicle-header h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 0.3rem;
+    }
+    .vehicle-header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .vehicle-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .vehicle-card {
+      border: 2px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      background: var(--white);
+    }
+    .vehicle-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 4px 12px rgba(209,232,53,0.3);
+    }
+    .vehicle-icon {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .vehicle-info {
+      flex: 1;
+    }
+    .vehicle-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .vehicle-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .btn-continue-vehicle {
+      background: var(--primary);
+      color: var(--text-dark);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(209,232,53,0.4);
+      transition: 0.2s;
+      margin-top: 1.5rem;
+      width: 100%;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .btn-continue-vehicle.enabled {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .btn-continue-vehicle:active {
+      transform: scale(0.97);
+    }
+
+    /* PANTALLA DE REGISTRO */
+    #register-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg-light);
+      z-index: 2800;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+    #register-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .register-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .register-header h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+    .register-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .selected-vehicle-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary-light);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      color: var(--text-dark);
+    }
+    .register-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .form-group label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-dark);
+    }
+    .form-group input {
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 1rem;
+      outline: none;
+      font-family: inherit;
+      background: var(--white);
+    }
+    .form-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(209,232,53,0.2);
+    }
+    .btn-register {
+      background: var(--primary);
+      color: var(--text-dark);
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(209,232,53,0.4);
+      transition: 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-register:active {
+      transform: scale(0.98);
+    }
+
+    /* PANTALLA DE BIENVENIDA */
+    #welcome-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--white);
+      z-index: 2500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    #welcome-screen.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .welcome-content {
+      text-align: center;
+      animation: fadeInScale 0.8s ease-out;
+    }
+
+    .welcome-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary-light);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .welcome-text {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-subtext {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    @keyframes fadeInScale {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* CONTENEDOR DE VISTAS */
+    .view-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .view {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-light);
+      z-index: 10;
+      opacity: 1;
+      transition: opacity 0.3s ease-in-out;
+      overflow-y: auto;
+      padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 20px);
+    }
+    .view.hidden { opacity: 0; pointer-events: none; z-index: 1; }
+
+    .driver-header {
+      position: absolute;
+      top: 0; left: 0; width: 100%;
+      padding: 1.2rem;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .driver-header .logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+      pointer-events: all;
+    }
+
+    .status-toggle {
+      background: var(--white);
+      border-radius: 30px;
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      pointer-events: all;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+    .status-toggle.offline { color: var(--text-muted); }
+    .status-toggle.online { color: var(--success); }
+    .status-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--text-muted); transition: all 0.3s;
+    }
+    .status-toggle.online .status-dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
+
+    #map { width: 100%; height: 100%; z-index: 1; position: absolute; }
+    
+    .loading-gps {
+      position: absolute; top:0; left:0; width:100%; height:100%;
+      background: var(--white); z-index: 1500;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .loading-gps.visible { opacity: 1; pointer-events: all; }
+    .spinner {
+      width: 40px; height: 40px; border: 4px solid var(--border-color);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0; left: 0; width: 100%;
+      background: var(--bg-light);
+      border-top-left-radius: 25px;
+      border-top-right-radius: 25px;
+      padding: 1.5rem 1.2rem calc(var(--nav-height) + var(--safe-bottom) + 10px) 1.2rem;
+      z-index: 1000;
+      box-shadow: 0 -10px 20px rgba(0,0,0,0.08);
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .sheet-title { font-size: 1.2rem; font-weight: 700; text-align: center; color: var(--text-dark); }
+
+    /* PANEL DEL PASAJERO */
+    .passenger-panel { background: var(--white); border-radius: 16px; padding: 1rem; box-shadow: var(--shadow-sm); }
+    .passenger-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+    .passenger-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+    .passenger-info { flex: 1; }
+    .passenger-name { font-weight: 700; font-size: 1.1rem; }
+    .passenger-rating { display: flex; align-items: center; gap: 4px; font-size: 0.9rem; color: var(--text-muted); }
+    
+    .route-info { display: flex; flex-direction: column; gap: 0.5rem; }
+    .route-point { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600; line-height: 1.2;}
+    .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .dot.pickup { background: var(--primary); }
+    .dot.dropoff { background: var(--text-dark); }
+
+    /* ICONO DE MENSAJE */
+    .msg-icon {
+      background: var(--primary-light);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: var(--text-dark);
+      box-shadow: var(--shadow-sm);
+      transition: 0.2s;
+    }
+    .msg-icon:active { transform: scale(0.9); }
+
+    /* MODALES */
+    .overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+      z-index: 2000; display: flex; justify-content: center; align-items: center;
+      opacity: 0; pointer-events: none; transition: 0.3s;
+    }
+    .overlay.active { opacity: 1; pointer-events: all; }
+    
+    .request-modal {
+      background: var(--white); width: 90%; border-radius: 20px; padding: 1.5rem;
+      box-shadow: var(--shadow-lg); transform: scale(0.95) translateY(20px);
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative; overflow: hidden;
+    }
+    .overlay.active .request-modal { transform: scale(1) translateY(0); }
+    
+    .request-radar {
+      position: absolute; top: -50px; right: -50px; width: 150px; height: 150px;
+      background: radial-gradient(circle, rgba(209,232,53,0.25) 0%, rgba(255,255,255,0) 70%);
+      border-radius: 50%; animation: pulseRadar 2s infinite; pointer-events: none;
+    }
+
+    .client-preview { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-bottom: 1rem; position: relative; }
+    .client-preview img {
+      width: 75px; height: 75px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--success); box-shadow: 0 4px 10px rgba(209,232,53,0.4);
+    }
+    .client-name { font-size: 1.3rem; font-weight: 800; color: var(--text-dark); }
+    .client-rating { display: flex; align-items: center; gap: 4px; font-weight: 600; color: #F4B400; font-size: 1rem; }
+
+    .msg-btn-request {
+      position: absolute;
+      top: 5px;
+      right: -10px;
+      background: white;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      cursor: pointer;
+      color: var(--primary);
+    }
+
+    .price-tag { text-align: center; font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0; }
+    
+    .request-details {
+      display: flex; justify-content: space-around; margin-bottom: 1.5rem; color: var(--text-dark); font-size: 0.95rem; font-weight: 600;
+      background: var(--bg-light); padding: 10px; border-radius: 12px;
+    }
+    .request-details div { display: flex; flex-direction: column; align-items: center; }
+    .request-details span { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; margin-bottom: 2px;}
+
+    .request-actions { display: flex; gap: 1rem; }
+    .btn-reject { flex: 1; padding: 1rem; border: 2px solid var(--border-color); background: transparent; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+    .btn-accept {
+      flex: 2; padding: 1rem; background: var(--success); color: var(--text-dark); border: none; border-radius: 12px;
+      font-weight: 700; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(209,232,53,0.5);
+      animation: pulseGreen 1.5s infinite;
+    }
+
+    /* MODAL CHAT */
+    .chat-modal {
+      background: var(--white); width: 90%; max-height: 70%; border-radius: 20px; padding: 1.5rem;
+      box-shadow: var(--shadow-lg); transform: scale(0.95) translateY(20px);
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex; flex-direction: column;
+    }
+    .overlay.active .chat-modal { transform: scale(1) translateY(0); }
+    .chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); }
+    .chat-header img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .chat-header .name { font-weight: 700; }
+    .chat-messages { flex: 1; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px; }
+    .msg-bubble { max-width: 80%; padding: 0.8rem; border-radius: 15px; font-size: 0.9rem; line-height: 1.3; }
+    .msg-bubble.received { background: var(--bg-light); align-self: flex-start; }
+    .msg-bubble.sent { background: var(--primary); color: var(--text-dark); align-self: flex-end; }
+    .chat-input-area { display: flex; gap: 0.5rem; }
+    .chat-input {
+      flex: 1; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 20px;
+      font-size: 0.9rem; outline: none;
+    }
+    .chat-send-btn {
+      background: var(--primary); color: var(--text-dark); border: none; border-radius: 20px; padding: 0 1.2rem;
+      font-weight: 700; cursor: pointer;
+    }
+
+    /* MODAL PAGO Y FINALIZACIÓN */
+    .payment-modal {
+      background: var(--white); width: 90%; border-radius: 20px; padding: 2rem 1.5rem;
+      box-shadow: var(--shadow-lg); transform: scale(0.95) translateY(20px);
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .overlay.active .payment-modal { transform: scale(1) translateY(0); }
+    .payment-icon {
+      width: 70px; height: 70px; background: var(--primary-light); border-radius: 50%;
+      display: flex; justify-content: center; align-items: center; margin: 0 auto 1rem;
+      color: var(--text-dark); font-size: 2rem; font-weight: 800;
+    }
+    .payment-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .payment-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .payment-btn {
+      flex: 1; padding: 1rem; border: 2px solid var(--border-color); background: var(--bg-light);
+      border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    }
+    .payment-btn.qr { border-color: var(--primary); color: var(--text-dark); background: var(--primary-light); }
+    .payment-btn span { font-size: 2rem; }
+    .payment-btn:active { transform: scale(0.98); }
+
+    .completion-modal {
+      background: var(--white); width: 90%; border-radius: 20px; padding: 2rem 1.5rem;
+      box-shadow: var(--shadow-lg); transform: scale(0.95) translateY(20px);
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .overlay.active .completion-modal { transform: scale(1) translateY(0); }
+    .completion-icon {
+      width: 70px; height: 70px; background: var(--primary-light); border-radius: 50%;
+      display: flex; justify-content: center; align-items: center; margin: 0 auto 1rem;
+      color: var(--text-dark); font-size: 2rem; font-weight: 800;
+    }
+    .completion-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .completion-amount { font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem; }
+    .completion-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .btn-secondary {
+      flex: 1; padding: 1rem; background: var(--bg-light); border: 1px solid var(--border-color);
+      border-radius: 12px; font-weight: 700; color: var(--text-dark); cursor: pointer;
+    }
+    .btn-primary {
+      flex: 1; padding: 1rem; background: var(--primary); color: var(--text-dark); border: none; border-radius: 12px;
+      font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(209,232,53,0.4);
+    }
+    .btn-primary:active, .btn-secondary:active { transform: scale(0.98); }
+
+    @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(209,232,53,0.7); } 70% { box-shadow: 0 0 0 15px rgba(209,232,53,0); } 100% { box-shadow: 0 0 0 0 rgba(209,232,53,0); } }
+    @keyframes pulseRadar { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeInScale { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+    /* VISTAS GANANCIAS, BILLETERA, PERFIL Y MENSAJES */
+    .section-header { padding: 2rem 1.5rem 1rem 1.5rem; background: var(--white); box-shadow: var(--shadow-sm); margin-bottom: 10px; }
+    .section-title { font-size: 1.5rem; font-weight: 800; color: var(--text-dark); }
+    
+    .earnings-card {
+      background: var(--primary); color: var(--text-dark); border-radius: 16px;
+      padding: 1.5rem; margin: 0 1.5rem; box-shadow: 0 8px 20px rgba(209,232,53,0.4);
+      display: flex; flex-direction: column; gap: 5px; text-align: center;
+    }
+    .earnings-amount { font-size: 3rem; font-weight: 800; }
+    .earnings-stats { display: flex; justify-content: space-around; margin-top: 15px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 12px; }
+    .stat-item { display: flex; flex-direction: column; font-size: 0.9rem; font-weight: 600; }
+    .stat-item span { font-size: 0.75rem; font-weight: 400; opacity: 0.7; }
+    
+    .history-list { padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 10px; }
+    .history-item { background: var(--white); padding: 1rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+
+    /* BILLETERA */
+    .wallet-card {
+      background: var(--primary);
+      color: var(--text-dark);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 0 1.5rem;
+      box-shadow: 0 8px 20px rgba(209,232,53,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .wallet-balance {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0.5rem 0;
+    }
+    .wallet-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+    }
+    .btn-recharge {
+      flex: 1;
+      background: var(--white);
+      color: var(--text-dark);
+      border: none;
+      border-radius: 12px;
+      padding: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .btn-withdraw {
+      flex: 1;
+      background: transparent;
+      color: var(--text-dark);
+      border: 2px solid var(--white);
+      border-radius: 12px;
+      padding: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .wallet-transactions {
+      margin: 1.5rem;
+    }
+    .wallet-transactions h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .transaction-item {
+      background: var(--white);
+      padding: 1rem;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+    .transaction-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .transaction-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .transaction-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .transaction-amount {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .transaction-amount.positive { color: #4CAF50; }
+    .transaction-amount.negative { color: #F44336; }
+
+    /* MODAL RECARGA BILLETERA */
+    .recharge-modal {
+      background: var(--white);
+      width: 90%;
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.95) translateY(20px);
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+    }
+    .overlay.active .recharge-modal { transform: scale(1) translateY(0); }
+    .qr-placeholder {
+      width: 200px;
+      height: 200px;
+      margin: 1.5rem auto;
+      background: var(--white);
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+    .qr-pattern {
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%),
+        linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+      opacity: 0.1;
+      border-radius: 8px;
+    }
+    .qr-text {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      right: 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .btn-confirm-recharge {
+      background: var(--primary);
+      color: var(--text-dark);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(209,232,53,0.4);
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .btn-confirm-recharge:active { transform: scale(0.98); }
+    .recharge-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.8rem;
+      line-height: 1.3;
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: absolute;
+      bottom: calc(var(--nav-height) + var(--safe-bottom) + 20px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+      width: 90%;
+    }
+    .toast {
+      background: var(--text-dark);
+      color: var(--white);
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: 0.3s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .profile-hero { display: flex; flex-direction: column; align-items: center; padding: 1.5rem; background: var(--white); }
+    .profile-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 4px solid var(--bg-light); box-shadow: var(--shadow-md); margin-bottom: 10px; }
+    .profile-name { font-size: 1.4rem; font-weight: 800; }
+    
+    .car-badge {
+      display: flex; align-items: center; gap: 6px; background: var(--bg-light); 
+      border: 1px solid var(--border-color); padding: 6px 14px; 
+      border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-top: 10px; color: var(--text-dark);
+    }
+    
+    .menu-list { margin-top: 10px; padding: 0 1.5rem; }
+    .menu-item { background: var(--white); padding: 1.2rem; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; box-shadow: var(--shadow-sm); cursor: pointer; font-weight: 600; }
+    .menu-icon { width: 40px; height: 40px; background: var(--bg-light); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--text-dark); }
+
+    /* MENSAJES */
+    .messages-list { padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 10px; }
+    .conversation-item {
+      background: var(--white); padding: 1rem; border-radius: 12px; display: flex; align-items: center; gap: 15px;
+      box-shadow: var(--shadow-sm); cursor: pointer;
+    }
+    .conversation-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+    .conversation-info { flex: 1; }
+    .conversation-name { font-weight: 700; }
+    .conversation-preview { font-size: 0.85rem; color: var(--text-muted); }
+    .conversation-time { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* MENÚ INFERIOR */
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--white); display: flex; justify-content: space-around;
+      padding: 0.5rem 0.5rem calc(0.8rem + var(--safe-bottom)) 0.5rem;
+      box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 1001;
+      height: calc(var(--nav-height) + var(--safe-bottom));
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+      color: var(--text-muted); font-size: 0.7rem; cursor: pointer; padding: 0.2rem; transition: 0.2s;
+      flex: 1;
+    }
+    .nav-item svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; transition: 0.2s; }
+    .nav-item.active { color: var(--primary); font-weight: 700; transform: translateY(-2px); }
+
+    .car-marker { width: 44px; height: 44px; background: var(--white); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--primary); }
+    .passenger-marker { width: 26px; height: 26px; background: var(--text-dark); border-radius: 50%; border: 3px solid var(--white); box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+
+    /* ESTILOS PARA EL BOTÓN CONECTAR AHORA */
+    .offline-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .offline-button-container {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease, opacity 0.5s ease, margin-top 0.5s ease;
+      margin-top: 0;
+    }
+    .offline-button-container.show {
+      max-height: 60px;
+      opacity: 1;
+      margin-top: 1rem;
+    }
+    .connect-btn {
+      background: var(--primary);
+      color: var(--text-dark);
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(209,232,53,0.4);
+      transition: transform 0.2s;
+    }
+    .connect-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- PANTALLA DE INICIO -->
+    <div id="start-screen">
+      <img src="drive.png" alt="Migo Drive" />
+      <button class="btn-start" onclick="showVehicleSelection()">Vamos a trabajar</button>
+    </div>
+
+    <!-- PANTALLA DE SELECCIÓN DE VEHÍCULO -->
+    <div id="vehicle-select-screen" class="hidden">
+      <button class="back-button" onclick="goBackToStart()">← Volver</button>
+      <div class="vehicle-header">
+        <h2>Elige tu vehículo</h2>
+        <p>Selecciona el tipo de vehículo que vas a manejar</p>
+      </div>
+      <div class="vehicle-grid">
+        <div class="vehicle-card" data-vehicle="Migo Económico" onclick="selectVehicle(this)">
+          <img src="viaje.png" alt="Migo Económico" class="vehicle-icon">
+          <div class="vehicle-info">
+            <div class="vehicle-name">Migo Económico</div>
+            <div class="vehicle-desc">Viajes accesibles para todos</div>
+          </div>
+        </div>
+        <div class="vehicle-card" data-vehicle="Migo Confort" onclick="selectVehicle(this)">
+          <img src="viaje.png" alt="Migo Confort" class="vehicle-icon">
+          <div class="vehicle-info">
+            <div class="vehicle-name">Migo Confort</div>
+            <div class="vehicle-desc">Automóvil con aire acondicionado</div>
+          </div>
+        </div>
+        <div class="vehicle-card" data-vehicle="Migo Moto" onclick="selectVehicle(this)">
+          <img src="bike.png" alt="Migo Moto" class="vehicle-icon">
+          <div class="vehicle-info">
+            <div class="vehicle-name">Migo Moto</div>
+            <div class="vehicle-desc">Rápido y económico</div>
+          </div>
+        </div>
+        <div class="vehicle-card" data-vehicle="Migo Torito" onclick="selectVehicle(this)">
+          <img src="torito.png" alt="Migo Torito" class="vehicle-icon">
+          <div class="vehicle-info">
+            <div class="vehicle-name">Migo Torito</div>
+            <div class="vehicle-desc">Para cargas y mudanzas</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-continue-vehicle" id="btn-continue-vehicle" onclick="continueToRegister()">Continuar</button>
+    </div>
+
+    <!-- PANTALLA DE REGISTRO -->
+    <div id="register-screen" class="hidden">
+      <button class="back-button" onclick="goBackToVehicleSelection()">← Volver</button>
+      <div class="register-header">
+        <h2>Registro de Chofer</h2>
+        <p>Completa tus datos para comenzar</p>
+        <div class="selected-vehicle-badge" id="selected-vehicle-badge">
+          <span id="badge-vehicle-icon">🚗</span>
+          <span id="badge-vehicle-name">Migo Económico</span>
+        </div>
+      </div>
+      <div class="register-form">
+        <div class="form-group">
+          <label for="reg-name">Nombre completo</label>
+          <input type="text" id="reg-name" placeholder="Ej: Juan Pérez" required>
+        </div>
+        <div class="form-group">
+          <label for="reg-phone">Teléfono</label>
+          <input type="tel" id="reg-phone" placeholder="+591 70000000" required>
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Correo electrónico</label>
+          <input type="email" id="reg-email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label for="reg-plate">Placa del vehículo</label>
+          <input type="text" id="reg-plate" placeholder="ABC-123">
+        </div>
+        <button class="btn-register" onclick="registerUser()">Registrarse y empezar</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA DE BIENVENIDA -->
+    <div id="welcome-screen">
+      <div class="welcome-content">
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Conductor" class="welcome-photo">
+        <div class="welcome-text" id="welcome-text">Hola de nuevo Juan</div>
+        <div class="welcome-subtext">vamos a trabajar</div>
+        <div class="selected-vehicle-badge" style="margin-top: 1rem;" id="welcome-vehicle-badge">
+          <span id="welcome-vehicle-icon">🚗</span>
+          <span id="welcome-vehicle-name">Migo Económico</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-container">
+      <!-- PANTALLA DE CARGA GPS -->
+      <div id="loading-screen" class="loading-gps hidden">
+        <div class="spinner"></div>
+        <h3 style="color: var(--text-dark);">Obteniendo ubicación GPS...</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Preparando tu entorno de trabajo</p>
+      </div>
+
+      <!-- VISTA MAPA -->
+      <div id="view-mapa" class="view hidden">
+        <div class="driver-header">
+          <img src="https://i.ibb.co/jkC8nhQr/file-000000003250820e8a0329e625c66f45.png" alt="Migo" class="logo">
+          <div class="status-toggle offline" id="status-toggle">
+            <div class="status-dot"></div>
+            <span id="status-text">Descon...</span>
+          </div>
+        </div>
+        
+        <div id="map"></div>
+
+        <div class="bottom-sheet" id="main-bottom-sheet">
+          <h2 class="sheet-title" id="sheet-title">Estás fuera de línea</h2>
+          
+          <div id="offline-panel" class="offline-panel">
+            <div id="offline-text">Conéctate para empezar a recibir viajes y generar ganancias.</div>
+            <div id="offline-button-container" class="offline-button-container">
+              <button id="connect-btn" class="connect-btn">Conectar ahora</button>
+            </div>
+          </div>
+          <div id="online-content" style="display:none;">
+            <div style="display:flex; justify-content:center; margin-top:15px;"><div class="spinner" style="width:30px;height:30px;border-width:3px;"></div></div>
+          </div>
+
+          <div class="passenger-panel hidden" id="passenger-panel">
+            <div class="passenger-header">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Pasajero" class="passenger-avatar">
+              <div class="passenger-info">
+                <div class="passenger-name">Ana Martínez</div>
+                <div class="passenger-rating">
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="#F4B400"/></svg>
+                  4.9 • Efectivo
+                </div>
+              </div>
+              <div class="msg-icon" onclick="openChat()">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14l4 4V4a2 2 0 0 0-2-2z"/></svg>
+              </div>
+            </div>
+            <div class="route-info">
+              <div class="route-point">
+                <div class="dot pickup"></div>
+                <span id="lbl-origen">Cargando origen...</span>
+              </div>
+              <div class="route-point" id="dest-point">
+                <div class="dot dropoff"></div>
+                <span id="lbl-destino">Cargando destino...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA GANANCIAS -->
+      <div id="view-ganancias" class="view hidden">
+        <div class="section-header">
+          <h1 class="section-title">Tus Ganancias</h1>
+        </div>
+        <div class="earnings-card">
+          <span>Hoy</span>
+          <div class="earnings-amount">Bs 145.50</div>
+          <div class="earnings-stats">
+            <div class="stat-item"><span>Viajes</span>6</div>
+            <div class="stat-item" style="border-left: 1px solid rgba(0,0,0,0.1); border-right: 1px solid rgba(0,0,0,0.1); padding: 0 15px;"><span>Horas</span>4.5 h</div>
+            <div class="stat-item"><span>Tasa</span>95%</div>
+          </div>
+        </div>
+        <h3 style="margin: 20px 1.5rem 5px 1.5rem; font-size: 1.1rem;">Últimos Viajes</h3>
+        <div class="history-list">
+          <div class="history-item">
+            <div>
+              <strong>14:30</strong> • Efectivo<br>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Viaje completado</span>
+            </div>
+            <strong style="font-size: 1.1rem;">Bs 35.00</strong>
+          </div>
+          <div class="history-item">
+            <div>
+              <strong>12:15</strong> • QR<br>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Viaje completado</span>
+            </div>
+            <strong style="font-size: 1.1rem;">Bs 25.50</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA BILLETERA -->
+      <div id="view-billetera" class="view hidden">
+        <div class="section-header">
+          <h1 class="section-title">Billetera</h1>
+        </div>
+        <div class="wallet-card">
+          <span>Saldo disponible</span>
+          <div class="wallet-balance" id="wallet-balance">Bs 320.00</div>
+          <div class="wallet-actions">
+            <button class="btn-recharge" onclick="openRechargeModal()">Recargar</button>
+            <button class="btn-withdraw" onclick="showToast('Función de retiro próximamente')">Retirar</button>
+          </div>
+        </div>
+        <div class="wallet-transactions">
+          <h3>Movimientos</h3>
+          <div class="transaction-item">
+            <div class="transaction-info">
+              <div class="transaction-title">Recarga</div>
+              <div class="transaction-date">Hoy, 10:30</div>
+            </div>
+            <div class="transaction-amount positive">+ Bs 100.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-info">
+              <div class="transaction-title">Viaje completado</div>
+              <div class="transaction-date">Ayer, 18:45</div>
+            </div>
+            <div class="transaction-amount positive">+ Bs 25.00</div>
+          </div>
+          <div class="transaction-item">
+            <div class="transaction-info">
+              <div class="transaction-title">Retiro</div>
+              <div class="transaction-date">Hace 3 días</div>
+            </div>
+            <div class="transaction-amount negative">- Bs 150.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA MENSAJES -->
+      <div id="view-mensajes" class="view hidden">
+        <div class="section-header">
+          <h1 class="section-title">Mensajes</h1>
+        </div>
+        <div class="messages-list">
+          <div class="conversation-item" onclick="openChat('Ana Martínez')">
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Ana" class="conversation-avatar">
+            <div class="conversation-info">
+              <div class="conversation-name">Ana Martínez</div>
+              <div class="conversation-preview">¿Cuánto falta para llegar?</div>
+            </div>
+            <div class="conversation-time">12:45</div>
+          </div>
+          <div class="conversation-item" onclick="openChat('Luis Gómez')">
+            <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Luis" class="conversation-avatar">
+            <div class="conversation-info">
+              <div class="conversation-name">Luis Gómez</div>
+              <div class="conversation-preview">Gracias por el viaje 👍</div>
+            </div>
+            <div class="conversation-time">10:20</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA PERFIL -->
+      <div id="view-perfil" class="view hidden">
+        <div class="section-header">
+          <h1 class="section-title">Tu Perfil</h1>
+        </div>
+        <div class="profile-hero">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Chofer" class="profile-img">
+          <div class="profile-name" id="profile-name">Carlos Rodríguez</div>
+          <div style="color: #F4B400; font-weight: 700; margin-top: 5px; display: flex; align-items: center; gap: 5px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 4.98
+          </div>
+          <div class="car-badge" id="profile-vehicle-badge">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a2 2 0 0 0-1.6-.8H9.3a2 2 0 0 0-1.6.8L5 11l-5.16.86a1 1 0 0 0-.84.99V16h3m10 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm-14 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"/></svg>
+            <span id="profile-vehicle-text">Toyota Yaris Blanco • ABC-123</span>
+          </div>
+        </div>
+        <div class="menu-list">
+          <div class="menu-item">
+            <div class="menu-icon"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+            Documentos del Vehículo
+          </div>
+          <div class="menu-item" style="color: var(--primary);" onclick="showToast('Sesión cerrada')">
+            <div class="menu-icon" style="color: var(--text-dark); background: var(--primary-light);"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div>
+            Cerrar Sesión
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MODAL SOLICITUD DE VIAJE -->
+    <div class="overlay" id="request-overlay">
+      <div class="request-modal">
+        <div class="request-radar"></div>
+        <div class="client-preview">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Cliente">
+          <div class="client-name">Ana Martínez</div>
+          <div class="client-rating">
+            4.9 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <div class="msg-btn-request" onclick="openChat()">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14l4 4V4a2 2 0 0 0-2-2z"/></svg>
+          </div>
+        </div>
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 700;">VIAJE • MIGO ECONÓMICO</div>
+        <div class="price-tag">Bs 25.00</div>
+        <div class="request-details">
+          <div><span>A TU UBICACIÓN</span><strong>3 min</strong></div>
+          <div><span>VIAJE TOTAL</span><strong>12 min</strong></div>
+        </div>
+        <div style="background: var(--bg-light); padding: 12px; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 600; line-height: 1.5; text-align: left;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:12px;height:12px;border-radius:50%;background:var(--primary);flex-shrink:0;"></div>
+            <span id="modal-origen">Calculando origen...</span>
+          </div>
+          <div style="padding-left: 5px; border-left: 2px dashed #ccc; margin: 4px 0 4px 5px; height: 10px;"></div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:12px;height:12px;border-radius:50%;background:var(--text-dark);flex-shrink:0;"></div>
+            <span id="modal-destino">Calculando destino...</span>
+          </div>
+        </div>
+        <div class="request-actions">
+          <button class="btn-reject" onclick="rejectTrip()">Rechazar</button>
+          <button class="btn-accept" onclick="acceptTrip()">Aceptar Viaje</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE CHAT -->
+    <div class="overlay" id="chat-overlay">
+      <div class="chat-modal">
+        <div class="chat-header">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Chat" class="chat-avatar">
+          <div class="name">Ana Martínez</div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg-bubble received">Hola, estoy en el punto de recogida</div>
+          <div class="msg-bubble sent">Perfecto, llego en 3 minutos</div>
+          <div class="msg-bubble received">¿Puedes apurarte? Tengo prisa</div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" placeholder="Escribe un mensaje...">
+          <button class="chat-send-btn" onclick="sendMessage()">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE SELECCIÓN DE PAGO -->
+    <div class="overlay" id="payment-overlay">
+      <div class="payment-modal">
+        <div class="payment-icon">💵</div>
+        <div class="payment-title">¿Cómo pagó el cliente?</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Selecciona el método de pago utilizado</p>
+        <div class="payment-actions">
+          <button class="payment-btn" onclick="selectPayment('Efectivo')">
+            <span>💵</span> Efectivo
+          </button>
+          <button class="payment-btn qr" onclick="selectPayment('QR')">
+            <span>📱</span> QR
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE VIAJE COMPLETADO -->
+    <div class="overlay" id="completion-overlay">
+      <div class="completion-modal">
+        <div class="completion-icon">✓</div>
+        <div class="completion-title">¡Viaje Completado!</div>
+        <div class="completion-amount">Bs 25.00</div>
+        <p id="payment-method-display" style="color: var(--text-dark); font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;"></p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Has dejado a Ana en su destino.</p>
+        <div class="completion-actions">
+          <button class="btn-secondary" onclick="stopWorking()">Dejar de trabajar</button>
+          <button class="btn-primary" onclick="continueWorking()">Seguir activo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DE RECARGA BILLETERA -->
+    <div class="overlay" id="recharge-overlay">
+      <div class="recharge-modal">
+        <div class="payment-icon">💳</div>
+        <div class="payment-title">Recargar Billetera</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Escanea el código QR para realizar la transferencia</p>
+        <div class="qr-placeholder">
+          <div class="qr-pattern"></div>
+          <div class="qr-text">QR de prueba</div>
+        </div>
+        <button class="btn-confirm-recharge" onclick="confirmRecharge()">Ya recargué</button>
+        <p class="recharge-note">Las recargas son manuales. Por favor después de hacer la transferencia apriete el botón para notificar al equipo de Migo.</p>
+      </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- MENÚ INFERIOR -->
+    <nav class="bottom-nav">
+      <div class="nav-item active" data-target="mapa">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Mapa
+      </div>
+      <div class="nav-item" data-target="ganancias">
+        <svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Ganancias
+      </div>
+      <div class="nav-item" data-target="billetera">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><path d="M16 15h2"></path></svg>
+        Billetera
+      </div>
+      <div class="nav-item" data-target="mensajes">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Mensajes
+      </div>
+      <div class="nav-item" data-target="perfil">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Perfil
+      </div>
+    </nav>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Variables globales
+    let map, carMarker, passengerMarker, destinationMarker, routeLayer;
+    let isOnline = false;
+    let tripState = 'IDLE';
+    let simTimeout;
+    let selectedPaymentMethod = '';
+
+    let driverLoc = null;
+    let pickupLoc = null;
+    let dropoffLoc = null;
+    
+    let addressOrigen = "Ubicación del cliente";
+    let addressDestino = "Destino del cliente";
+
+    // Nuevas variables de sesión
+    let selectedVehicle = '';
+    let currentUser = {
+      name: '',
+      phone: '',
+      email: '',
+      plate: ''
+    };
+    let walletBalance = 320.00;
+
+    const statusToggle = document.getElementById('status-toggle');
+    const statusText = document.getElementById('status-text');
+    const sheetTitle = document.getElementById('sheet-title');
+    const offlinePanel = document.getElementById('offline-panel');
+    const onlineContent = document.getElementById('online-content');
+    const passengerPanel = document.getElementById('passenger-panel');
+    const requestOverlay = document.getElementById('request-overlay');
+    const paymentOverlay = document.getElementById('payment-overlay');
+    const completionOverlay = document.getElementById('completion-overlay');
+    const destPoint = document.getElementById('dest-point');
+    const paymentMethodDisplay = document.getElementById('payment-method-display');
+    const chatOverlay = document.getElementById('chat-overlay');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const loadingScreen = document.getElementById('loading-screen');
+    const offlineButtonContainer = document.getElementById('offline-button-container');
+    const connectBtn = document.getElementById('connect-btn');
+    const rechargeOverlay = document.getElementById('recharge-overlay');
+    const toastContainer = document.getElementById('toast-container');
+
+    // Funciones de navegación hacia atrás
+    function goBackToStart() {
+      document.getElementById('vehicle-select-screen').classList.add('hidden');
+      document.getElementById('start-screen').classList.remove('hidden');
+    }
+
+    function goBackToVehicleSelection() {
+      document.getElementById('register-screen').classList.add('hidden');
+      document.getElementById('vehicle-select-screen').classList.remove('hidden');
+    }
+
+    // Funciones de selección de vehículo y registro
+    function showVehicleSelection() {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('vehicle-select-screen').classList.remove('hidden');
+    }
+
+    function selectVehicle(element) {
+      document.querySelectorAll('.vehicle-card').forEach(card => card.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedVehicle = element.dataset.vehicle;
+      document.getElementById('btn-continue-vehicle').classList.add('enabled');
+    }
+
+    function continueToRegister() {
+      if (!selectedVehicle) return;
+      
+      // Actualizar badge en pantalla de registro (usando imagen correspondiente)
+      const vehicleImages = {
+        'Migo Económico': 'viaje.png',
+        'Migo Confort': 'viaje.png',
+        'Migo Moto': 'bike.png',
+        'Migo Torito': 'torito.png'
+      };
+      const vehicleImg = vehicleImages[selectedVehicle] || 'viaje.png';
+      document.getElementById('badge-vehicle-icon').innerHTML = `<img src="${vehicleImg}" style="width:20px;height:20px;object-fit:contain;">`;
+      document.getElementById('badge-vehicle-name').textContent = selectedVehicle;
+      
+      document.getElementById('vehicle-select-screen').classList.add('hidden');
+      document.getElementById('register-screen').classList.remove('hidden');
+    }
+
+    function registerUser() {
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const plate = document.getElementById('reg-plate').value.trim();
+
+      if (!name || !phone) {
+        showToast('Por favor completa al menos nombre y teléfono');
+        return;
+      }
+
+      currentUser = { name, phone, email, plate };
+      
+      // Actualizar perfil
+      document.getElementById('profile-name').textContent = name;
+      const vehicleImages = {
+        'Migo Económico': 'viaje.png',
+        'Migo Confort': 'viaje.png',
+        'Migo Moto': 'bike.png',
+        'Migo Torito': 'torito.png'
+      };
+      const vehicleText = `${selectedVehicle}${plate ? ' • ' + plate : ''}`;
+      document.getElementById('profile-vehicle-text').textContent = vehicleText;
+      
+      // Actualizar bienvenida (imagen del vehículo)
+      document.getElementById('welcome-text').textContent = `Hola de nuevo ${name.split(' ')[0]}`;
+      document.getElementById('welcome-vehicle-icon').innerHTML = `<img src="${vehicleImages[selectedVehicle]}" style="width:20px;height:20px;object-fit:contain;">`;
+      document.getElementById('welcome-vehicle-name').textContent = selectedVehicle;
+      
+      // Ocultar registro y mostrar bienvenida
+      document.getElementById('register-screen').classList.add('hidden');
+      completeRegistration();
+    }
+
+    function completeRegistration() {
+      welcomeScreen.classList.add('visible');
+      
+      setTimeout(() => {
+        welcomeScreen.classList.remove('visible');
+        welcomeScreen.classList.add('hidden');
+        loadingScreen.classList.remove('hidden');
+        loadingScreen.classList.add('visible');
+        
+        setTimeout(() => {
+          initializeMap();
+        }, 1000);
+      }, 2000);
+    }
+
+    // Funciones de billetera
+    function openRechargeModal() {
+      rechargeOverlay.classList.add('active');
+    }
+
+    function confirmRecharge() {
+      rechargeOverlay.classList.remove('active');
+      showToast('Solicitud de recarga enviada. Verificaremos tu pago.');
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Navegación inferior
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+        item.classList.add('active');
+        const targetView = item.getAttribute('data-target');
+        document.getElementById(`view-${targetView}`).classList.remove('hidden');
+        if (targetView === 'mapa' && map) setTimeout(() => map.invalidateSize(), 50);
+      });
+    });
+
+    // Inicialización del mapa y simulación
+    function initializeMap() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => setupSimulation(pos.coords.latitude, pos.coords.longitude),
+          (err) => setupSimulation(-17.7833, -63.1821)
+        );
+      } else {
+        setupSimulation(-17.7833, -63.1821);
+      }
+    }
+
+    async function setupSimulation(lat, lng) {
+      driverLoc = [lat, lng];
+      generateFakeTripCoords();
+      
+      loadingScreen.classList.remove('visible');
+      loadingScreen.classList.add('hidden');
+      document.getElementById('view-mapa').classList.remove('hidden');
+      initMap();
+      
+      await updateAddresses();
+      
+      // Mostrar botón de conectar después de 2 segundos
+      showConnectButton();
+    }
+
+    function showConnectButton() {
+      if (!offlineButtonContainer) return;
+      offlineButtonContainer.classList.remove('show');
+      void offlineButtonContainer.offsetWidth; // reflow
+      setTimeout(() => {
+        offlineButtonContainer.classList.add('show');
+      }, 2000);
+    }
+
+    function generateFakeTripCoords() {
+      const lat = driverLoc[0];
+      const lng = driverLoc[1];
+      pickupLoc = [lat + (Math.random() * 0.004 - 0.002), lng + (Math.random() * 0.004 - 0.002)];
+      dropoffLoc = [lat - (Math.random() * 0.015 - 0.005), lng + (Math.random() * 0.015 - 0.005)];
+    }
+
+    async function updateAddresses() {
+      addressOrigen = await fetchAddress(pickupLoc[0], pickupLoc[1]);
+      addressDestino = await fetchAddress(dropoffLoc[0], dropoffLoc[1]);
+      document.getElementById('modal-origen').textContent = addressOrigen;
+      document.getElementById('modal-destino').textContent = addressDestino;
+      document.getElementById('lbl-origen').textContent = addressOrigen;
+      document.getElementById('lbl-destino').textContent = addressDestino;
+    }
+
+    function initMap() {
+      map = L.map('map', { zoomControl: false, attributionControl: false }).setView(driverLoc, 16);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+      
+      const carSvg = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>';
+      carMarker = L.marker(driverLoc, {
+        icon: L.divIcon({ className: '', html: `<div class="car-marker">${carSvg}</div>`, iconSize: [44,44], iconAnchor: [22,22] })
+      }).addTo(map);
+    }
+
+    async function fetchAddress(lat, lng) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+        const data = await res.json();
+        return data.address.road || data.address.suburb || 'Dirección cercana';
+      } catch (e) { return 'Ubicación seleccionada'; }
+    }
+
+    async function getRouteCoords(start, end, color) {
+      if (routeLayer) map.removeLayer(routeLayer);
+      let coords = [];
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const url = `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?geometries=geojson`;
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error("OSRM Failed");
+        const data = await res.json();
+        if (!data.routes || data.routes.length === 0) throw new Error("No routes");
+        coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+        routeLayer = L.polyline(coords, { color: color, weight: 6, opacity: 0.8 }).addTo(map);
+      } catch (e) {
+        const numPoints = 20;
+        coords = [];
+        for (let i = 0; i <= numPoints; i++) {
+          const lat = start[0] + (end[0] - start[0]) * (i / numPoints);
+          const lng = start[1] + (end[1] - start[1]) * (i / numPoints);
+          coords.push([lat, lng]);
+        }
+        routeLayer = L.polyline(coords, { color: color, weight: 6, dashArray: '10,10' }).addTo(map);
+      }
+      map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+      return coords;
+    }
+
+    function animateVehicleSmooth(marker, coords, durationMs, onComplete) {
+      if (!coords || coords.length < 2) {
+        if(coords && coords.length === 1) marker.setLatLng(coords[0]);
+        if (onComplete) onComplete();
+        return;
+      }
+      const startTime = performance.now();
+      function frame(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / durationMs, 1);
+        const index = Math.floor(progress * (coords.length - 1));
+        const nextIndex = Math.min(index + 1, coords.length - 1);
+        const localProgress = (progress * (coords.length - 1)) - index;
+        const lat = coords[index][0] + (coords[nextIndex][0] - coords[index][0]) * localProgress;
+        const lng = coords[index][1] + (coords[nextIndex][1] - coords[index][1]) * localProgress;
+        if(!isNaN(lat) && !isNaN(lng)) marker.setLatLng([lat, lng]);
+        if (progress < 1) requestAnimationFrame(frame);
+        else if (onComplete) onComplete();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // Función para conectarse
+    function goOnline() {
+      if (isOnline) return;
+      isOnline = true;
+      statusToggle.classList.replace('offline', 'online');
+      statusText.textContent = 'Conectado';
+      sheetTitle.textContent = 'Buscando viajes...';
+      
+      // Ocultar offline panel y mostrar spinner
+      offlinePanel.style.display = 'none';
+      onlineContent.style.display = 'block';
+      
+      scheduleNewTrip();
+    }
+
+    // Función para desconectarse
+    function goOffline() {
+      if (!isOnline) return;
+      isOnline = false;
+      statusToggle.classList.replace('online', 'offline');
+      statusText.textContent = 'Descon...';
+      sheetTitle.textContent = 'Estás fuera de línea';
+      
+      // Mostrar offline panel y ocultar spinner
+      offlinePanel.style.display = 'flex';
+      onlineContent.style.display = 'none';
+      
+      clearTimeout(simTimeout);
+      // Mostrar botón de conectar después de 2 segundos
+      showConnectButton();
+    }
+
+    // Evento para el botón conectar ahora
+    connectBtn.addEventListener('click', () => {
+      if (tripState === 'IDLE' && !isOnline) {
+        goOnline();
+      }
+    });
+
+    // Evento para el toggle de estado
+    statusToggle.addEventListener('click', () => {
+      if(tripState !== 'IDLE') return;
+      if (isOnline) {
+        goOffline();
+      } else {
+        goOnline();
+      }
+    });
+
+    function scheduleNewTrip(delay = 5000) {
+      clearTimeout(simTimeout);
+      simTimeout = setTimeout(() => { 
+        if (isOnline && tripState === 'IDLE') {
+          generateFakeTripCoords();
+          updateAddresses().then(() => {
+            requestOverlay.classList.add('active');
+          });
+        }
+      }, delay);
+    }
+
+    window.rejectTrip = () => {
+      requestOverlay.classList.remove('active');
+      scheduleNewTrip(5000);
+    };
+
+    window.acceptTrip = async () => {
+      if(tripState !== 'IDLE') return;
+      try {
+        requestOverlay.classList.remove('active');
+        tripState = 'EN_CAMINO';
+        sheetTitle.textContent = 'Conduciendo al origen...';
+        offlinePanel.style.display = 'none';
+        onlineContent.style.display = 'none';
+        passengerPanel.classList.remove('hidden');
+        destPoint.style.opacity = '0.3'; 
+        
+        passengerMarker = L.marker(pickupLoc, {
+          icon: L.divIcon({ className: '', html: '<div class="passenger-marker"></div>', iconSize: [26,26], iconAnchor: [13,13] })
+        }).addTo(map);
+        
+        const pathCoords = await getRouteCoords(driverLoc, pickupLoc, '#D1E835'); 
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        animateVehicleSmooth(carMarker, pathCoords, 4000, () => {
+          map.removeLayer(passengerMarker);
+          passengerMarker = null;
+          tripState = 'EN_VIAJE';
+          sheetTitle.textContent = 'Pasajero a bordo, conduciendo al destino...';
+          destPoint.style.opacity = '1';
+          
+          destinationMarker = L.marker(dropoffLoc, {
+            icon: L.divIcon({ className: '', html: '<div class="passenger-marker" style="background:var(--primary); border-color:#fff;"></div>', iconSize: [26,26], iconAnchor: [13,13] })
+          }).addTo(map);
+
+          getRouteCoords(pickupLoc, dropoffLoc, '#D1E835').then(route => {
+            animateVehicleSmooth(carMarker, route, 6000, () => {
+              tripState = 'FINALIZAR';
+              sheetTitle.textContent = 'Selecciona método de pago';
+              paymentOverlay.classList.add('active');
+            });
+          }).catch(() => {
+            tripState = 'FINALIZAR';
+            sheetTitle.textContent = 'Selecciona método de pago';
+            paymentOverlay.classList.add('active');
+          });
+        });
+      } catch (e) {
+        console.error("Error en flujo de aceptación:", e);
+        tripState = 'IDLE';
+        sheetTitle.textContent = 'Error, intenta de nuevo';
+      }
+    };
+
+    window.selectPayment = (method) => {
+      selectedPaymentMethod = method;
+      paymentOverlay.classList.remove('active');
+      paymentMethodDisplay.textContent = `Método de pago: ${method}`;
+      completionOverlay.classList.add('active');
+    };
+
+    window.continueWorking = () => {
+      completionOverlay.classList.remove('active');
+      resetAfterTrip();
+      goOnline();
+    };
+
+    window.stopWorking = () => {
+      completionOverlay.classList.remove('active');
+      resetAfterTrip();
+      goOffline();
+    };
+
+    function resetAfterTrip() {
+      tripState = 'IDLE';
+      driverLoc = dropoffLoc;
+      if(routeLayer) map.removeLayer(routeLayer);
+      if(destinationMarker) map.removeLayer(destinationMarker);
+      if(passengerMarker) map.removeLayer(passengerMarker);
+      passengerPanel.classList.add('hidden');
+      map.setView(driverLoc, 16);
+    }
+
+    // Chat
+    window.openChat = (name = 'Ana Martínez') => {
+      const chatName = chatOverlay.querySelector('.chat-header .name');
+      if (chatName) chatName.textContent = name;
+      const chatAvatar = chatOverlay.querySelector('.chat-header img');
+      if (chatAvatar) {
+        if (name === 'Ana Martínez') chatAvatar.src = 'https://randomuser.me/api/portraits/women/44.jpg';
+        else if (name === 'Luis Gómez') chatAvatar.src = 'https://randomuser.me/api/portraits/men/22.jpg';
+        else chatAvatar.src = 'https://randomuser.me/api/portraits/women/44.jpg';
+      }
+      chatOverlay.classList.add('active');
+    };
+
+    window.sendMessage = () => {
+      const input = document.querySelector('.chat-input');
+      const messagesContainer = document.getElementById('chat-messages');
+      if (input.value.trim() !== '') {
+        const newMsg = document.createElement('div');
+        newMsg.className = 'msg-bubble sent';
+        newMsg.textContent = input.value;
+        messagesContainer.appendChild(newMsg);
+        input.value = '';
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        setTimeout(() => {
+          const reply = document.createElement('div');
+          reply.className = 'msg-bubble received';
+          reply.textContent = '¡Gracias!';
+          messagesContainer.appendChild(reply);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 1500);
+      }
+    };
+
+    // Cerrar overlays al hacer clic fuera
+    chatOverlay.addEventListener('click', (e) => {
+      if (e.target === chatOverlay) {
+        chatOverlay.classList.remove('active');
+      }
+    });
+
+    rechargeOverlay.addEventListener('click', (e) => {
+      if (e.target === rechargeOverlay) {
+        rechargeOverlay.classList.remove('active');
+      }
+    });
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', () => {
+      // La pantalla de inicio ya está visible, no se requiere acción adicional
+    });
+  </script>
+</body>
+</html>
