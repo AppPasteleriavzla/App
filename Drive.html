@@ -117,17 +117,23 @@
     .back-button {
       background: none;
       border: none;
-      color: var(--text-dark);
-      font-size: 1.5rem;
+      color: var(--text-muted);
+      font-size: 1.2rem;
       cursor: pointer;
       padding: 0.5rem;
       align-self: flex-start;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-weight: 600;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      transition: background 0.2s, color 0.2s;
       margin-bottom: 0.5rem;
-      transition: 0.2s;
+    }
+    .back-button:hover {
+      background: var(--bg-light);
+      color: var(--text-dark);
     }
     .back-button:active {
       transform: scale(0.9);
@@ -892,9 +898,115 @@
     .connect-btn:active {
       transform: scale(0.95);
     }
+
+    /* Overlay para bloquear en escritorio */
+    #desktop-block-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    #desktop-block-overlay .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    #desktop-block-overlay h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    #desktop-block-overlay p {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
+  <!-- Script de protección -->
+  <script>
+    (function() {
+      function isMobile() {
+        return window.innerWidth <= 800;
+      }
+
+      function showDesktopMessage() {
+        var overlay = document.getElementById('desktop-block-overlay');
+        if (overlay) overlay.style.display = 'flex';
+      }
+
+      function hideDesktopMessage() {
+        var overlay = document.getElementById('desktop-block-overlay');
+        if (overlay) overlay.style.display = 'none';
+      }
+
+      function checkViewport() {
+        if (isMobile()) {
+          hideDesktopMessage();
+        } else {
+          showDesktopMessage();
+        }
+      }
+
+      window.addEventListener('resize', checkViewport);
+      window.addEventListener('load', checkViewport);
+      // Also check on DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', checkViewport);
+
+      // Disable context menu
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      });
+
+      // Block key combinations
+      document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === 'F12') {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+U, Ctrl+S, Ctrl+P
+        if (e.ctrlKey && (e.key === 'U' || e.key === 'S' || e.key === 'P')) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+K (Firefox)
+        if (e.ctrlKey && e.shiftKey && e.key === 'K') {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      // Prevent dragging images
+      document.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+        return false;
+      });
+    })();
+  </script>
+
+  <!-- Overlay de bloqueo para escritorio -->
+  <div id="desktop-block-overlay" style="display:none;">
+    <div class="icon">📱</div>
+    <h2>Esta demo solo está disponible en dispositivos móviles</h2>
+    <p>Por favor abre esta URL desde tu teléfono.</p>
+  </div>
+
   <div class="app-container">
     
     <!-- PANTALLA DE INICIO -->
@@ -905,7 +1017,7 @@
 
     <!-- PANTALLA DE SELECCIÓN DE VEHÍCULO -->
     <div id="vehicle-select-screen" class="hidden">
-      <button class="back-button" onclick="goBackToStart()">← Volver</button>
+      <button class="back-button" onclick="goBackToStart()">←</button>
       <div class="vehicle-header">
         <h2>Elige tu vehículo</h2>
         <p>Selecciona el tipo de vehículo que vas a manejar</p>
@@ -945,7 +1057,7 @@
 
     <!-- PANTALLA DE REGISTRO -->
     <div id="register-screen" class="hidden">
-      <button class="back-button" onclick="goBackToVehicleSelection()">← Volver</button>
+      <button class="back-button" onclick="goBackToVehicleSelection()">←</button>
       <div class="register-header">
         <h2>Registro de Chofer</h2>
         <p>Completa tus datos para comenzar</p>
