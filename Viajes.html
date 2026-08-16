@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
-      --primary: #E3000F;
-      --primary-active: #B3000B;
+      --primary: #D1E835;
+      --primary-active: #B0C928;
       --bg-light: #F9F9F9;
       --white: #FFFFFF;
       --text-dark: #1C1C1C;
@@ -110,7 +110,7 @@
       color: var(--text-dark);
     }
     
-    /* MODIFICACIÓN: Cuadrícula y tarjetas de inicio */
+    /* Cuadrícula y tarjetas de inicio */
     .services-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -122,8 +122,8 @@
       padding: 1rem 0.8rem;
       display: flex;
       flex-direction: column;
-      align-items: flex-start; /* Texto a la izquierda */
-      text-align: left; /* Texto a la izquierda */
+      align-items: flex-start;
+      text-align: left;
       gap: 0.6rem;
       box-shadow: var(--shadow-sm);
       cursor: pointer;
@@ -139,7 +139,7 @@
       justify-content: center;
     }
     .service-img {
-      width: 85px; /* Imagen más grande */
+      width: 85px; 
       height: 85px;
       object-fit: contain;
     }
@@ -374,7 +374,7 @@
       background: var(--bg-light);
       border-top-left-radius: 25px;
       border-top-right-radius: 25px;
-      padding: 1rem 1.2rem calc(var(--nav-height) + var(--safe-bottom) + 10px) 1.2rem;
+      padding: 1rem 1.2rem 1.5rem 1.2rem; /* Eliminado el padding del nav para mayor espacio */
       z-index: 1000;
       box-shadow: var(--shadow-md);
       display: flex;
@@ -382,12 +382,15 @@
       gap: 0.7rem;
       position: relative;
       margin-top: -20px;
+      max-height: 55vh; /* Evita que el sheet crezca demasiado y oculte el botón */
+      flex-shrink: 0;
     }
     .location-card {
       background: var(--white);
       border-radius: 16px;
       padding: 0.3rem 1rem;
       box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
     }
     .input-row {
       display: flex;
@@ -430,9 +433,9 @@
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
-      max-height: 240px; 
       overflow-y: auto;
       padding-right: 4px;
+      flex: 1; /* Toma el espacio disponible permitiendo scroll */
     }
     .ride-options::-webkit-scrollbar {
       width: 4px;
@@ -469,7 +472,7 @@
     
     .btn-request {
       background: var(--primary);
-      color: var(--white);
+      color: var(--text-dark);
       border: none;
       width: 100%;
       padding: 0.8rem;
@@ -483,6 +486,7 @@
       gap: 0.4rem;
       transition: 0.2s;
       margin-top: 0.2rem;
+      flex-shrink: 0; /* Asegura que el botón nunca se encoja */
     }
     .btn-request:active {
       transform: scale(0.98);
@@ -490,8 +494,8 @@
     .spinner {
       width: 20px;
       height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top-color: var(--white);
+      border: 3px solid rgba(0,0,0,0.1);
+      border-top-color: var(--text-dark);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -532,6 +536,33 @@
       margin-top: 4px;
       color: var(--text-dark);
       border: 1px solid #CCC;
+    }
+
+    /* ESTILOS MODAL AIRE ACONDICIONADO / CONFORT */
+    .ac-card-option {
+      background: var(--bg-light);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+    .ac-card-option.selected {
+      background: #FFFFFF;
+      border-color: var(--text-dark);
+      box-shadow: var(--shadow-sm);
+    }
+    .badge-ac {
+      background: #0284C7;
+      color: white;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
     /* MODALES */
@@ -724,35 +755,35 @@
       <img src="https://i.ibb.co/PzJN0hJJ/file-00000000710c820e9b3e8a78d3eff8d0.png" alt="Promo" class="promo-banner">
       <div>
         <h2 class="section-title">¿Qué quieres hacer hoy?</h2>
-        <!-- NUEVA CUADRÍCULA CON TODOS LOS MODOS -->
         <div class="services-grid">
+          
           <div class="service-card btn-go-map">
             <div class="img-wrapper">
               <img src="https://app-vert-theta-18.vercel.app/viaje.png" alt="Migo Económico" class="service-img">
             </div>
             <div class="text-wrapper">
-              <span class="service-title">Económico</span>
-              <span class="service-desc">Viajes rápidos en auto</span>
+              <span class="service-title">VIAJES</span>
+              <span class="service-desc">Viajes Rápidos y Seguro</span>
             </div>
           </div>
           
           <div class="service-card btn-go-map">
             <div class="img-wrapper">
-              <img src="https://app-vert-theta-18.vercel.app/bike.png" alt="Migo Bike" class="service-img">
+              <img src="https://apppasteleriavzla.github.io/App/delivery.png" alt="Migo Delivery" class="service-img">
             </div>
             <div class="text-wrapper">
-              <span class="service-title">Migo Bike</span>
-              <span class="service-desc">Transporte rápido y ágil</span>
+              <span class="service-title">DELIVERY</span>
+              <span class="service-desc">Servicio de envíos</span>
             </div>
           </div>
-          
+
           <div class="service-card btn-go-map">
             <div class="img-wrapper">
-              <img src="https://app-vert-theta-18.vercel.app/delivery.png" alt="Migo Delivery" class="service-img">
+              <img src="trufi.png" alt="Trufis Expreso" class="service-img" style="background-color: #f4f4f4; border-radius: 10px;">
             </div>
             <div class="text-wrapper">
-              <span class="service-title">Delivery</span>
-              <span class="service-desc">Envío de paquetes</span>
+              <span class="service-title">TRUFIS (EXPRESO)</span>
+              <span class="service-desc">Servicio de ruta compartida</span>
             </div>
           </div>
 
@@ -761,7 +792,7 @@
               <img src="https://app-vert-theta-18.vercel.app/carga.png" alt="Migo Carga" class="service-img">
             </div>
             <div class="text-wrapper">
-              <span class="service-title">Migo Carga</span>
+              <span class="service-title">GRUA</span>
               <span class="service-desc">Transporte pesado</span>
             </div>
           </div>
@@ -771,7 +802,7 @@
               <img src="https://app-vert-theta-18.vercel.app/bus.png" alt="Migo Bus" class="service-img">
             </div>
             <div class="text-wrapper">
-              <span class="service-title">Migo Bus</span>
+              <span class="service-title">BUSES - MINIBUSES</span>
               <span class="service-desc">Viajes grupales</span>
             </div>
           </div>
@@ -781,7 +812,7 @@
               <img src="https://app-vert-theta-18.vercel.app/mudanza.png" alt="Migo Mudanza" class="service-img">
             </div>
             <div class="text-wrapper">
-              <span class="service-title">Mudanza</span>
+              <span class="service-title">MUDANZA</span>
               <span class="service-desc">Traslado de muebles</span>
             </div>
           </div>
@@ -821,7 +852,6 @@
         
         <!-- PIN CENTRAL CON TOOLTIP -->
         <div id="center-pin" class="center-fixed-pin">
-          <!-- Tooltip que aparece al soltar el mapa -->
           <div class="pin-tooltip" id="pin-tooltip">
             <div class="pin-tooltip-address" id="pin-tooltip-address">Calculando...</div>
             <div class="pin-tooltip-price" id="pin-tooltip-price">Bs --</div>
@@ -860,13 +890,14 @@
           </div>
         </div>
         
-        <div class="ride-options" id="ride-options-container">
-          <!-- MODOS DISPONIBLES (Activos) -->
-          <div class="ride-card-option active" data-multiplier="1">
+        <!-- OCULTO INICIALMENTE -->
+        <div class="ride-options hidden" id="ride-options-container">
+          
+          <div class="ride-card-option active" id="option-migo-auto" data-multiplier="1">
             <img src="https://app-vert-theta-18.vercel.app/viaje.png" alt="Migo Económico" style="width:50px; height:50px; object-fit:contain;">
             <div class="ride-details">
-              <div class="ride-title">Migo Económico</div>
-              <div class="ride-desc">Viaje rápido en auto</div>
+              <div class="ride-title" id="migo-auto-title">Migo Económico</div>
+              <div class="ride-desc" id="migo-auto-desc">Viaje rápido (Toca para A/C)</div>
             </div>
             <div class="ride-price dynamic-price">Bs --</div>
           </div>
@@ -874,48 +905,21 @@
           <div class="ride-card-option" data-multiplier="0.6">
             <img src="https://app-vert-theta-18.vercel.app/bike.png" alt="Migo Bike" style="width:50px; height:50px; object-fit:contain;">
             <div class="ride-details">
-              <div class="ride-title">Migo Bike</div>
+              <div class="ride-title">Migo Moto</div>
               <div class="ride-desc">Rápido y ágil</div>
             </div>
             <div class="ride-price dynamic-price">Bs --</div>
           </div>
 
-          <!-- MODOS NO DISPONIBLES (Desactivados) -->
-          <div class="ride-card-option disabled">
-            <img src="https://app-vert-theta-18.vercel.app/delivery.png" alt="Migo Delivery" style="width:50px; height:50px; object-fit:contain;">
+          <div class="ride-card-option" data-multiplier="0.8">
+            <img src="torito.png" alt="Migo Torito" style="width:50px; height:50px; object-fit:contain;">
             <div class="ride-details">
-              <div class="ride-title">Migo Delivery</div>
-              <div class="ride-desc">Próximamente</div>
+              <div class="ride-title">Migo Torito</div>
+              <div class="ride-desc">Práctico y económico</div>
             </div>
-            <div class="ride-price">-</div>
+            <div class="ride-price dynamic-price">Bs --</div>
           </div>
           
-          <div class="ride-card-option disabled">
-            <img src="https://app-vert-theta-18.vercel.app/carga.png" alt="Migo Carga" style="width:50px; height:50px; object-fit:contain;">
-            <div class="ride-details">
-              <div class="ride-title">Migo Carga</div>
-              <div class="ride-desc">Próximamente</div>
-            </div>
-            <div class="ride-price">-</div>
-          </div>
-
-          <div class="ride-card-option disabled">
-            <img src="https://app-vert-theta-18.vercel.app/bus.png" alt="Migo Bus" style="width:50px; height:50px; object-fit:contain;">
-            <div class="ride-details">
-              <div class="ride-title">Migo Bus</div>
-              <div class="ride-desc">Próximamente</div>
-            </div>
-            <div class="ride-price">-</div>
-          </div>
-
-          <div class="ride-card-option disabled">
-            <img src="https://app-vert-theta-18.vercel.app/mudanza.png" alt="Migo Mudanza" style="width:50px; height:50px; object-fit:contain;">
-            <div class="ride-details">
-              <div class="ride-title">Migo Mudanza</div>
-              <div class="ride-desc">Próximamente</div>
-            </div>
-            <div class="ride-price">-</div>
-          </div>
         </div>
         
         <div class="driver-panel hidden" id="driver-panel">
@@ -926,14 +930,56 @@
             <div class="driver-plate">ABC-123</div>
           </div>
         </div>
-        <button class="btn-request" id="btn-request-ride">
-          <span id="btn-text">Pedir viaje</span>
+        
+        <!-- OCULTO INICIALMENTE -->
+        <button class="btn-request hidden" id="btn-request-ride">
+          <span id="btn-text">Buscar conductor</span>
           <svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </div>
     </div>
 
     <!-- MODALES -->
+    
+    <div class="overlay" id="ac-modal">
+      <div class="modal-box" style="text-align: left;">
+        <div class="modal-title" style="text-align: center; margin-bottom: 0.2rem;">Tipo de viaje en auto</div>
+        <div class="modal-desc" style="text-align: center; margin-bottom: 1.2rem;">Selecciona la comodidad de tu viaje</div>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+          <div class="ac-card-option selected" id="opt-econ" data-type="estandar">
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="background: #F0F0F0; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-dark);">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+              </div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem;">Migo Estándar</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Sin aire acondicionado</div>
+              </div>
+            </div>
+            <span class="ac-price-display" id="price-econ" style="font-weight: 800; font-size: 0.95rem;">Bs --</span>
+          </div>
+
+          <div class="ac-card-option" id="opt-confort" data-type="confort">
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+              <div style="background: #E0F2FE; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0284C7;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 4l-5 3-5-3M17 20l-5-3-5 3M22 12H2M20 7l-3 5 3 5M4 7l3 5-3 5"/></svg>
+              </div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                  Migo Confort <span class="badge-ac">A/C</span>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Con aire acondicionado</div>
+              </div>
+            </div>
+            <span class="ac-price-display" id="price-confort" style="font-weight: 800; font-size: 0.95rem; color: #0284C7;">Bs --</span>
+          </div>
+        </div>
+
+        <button class="btn-request" id="btn-confirm-ac" style="margin-top: 1.2rem;">Aceptar</button>
+      </div>
+    </div>
+
     <div class="overlay" id="search-modal">
       <div class="modal-box">
         <div style="display:flex; justify-content:center; margin-bottom:15px;"><div class="spinner" style="border-color:#eee; border-top-color:var(--primary); width:40px; height:40px; border-width:4px;"></div></div>
@@ -973,7 +1019,7 @@
     </div>
 
     <!-- MENÚ INFERIOR -->
-    <nav class="bottom-nav">
+    <nav class="bottom-nav" id="main-bottom-nav">
       <div class="nav-item active" data-view="home">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         Inicio
@@ -1008,6 +1054,9 @@
       let locationReady = false;
       let moveEndCount = 0;
       let currentCalculatedPrice = 'Bs 0.00'; 
+      let currentEstimatedBasePrice = 0;
+      let autoSubOption = 'estandar'; 
+      let tempSubOption = 'estandar';
 
       // Elementos UI
       const homeView = document.getElementById('home-view');
@@ -1028,23 +1077,92 @@
       const locationPickerUi = document.getElementById('location-picker-ui');
       const gpsStatus = document.getElementById('gps-status');
       const navItems = document.querySelectorAll('.nav-item');
+      const bottomNav = document.getElementById('main-bottom-nav');
 
       // LÓGICA DE SELECCIÓN DE VIAJES (Bottom Sheet)
       document.querySelectorAll('.ride-card-option:not(.disabled)').forEach(card => {
         card.addEventListener('click', function() {
+          const isAutoOption = this.id === 'option-migo-auto';
+          
           document.querySelectorAll('.ride-card-option').forEach(c => c.classList.remove('active'));
           this.classList.add('active');
-          currentCalculatedPrice = this.querySelector('.dynamic-price').textContent;
-          pinTooltipPrice.textContent = currentCalculatedPrice;
+          
+          if (isAutoOption) {
+            openAcModal();
+          } else {
+            currentCalculatedPrice = this.querySelector('.dynamic-price').textContent;
+            pinTooltipPrice.textContent = currentCalculatedPrice;
+          }
         });
       });
 
-      // LÓGICA DE NAVEGACIÓN DESDE EL HOME AL MAPA
+      // MODAL AIRE ACONDICIONADO / CONFORT
+      function openAcModal() {
+        const modal = document.getElementById('ac-modal');
+        const priceEcon = document.getElementById('price-econ');
+        const priceConfort = document.getElementById('price-confort');
+        
+        if (currentEstimatedBasePrice > 0) {
+          priceEcon.textContent = `Bs ${(currentEstimatedBasePrice * 1.0).toFixed(2)}`;
+          priceConfort.textContent = `Bs ${(currentEstimatedBasePrice * 1.2).toFixed(2)}`;
+        } else {
+          priceEcon.textContent = 'Bs --';
+          priceConfort.textContent = 'Bs --';
+        }
+        
+        updateAcModalSelection(autoSubOption);
+        modal.classList.add('active');
+      }
+
+      function updateAcModalSelection(type) {
+        tempSubOption = type;
+        document.querySelectorAll('.ac-card-option').forEach(opt => {
+          if (opt.dataset.type === type) {
+            opt.classList.add('selected');
+          } else {
+            opt.classList.remove('selected');
+          }
+        });
+      }
+
+      document.querySelectorAll('.ac-card-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          updateAcModalSelection(opt.dataset.type);
+        });
+      });
+
+      document.getElementById('btn-confirm-ac').addEventListener('click', () => {
+        autoSubOption = tempSubOption;
+        const autoCard = document.getElementById('option-migo-auto');
+        const autoTitle = document.getElementById('migo-auto-title');
+        const autoDesc = document.getElementById('migo-auto-desc');
+        
+        if (autoSubOption === 'confort') {
+          autoCard.dataset.multiplier = '1.2';
+          autoTitle.textContent = 'Migo Confort A/C';
+          autoDesc.textContent = 'Con aire acondicionado';
+        } else {
+          autoCard.dataset.multiplier = '1';
+          autoTitle.textContent = 'Migo Económico';
+          autoDesc.textContent = 'Viaje estándar sin A/C';
+        }
+        
+        if (currentEstimatedBasePrice > 0) {
+          let mult = parseFloat(autoCard.dataset.multiplier);
+          let newPrice = `Bs ${(currentEstimatedBasePrice * mult).toFixed(2)}`;
+          autoCard.querySelector('.dynamic-price').textContent = newPrice;
+          currentCalculatedPrice = newPrice;
+          pinTooltipPrice.textContent = currentCalculatedPrice;
+        }
+        
+        document.getElementById('ac-modal').classList.remove('active');
+      });
+
+      // LÓGICA DE NAVEGACIÓN
       document.querySelectorAll('.btn-go-map').forEach(btn => {
         btn.addEventListener('click', () => switchView('viajes'));
       });
 
-      // NAVEGACIÓN
       function switchView(viewName) {
         homeView.classList.add('hidden');
         historialView.classList.add('hidden');
@@ -1055,21 +1173,35 @@
         if (viewName === 'home') {
           homeView.classList.remove('hidden');
           mainHeader.classList.remove('hidden');
+          bottomNav.classList.remove('hidden');
           stopWatchingLocation();
         } else if (viewName === 'viajes') {
           mapView.classList.remove('hidden');
-          if (mapInitialized) { map.invalidateSize(); requestLocation(); }
+          bottomNav.classList.add('hidden'); // Ocultar nav inferior para dar espacio al mapa
+          
+          if (mapInitialized) { 
+            map.invalidateSize(); 
+            requestLocation(); 
+          }
+          
+          // Si no hemos escogido destino, entramos automáticamente en modo seleccionar destino
+          if (!destLat && !isSelectingDestination) {
+            setTimeout(() => dropoffRow.click(), 150);
+          }
         } else if (viewName === 'historial') {
           historialView.classList.remove('hidden');
           mainHeader.classList.remove('hidden');
+          bottomNav.classList.remove('hidden');
           renderHistory();
           stopWatchingLocation();
         } else if (viewName === 'perfil') {
           perfilView.classList.remove('hidden');
           mainHeader.classList.remove('hidden');
+          bottomNav.classList.remove('hidden');
           loadProfile();
           stopWatchingLocation();
         }
+        
         navItems.forEach(n => n.classList.remove('active'));
         document.querySelector(`.nav-item[data-view="${viewName}"]`).classList.add('active');
       }
@@ -1170,12 +1302,12 @@
               
               const basePrice = 5.00;
               const pricePerKm = 2.50;
-              const estimatedBase = basePrice + (distanceInMeters / 1000) * pricePerKm;
+              currentEstimatedBasePrice = basePrice + (distanceInMeters / 1000) * pricePerKm;
               
               // Actualizar precios dinámicos para los modos activos
               document.querySelectorAll('.ride-card-option:not(.disabled)').forEach(card => {
                   let multiplier = parseFloat(card.dataset.multiplier) || 1;
-                  let calculatedCardPrice = `Bs ${(estimatedBase * multiplier).toFixed(2)}`;
+                  let calculatedCardPrice = `Bs ${(currentEstimatedBasePrice * multiplier).toFixed(2)}`;
                   card.querySelector('.dynamic-price').textContent = calculatedCardPrice;
                   
                   if (card.classList.contains('active')) {
@@ -1238,10 +1370,13 @@
         isSelectingDestination = true;
         rideOptionsContainer.classList.add('hidden');
         btnRequestRide.classList.add('hidden');
+        
         centerPin.style.display = 'flex';
         btnConfirmMap.style.display = 'flex';
+        
         document.getElementById('display-dropoff').textContent = 'Mueve el mapa...';
         document.getElementById('display-dropoff-sub').textContent = 'Apunta donde quieres ir';
+        
         if (destinationMarker) map.removeLayer(destinationMarker);
         if (animatedRouteLayer) map.removeLayer(animatedRouteLayer);
         
@@ -1258,6 +1393,8 @@
         
         centerPin.style.display = 'none';
         btnConfirmMap.style.display = 'none';
+        
+        // Ahora SÍ mostramos las opciones de vehículo y el botón
         rideOptionsContainer.classList.remove('hidden');
         btnRequestRide.classList.remove('hidden');
         
@@ -1271,7 +1408,8 @@
         btnRequestRide.querySelector('#btn-text').textContent = 'Calculando...';
         btnRequestRide.querySelector('#btn-icon').outerHTML = '<div class="spinner"></div>';
         await drawFluidRoute(currentLat, currentLng, destLat, destLng);
-        btnRequestRide.querySelector('#btn-text').textContent = 'Pedir viaje';
+        
+        btnRequestRide.querySelector('#btn-text').textContent = 'Buscar conductor';
         btnRequestRide.querySelector('.spinner').outerHTML = '<svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
       });
 
@@ -1283,8 +1421,11 @@
           rideOptionsContainer.classList.add('hidden');
           locationPickerUi.classList.add('hidden');
           driverPanel.classList.remove('hidden');
+          
           btnRequestRide.style.background = 'var(--text-dark)';
+          btnRequestRide.style.color = 'var(--white)';
           btnRequestRide.innerHTML = '<span>Conductor en camino</span>';
+          
           driverLat = currentLat + 0.003;
           driverLng = currentLng + 0.003;
           const driverRoute = await drawFluidRoute(driverLat, driverLng, currentLat, currentLng);
@@ -1297,6 +1438,8 @@
           animateVehicleSmooth(carMarker, driverRoute, 4000, async () => {
             btnRequestRide.innerHTML = '<span>En camino al destino</span>';
             btnRequestRide.style.background = 'var(--primary)';
+            btnRequestRide.style.color = 'var(--text-dark)';
+            
             map.removeLayer(passengerMarker);
             const tripRoute = await drawFluidRoute(currentLat, currentLng, destLat, destLng);
             
@@ -1341,13 +1484,24 @@
         if (carMarker) map.removeLayer(carMarker);
         if (destinationMarker) map.removeLayer(destinationMarker);
         if (passengerMarker) passengerMarker.addTo(map).setLatLng([currentLat, currentLng]);
+        
         locationPickerUi.classList.remove('hidden');
         driverPanel.classList.add('hidden');
         rideOptionsContainer.classList.add('hidden');
+        
         btnRequestRide.classList.add('hidden');
-        btnRequestRide.innerHTML = '<span id="btn-text">Pedir viaje</span><svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+        btnRequestRide.innerHTML = '<span id="btn-text">Buscar conductor</span><svg id="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
         btnRequestRide.style.background = 'var(--primary)';
+        
+        destLat = null;
+        destLng = null;
+        document.getElementById('display-dropoff').textContent = '¿A dónde vas?';
+        document.getElementById('display-dropoff-sub').textContent = 'Toca para buscar destino en el mapa';
+        
         document.querySelectorAll('.star-icon').forEach(s => s.classList.remove('active'));
+        
+        // Al reiniciar vamos a home view
+        switchView('home');
       };
 
       async function obtenerDireccion(lat, lng) {
