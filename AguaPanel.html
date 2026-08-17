@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AguaPanel - Panel Gerencial</title>
+    <title>AGUAPANEL - Panel Gerencial</title>
     <!-- FontAwesome & Chart.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,10 +15,6 @@
     <!-- jsPDF & AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
-    <!-- Leaflet.js para el Mapa -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         :root {
@@ -210,13 +206,77 @@
 
         .client-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #e0f2fe; color: #0369a1; font-weight: bold; }
 
-        /* --- GRÁFICOS --- */
-        .chart-card { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
-        .chart-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px dashed var(--border); }
-        .chart-stat-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; text-align: left;}
-        .chart-stat-val { font-size: 0.95rem; font-weight: 800; color: var(--text-main); text-align: left;}
-        .chart-container { position: relative; height: 220px; width: 100%; }
-        .loading-text { text-align: left; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; padding: 20px; }
+        /* --- TARJETAS DE CLIENTES --- */
+        .client-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.2s;
+        }
+        .client-card:hover { transform: translateY(-2px); }
+
+        .client-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 800;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .client-info {
+            flex: 1;
+            text-align: left;
+            min-width: 0;
+        }
+        .client-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+        .client-detail {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .client-route-info {
+            font-size: 0.7rem;
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+        .btn-location {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .btn-location:hover { background: #0ea371; }
 
         /* --- MODALES --- */
         .modal-overlay {
@@ -312,18 +372,19 @@
             </div>
         </div>
 
-        <!-- PANTALLA MAPA -->
+        <!-- PANTALLA CLIENTES -->
         <div id="screen-mapa" class="screen">
             <div class="section-header">
-                <h2 class="section-title"><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Clientes por Zona</h2>
-                <span class="section-badge">Logística</span>
+                <h2 class="section-title"><i class="fa-solid fa-route" style="color: var(--primary);"></i> Clientes Atendidos</h2>
+                <span class="section-badge">Lista por Chofer</span>
             </div>
             
             <div class="form-card" style="margin-bottom: 15px;">
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                     <div class="input-group" style="flex: 1; margin-bottom: 0;">
                         <label>Día de Visita</label>
-                        <select id="map-dia" onchange="cargarMapaYClientes()">
+                        <select id="map-dia" onchange="cargarClientesZona()">
+                            <option value="Todos" selected>Todos</option>
                             <option value="Lunes">Lunes</option>
                             <option value="Martes">Martes</option>
                             <option value="Miércoles">Miércoles</option>
@@ -333,18 +394,18 @@
                         </select>
                     </div>
                     <div class="input-group" style="flex: 1; margin-bottom: 0;">
-                        <label>Zona</label>
-                        <select id="map-zona" onchange="cargarMapaYClientes()">
-                            <option value="Zona 1">Zona 1</option>
-                            <option value="Zona 2">Zona 2</option>
-                            <option value="Zona 3">Zona 3</option>
+                        <label>Chofer / Ruta</label>
+                        <select id="map-zona" onchange="cargarClientesZona()">
+                            <option value="Todos" selected>Todos</option>
+                            <!-- Se llenará dinámicamente -->
                         </select>
                     </div>
                 </div>
-                <div id="map" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid var(--border);"></div>
             </div>
 
-            <h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 10px; text-align: left;">Directorio Ordenado</h3>
+            <h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 10px; text-align: left;">
+                <i class="fa-solid fa-list-ol"></i> Lista de Clientes
+            </h3>
             <div id="lista-clientes-zona" class="delivery-list-wrapper">
                 <div class="loading-text" style="text-align: left;">Cargando clientes...</div>
             </div>
@@ -636,7 +697,7 @@
 
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchScreen('inicio', this)"><i class="fa-solid fa-house"></i><span>Inicio</span></div>
-        <div class="nav-item" onclick="switchScreen('mapa', this)"><i class="fa-solid fa-map-location-dot"></i><span>Mapa</span></div>
+        <div class="nav-item" onclick="switchScreen('mapa', this)"><i class="fa-solid fa-map-location-dot"></i><span>Clientes</span></div>
         <div class="nav-item" onclick="switchScreen('fabrica', this)"><i class="fa-solid fa-industry"></i><span>Fábrica</span></div>
         <div class="nav-item" onclick="switchScreen('rutas', this)"><i class="fa-solid fa-truck-fast"></i><span>Rutas</span></div>
         <div class="nav-item" onclick="switchScreen('entregas', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Entregas</span></div>
@@ -720,13 +781,30 @@
                     <input type="number" id="venta-vacios-devueltos" value="0" min="0">
                 </div>
 
+                <h4 style="font-size: 0.8rem; margin: 15px 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; text-align: left;">Ubicación de la Entrega</h4>
+                <button type="button" class="btn-primary" onclick="obtenerUbicacion()" style="margin-bottom: 10px;">
+                    <i class="fa-solid fa-location-crosshairs"></i> Obtener ubicación GPS
+                </button>
+                <div class="input-group">
+                    <label>Latitud</label>
+                    <input type="number" step="any" id="venta-latitud" placeholder="Ej: -17.7833">
+                </div>
+                <div class="input-group">
+                    <label>Longitud</label>
+                    <input type="number" step="any" id="venta-longitud" placeholder="Ej: -63.1821">
+                </div>
+                <div class="input-group">
+                    <label>Referencia de Ubicación</label>
+                    <input type="text" id="venta-referencia" placeholder="Ej: Casa blanca, calle principal">
+                </div>
+
                 <h4 style="font-size: 0.8rem; margin: 15px 0 10px 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; text-align: left;">Pago</h4>
                 <div class="input-group">
                     <label>Método de Pago</label>
                     <select id="venta-metodo-pago" required>
-                        <option value="efectivo">Efectivo (Contado)</option>
-                        <option value="qr">Pago QR / Transferencia</option>
-                        <option value="credito">Crédito</option>
+                        <option value="Efectivo">Efectivo (Contado)</option>
+                        <option value="QR">Pago QR / Transferencia</option>
+                        <option value="Crédito">Crédito</option>
                     </select>
                 </div>
                 
@@ -760,11 +838,9 @@
         let currentFleetName = ''; 
         let currentFleetChoferId = null;
         let flotaAReactivar = null;
-        let map;
-        let mapMarkers = [];
         let productosGlobal = [];
         let clientesGlobal = [];
-        let reporteComisionesGlobal = {}; // Guarda comisiones por nombre de flota
+        let reporteComisionesGlobal = {};
 
         const { createClient } = supabase;
         const supabaseUrl = 'https://wzixsohxprcobfsmiksf.supabase.co';
@@ -785,93 +861,218 @@
             if(navElement) navElement.classList.add('active');
             if (screenName === 'inicio' && fluidChartInstance) fluidChartInstance.resize();
             if (screenName === 'mapa') {
-                setTimeout(() => { if(map) map.invalidateSize(); }, 300);
-                cargarMapaYClientes();
+                cargarClientesZona();
             }
             if (screenName === 'finanzas') fetchCaja();
         }
 
         // ==========================================
-        // MAPAS Y CLIENTES + FLOTA
+        // CARGA DE CLIENTES DESDE ENTREGAS
         // ==========================================
-        function inicializarMapa() {
-            map = L.map('map').setView([-17.7833, -63.1821], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-        }
-
-        async function cargarMapaYClientes() {
-            if(!map) inicializarMapa();
-            const dia = document.getElementById('map-dia').value;
-            const zona = document.getElementById('map-zona').value;
-            mapMarkers.forEach(m => map.removeLayer(m));
-            mapMarkers = [];
-            const bounds = L.latLngBounds();
+        async function cargarClientesZona() {
+            const diaFiltro = document.getElementById('map-dia').value;
+            const rutaFiltro = document.getElementById('map-zona').value;
+            const listaContenedor = document.getElementById('lista-clientes-zona');
+            listaContenedor.innerHTML = '<div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando clientes...</div>';
 
             try {
-                // 1. Clientes de la zona/día
-                const { data: clientes, error: errClientes } = await supabaseClient
-                    .from('clientes')
-                    .select('*')
-                    .eq('dia_visita', dia)
-                    .eq('zona', zona)
-                    .order('orden_visita');
-                if (errClientes) throw errClientes;
-                clientesGlobal = clientes || [];
+                // 1. Obtener todas las entregas recientes con join a flota y choferes
+                const { data: entregas, error: errEntregas } = await supabaseClient
+                    .from('entregas')
+                    .select(`
+                        id, cliente, cliente_id, unidades, total, latitud, longitud, referencia_ubicacion, url_maps, created_at,
+                        flota!inner( nombre, chofer_id, choferes!inner(nombre) )
+                    `)
+                    .order('created_at', { ascending: false })
+                    .limit(1000);
+                if (errEntregas) throw errEntregas;
 
+                // 2. Obtener clientes para teléfono/saldo si existe cliente_id
+                const { data: clientesData, error: errClientes } = await supabaseClient.from('clientes').select('*');
+                if (errClientes) console.error("Error clientes:", errClientes);
+                const clientesMap = new Map((clientesData || []).map(c => [c.id, c]));
+
+                // 3. Llenar select de rutas dinámicamente
+                const { data: flotas, error: errFlotas } = await supabaseClient.from('flota').select('nombre, chofer_id, choferes(nombre)');
+                if (errFlotas) console.error("Error flota:", errFlotas);
+                const rutasUnicas = [...new Map((flotas || []).map(f => [f.nombre, f])).values()];
+                const selectRuta = document.getElementById('map-zona');
+                selectRuta.innerHTML = '<option value="Todos">Todos</option>' + 
+                    rutasUnicas.map(f => `<option value="${f.nombre}">${f.nombre} - ${f.choferes?.nombre || 'Sin chofer'}</option>`).join('');
+                if (rutaFiltro && rutaFiltro !== 'Todos') {
+                    selectRuta.value = rutaFiltro;
+                }
+
+                // 4. Agrupar por cliente (cliente_id o nombre) tomando la más reciente
+                const mapClientes = new Map();
+                entregas.forEach(e => {
+                    const key = e.cliente_id || e.cliente?.trim().toLowerCase();
+                    if (!key) return;
+                    if (!mapClientes.has(key)) {
+                        mapClientes.set(key, e);
+                    }
+                });
+
+                let clientesFiltrados = Array.from(mapClientes.values());
+                if (diaFiltro !== 'Todos') {
+                    clientesFiltrados = clientesFiltrados.filter(e => {
+                        const fecha = new Date(e.created_at);
+                        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                        return dias[fecha.getDay()] === diaFiltro;
+                    });
+                }
+                if (rutaFiltro !== 'Todos') {
+                    clientesFiltrados = clientesFiltrados.filter(e => e.flota?.nombre === rutaFiltro);
+                }
+
+                // 5. Actualizar select de clientes para modal venta
                 const selectCliente = document.getElementById('venta-cliente');
                 selectCliente.innerHTML = '<option value="">Seleccionar Cliente...</option>' + 
-                    clientesGlobal.map(c => `<option value="${c.id}">${c.nombre} (Envases: ${c.saldo_envases_prestados})</option>`).join('');
+                    clientesFiltrados.map(c => `<option value="${c.cliente_id || ''}">${c.cliente}</option>`).join('');
 
-                const listaContenedor = document.getElementById('lista-clientes-zona');
-                let htmlLista = '';
-                clientesGlobal.forEach(cliente => {
-                    if (cliente.latitud && cliente.longitud) {
-                        const marker = L.marker([cliente.latitud, cliente.longitud])
-                            .addTo(map)
-                            .bindPopup(`<b>Cliente:</b> ${cliente.nombre}<br>Envases prestados: ${cliente.saldo_envases_prestados}`);
-                        mapMarkers.push(marker);
-                        bounds.extend([cliente.latitud, cliente.longitud]);
+                if (clientesFiltrados.length === 0) {
+                    listaContenedor.innerHTML = '<div class="loading-text">No hay clientes que coincidan con los filtros.</div>';
+                    return;
+                }
+
+                let html = '';
+                let contador = 1;
+                clientesFiltrados.forEach(e => {
+                    const clienteData = e.cliente_id ? clientesMap.get(e.cliente_id) : null;
+                    const telefono = clienteData?.telefono || (e.referencia_ubicacion || '').match(/Tel:\s*([0-9]+)/)?.[1] || 'Sin teléfono';
+                    const saldoEnvases = clienteData?.saldo_envases_prestados ?? '?';
+                    const rutaNombre = e.flota?.nombre || 'Sin ruta';
+                    const choferNombre = e.flota?.choferes?.nombre || 'Sin chofer';
+                    const fechaVisita = formatTime(e.created_at);
+                    const lat = e.latitud;
+                    const lng = e.longitud;
+                    let mapsUrl = '#';
+                    if (lat && lng) {
+                        mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                    } else {
+                        const query = encodeURIComponent(`${e.cliente} Santa Cruz Bolivia`);
+                        mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
                     }
-                    htmlLista += `<div class="delivery-item">
-                        <div class="delivery-left">
-                            <div class="truck-avatar" style="background: var(--primary-light); color: var(--primary);">${cliente.orden_visita}</div>
-                            <div><div class="delivery-client">${cliente.nombre}</div>
-                            <div class="delivery-meta-sub"><span class="client-badge"><i class="fa-solid fa-bottle-water"></i> ${cliente.saldo_envases_prestados} envases</span></div></div>
-                        </div></div>`;
+
+                    html += `
+                    <div class="client-card">
+                        <div class="client-number">${contador}</div>
+                        <div class="client-info">
+                            <div class="client-name">${e.cliente}</div>
+                            <div class="client-detail">
+                                <span><i class="fa-solid fa-phone"></i> ${telefono}</span>
+                                <span><i class="fa-solid fa-bottle-water"></i> ${saldoEnvases} envases</span>
+                                <span><i class="fa-regular fa-clock"></i> ${fechaVisita}</span>
+                            </div>
+                            <div class="client-route-info">
+                                <i class="fa-solid fa-truck"></i> Ruta: ${rutaNombre} | Chofer: ${choferNombre}
+                            </div>
+                        </div>
+                        <a href="${mapsUrl}" target="_blank" class="btn-location" title="Abrir en Google Maps">
+                            <i class="fa-solid fa-diamond-turn-right"></i> Ir
+                        </a>
+                    </div>`;
+                    contador++;
                 });
-                listaContenedor.innerHTML = htmlLista || '<div class="loading-text">No hay clientes para este día/zona.</div>';
-
-                // 2. Flota en ruta (choferes con GPS)
-                const { data: flotaRuta, error: errFlota } = await supabaseClient
-                    .from('flota')
-                    .select('id, nombre, latitud, longitud, choferes(nombre)')
-                    .eq('estado', 'ruta')
-                    .not('latitud', 'is', null)
-                    .not('longitud', 'is', null);
-                if (errFlota) throw errFlota;
-
-                (flotaRuta || []).forEach(f => {
-                    const marker = L.marker([f.latitud, f.longitud], {
-                        icon: L.divIcon({
-                            className: 'custom-div-icon',
-                            html: '<i class="fa-solid fa-truck" style="color:#0284c7; font-size:20px;"></i>',
-                            iconSize: [20,20]
-                        })
-                    }).addTo(map)
-                      .bindPopup(`<b>Unidad:</b> ${f.nombre}<br><b>Chofer:</b> ${f.choferes ? f.choferes.nombre : 'N/A'}`);
-                    mapMarkers.push(marker);
-                    bounds.extend([f.latitud, f.longitud]);
-                });
-
-                if (mapMarkers.length > 0) map.fitBounds(bounds, { padding: [20, 20] });
+                listaContenedor.innerHTML = html;
             } catch (error) {
-                console.error("Error en mapa:", error);
-                document.getElementById('lista-clientes-zona').innerHTML = `<div class="loading-text">Error cargando datos del mapa.</div>`;
+                console.error("Error cargando clientes desde entregas:", error);
+                listaContenedor.innerHTML = '<div class="loading-text">Error al cargar clientes.</div>';
             }
         }
 
         // ==========================================
-        // PRODUCTOS Y VENTA ADMIN
+        // OBTENER UBICACIÓN GPS
+        // ==========================================
+        function obtenerUbicacion() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        document.getElementById('venta-latitud').value = pos.coords.latitude.toFixed(6);
+                        document.getElementById('venta-longitud').value = pos.coords.longitude.toFixed(6);
+                    },
+                    (error) => {
+                        alert('No se pudo obtener la ubicación. Ingresa manualmente.');
+                    }
+                );
+            } else {
+                alert('Tu dispositivo no soporta geolocalización.');
+            }
+        }
+
+        // ==========================================
+        // REGISTRO DE VENTA (igual que en chofer)
+        // ==========================================
+        document.getElementById('form-registro-venta').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.querySelector('#form-registro-venta button[type="submit"]');
+            const clienteSelect = document.getElementById('venta-cliente');
+            const clienteId = clienteSelect.value || null;
+            const clienteNombre = clienteSelect.options[clienteSelect.selectedIndex]?.text || '';
+            const vaciosDevueltos = parseInt(document.getElementById('venta-vacios-devueltos').value) || 0;
+            const metodoPago = document.getElementById('venta-metodo-pago').value;
+            const latitud = parseFloat(document.getElementById('venta-latitud').value) || null;
+            const longitud = parseFloat(document.getElementById('venta-longitud').value) || null;
+            const referencia = document.getElementById('venta-referencia').value || null;
+            const urlMaps = (latitud && longitud) ? `https://www.google.com/maps?q=${latitud},${longitud}` : null;
+
+            if (!clienteNombre) return alert("Debes seleccionar un cliente.");
+
+            let detallesVenta = [];
+            let totalCobrar = 0;
+            let botellonesEntregados = 0;
+            productosGlobal.forEach(p => {
+                const qtyInput = document.getElementById(`prod_qty_${p.id}`);
+                const cantidad = parseInt(qtyInput ? qtyInput.value : 0) || 0;
+                if (cantidad > 0) {
+                    detallesVenta.push({ producto_id: p.id, cantidad, precio_unitario: p.precio_venta, comision_unitaria: p.comision_chofer });
+                    totalCobrar += cantidad * p.precio_venta;
+                    if (p.requiere_envase) botellonesEntregados += cantidad;
+                }
+            });
+            if (detallesVenta.length === 0) return alert("Debe ingresar al menos 1 producto.");
+            btn.disabled = true;
+
+            try {
+                const { data: nuevaEntrega, error: errorEntrega } = await supabaseClient
+                    .from('entregas')
+                    .insert([{
+                        flota_id: currentFleetId,
+                        cliente_id: clienteId,
+                        cliente: clienteNombre,
+                        unidades: botellonesEntregados,
+                        metodo_pago: metodoPago,
+                        total: totalCobrar,
+                        vacios_devueltos: vaciosDevueltos,
+                        latitud,
+                        longitud,
+                        referencia_ubicacion: referencia,
+                        url_maps: urlMaps
+                    }])
+                    .select().single();
+                if (errorEntrega) throw errorEntrega;
+
+                const detallesParaInsertar = detallesVenta.map(d => ({ entrega_id: nuevaEntrega.id, ...d }));
+                await supabaseClient.from('entregas_detalles').insert(detallesParaInsertar);
+
+                const nuevoStockCamion = currentFleetStock - botellonesEntregados;
+                await supabaseClient.from('flota').update({ stock_actual: Math.max(0, nuevoStockCamion) }).eq('id', currentFleetId);
+
+                alert(`Venta guardada. Cobrar: Bs. ${totalCobrar}`);
+                document.getElementById('form-registro-venta').reset();
+                cerrarModalVenta();
+                cargarClientesZona();
+                fetchFlota();
+                fetchEntregas();
+            } catch (error) {
+                alert("Error al procesar la venta: " + error.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // ==========================================
+        // FUNCIONES COMPLETAS (ya no hay comentarios vacíos)
         // ==========================================
         async function cargarProductos() {
             try {
@@ -899,71 +1100,6 @@
             document.getElementById('ventaModal').style.display = 'none';
         }
 
-        document.getElementById('form-registro-venta').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.querySelector('#form-registro-venta button[type="submit"]');
-            const clienteId = document.getElementById('venta-cliente').value;
-            const vaciosDevueltos = parseInt(document.getElementById('venta-vacios-devueltos').value) || 0;
-            const metodoPago = document.getElementById('venta-metodo-pago').value;
-            if (!clienteId) return alert("Debes seleccionar un cliente registrado.");
-
-            let detallesVenta = [];
-            let totalCobrar = 0;
-            let botellonesEntregados = 0;
-            productosGlobal.forEach(p => {
-                const qtyInput = document.getElementById(`prod_qty_${p.id}`);
-                const cantidad = parseInt(qtyInput ? qtyInput.value : 0) || 0;
-                if (cantidad > 0) {
-                    detallesVenta.push({ producto_id: p.id, cantidad, precio_unitario: p.precio_venta, comision_unitaria: p.comision_chofer });
-                    totalCobrar += cantidad * p.precio_venta;
-                    if (p.requiere_envase) botellonesEntregados += cantidad;
-                }
-            });
-            if (detallesVenta.length === 0) return alert("Debe ingresar al menos 1 producto.");
-            btn.disabled = true;
-
-            try {
-                const { data: nuevaEntrega, error: errorEntrega } = await supabaseClient
-                    .from('entregas')
-                    .insert([{
-                        flota_id: currentFleetId,
-                        cliente_id: clienteId,
-                        cliente: document.getElementById('venta-cliente').options[document.getElementById('venta-cliente').selectedIndex].text,
-                        unidades: botellonesEntregados,
-                        metodo_pago: metodoPago,
-                        total: totalCobrar,
-                        vacios_devueltos: vaciosDevueltos
-                    }])
-                    .select().single();
-                if (errorEntrega) throw errorEntrega;
-
-                const detallesParaInsertar = detallesVenta.map(d => ({ entrega_id: nuevaEntrega.id, ...d }));
-                await supabaseClient.from('entregas_detalles').insert(detallesParaInsertar);
-
-                const variacionEnvases = botellonesEntregados - vaciosDevueltos;
-                const { data: clienteObj } = await supabaseClient.from('clientes').select('saldo_envases_prestados').eq('id', clienteId).single();
-                const nuevoSaldo = (clienteObj ? clienteObj.saldo_envases_prestados : 0) + variacionEnvases;
-                await supabaseClient.from('clientes').update({ saldo_envases_prestados: nuevoSaldo }).eq('id', clienteId);
-
-                const nuevoStockCamion = currentFleetStock - botellonesEntregados;
-                await supabaseClient.from('flota').update({ stock_actual: Math.max(0, nuevoStockCamion) }).eq('id', currentFleetId);
-
-                alert(`Venta guardada. Cobrar: Bs. ${totalCobrar}`);
-                document.getElementById('form-registro-venta').reset();
-                cerrarModalVenta();
-                cargarMapaYClientes();
-                fetchFlota();
-                fetchEntregas();
-            } catch (error) {
-                alert("Error al procesar la venta: " + error.message);
-            } finally {
-                btn.disabled = false;
-            }
-        });
-
-        // ==========================================
-        // CONFIGURACIÓN Y CAJA
-        // ==========================================
         async function fetchConfiguracion() {
             try {
                 const { data, error } = await supabaseClient.from('configuracion_empresa').select('*').eq('id', 1).single();
@@ -1022,7 +1158,6 @@
                 (movimientos || []).forEach(m => {
                     totalCaja += m.tipo === 'ingreso' ? m.monto : -m.monto;
                 });
-                // Sumar ventas de choferes (entregas en efectivo/qr)
                 const { data: ventas, error: errVentas } = await supabaseClient
                     .from('entregas')
                     .select('total, metodo_pago')
@@ -1054,9 +1189,6 @@
             document.getElementById('kpi-ganancia').innerText = fmtBs(gananciaBruta - comisiones);
         }
 
-        // ==========================================
-        // CHOFERES
-        // ==========================================
         async function fetchChoferes() {
             try {
                 const { data, error } = await supabaseClient.from('choferes').select('*').order('nombre');
@@ -1092,9 +1224,6 @@
             } finally { btn.disabled = false; }
         });
 
-        // ==========================================
-        // STOCK Y FÁBRICA
-        // ==========================================
         async function fetchStockFabrica() {
             try {
                 const { data, error } = await supabaseClient.from('inventario_fabrica').select('*').eq('id', 1).single();
@@ -1130,12 +1259,10 @@
             const fisicoVacios = parseInt(document.getElementById('fisico-vacios').value) || 0;
             const difLlenos = fisicoLlenos - stockFábricaLlenos;
             const difVacios = fisicoVacios - stockFábricaVacios;
-            const difLlenosElement = document.getElementById('dif-llenos');
-            const difVaciosElement = document.getElementById('dif-vacios');
-            difLlenosElement.innerText = difLlenos;
-            difLlenosElement.className = difLlenos < 0 ? 'acc-credit' : (difLlenos > 0 ? 'acc-debit' : '');
-            difVaciosElement.innerText = difVacios;
-            difVaciosElement.className = difVacios < 0 ? 'acc-credit' : (difVacios > 0 ? 'acc-debit' : '');
+            document.getElementById('dif-llenos').innerText = difLlenos;
+            document.getElementById('dif-llenos').className = difLlenos < 0 ? 'acc-credit' : (difLlenos > 0 ? 'acc-debit' : '');
+            document.getElementById('dif-vacios').innerText = difVacios;
+            document.getElementById('dif-vacios').className = difVacios < 0 ? 'acc-credit' : (difVacios > 0 ? 'acc-debit' : '');
         }
         document.getElementById('fisico-llenos').addEventListener('input', calcularDiferenciasInventario);
         document.getElementById('fisico-vacios').addEventListener('input', calcularDiferenciasInventario);
@@ -1175,9 +1302,6 @@
             } catch (error) { console.error("Asientos:", error); }
         }
 
-        // ==========================================
-        // DESPACHO DE FLOTA
-        // ==========================================
         document.getElementById('form-flota').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-submit-flota');
@@ -1198,9 +1322,6 @@
             } catch (error) { alert("Error: " + error.message); } finally { btn.disabled = false; }
         });
 
-        // ==========================================
-        // LISTA DE FLOTA
-        // ==========================================
         async function fetchFlota() {
             try {
                 const { data: flotaData, error } = await supabaseClient.from('flota').select('*, choferes(nombre, placa)').order('created_at', { ascending: false });
@@ -1267,7 +1388,6 @@
         async function closeRoute() {
             const sobrantesLlenos = parseInt(document.getElementById('modal-return-qty').value) || 0;
             try {
-                // Obtener stock actual real de la flota
                 const { data: flotaActual, error: errFlotaGet } = await supabaseClient
                     .from('flota')
                     .select('stock_actual, capacidad_maxima')
@@ -1276,21 +1396,17 @@
                 if (errFlotaGet) throw errFlotaGet;
                 const stockReal = flotaActual.stock_actual;
 
-                // Calcular vacíos retornados: los vendidos menos los devueltos
                 const entregasDeFlota = entregasGlobales.filter(e => e.flota && e.flota.nombre === currentFleetName);
                 const totalVendido = entregasDeFlota.reduce((acc, e) => acc + Number(e.unidades), 0);
                 const totalVaciosDevueltos = entregasDeFlota.reduce((acc, e) => acc + (e.vacios_devueltos || 0), 0);
                 const vaciosRetornados = totalVendido - totalVaciosDevueltos;
 
-                // Actualizar flota a estado 'planta'
                 await supabaseClient.from('flota').update({ estado: 'planta', stock_actual: 0 }).eq('id', currentFleetId);
 
-                // Actualizar inventario de fábrica: sumar sobrantes llenos y vacíos
                 const nuevoStockLlenos = stockFábricaLlenos + sobrantesLlenos;
                 const nuevoStockVacios = stockFábricaVacios + vaciosRetornados;
                 await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: nuevoStockLlenos, stock_vacios: nuevoStockVacios });
 
-                // Registrar movimiento
                 await supabaseClient.from('movimientos_fabrica').insert([{
                     tipo: 'retorno',
                     cantidad_llenos: sobrantesLlenos,
@@ -1313,9 +1429,6 @@
         function saveFleetEdit() {}
         function activarFlota() {}
 
-        // ==========================================
-        // ENTREGAS Y COMISIONES
-        // ==========================================
         async function fetchEntregas() {
             try {
                 const { data: entregas, error } = await supabaseClient
@@ -1345,7 +1458,6 @@
                 calcularGanancia();
                 document.getElementById('kpi-ingresos').innerText = fmtBs(totalIngresos);
 
-                // Tabla de comisiones
                 const tbodyComisiones = document.getElementById('comisiones-tbody');
                 if (Object.keys(reporteComisiones).length > 0) {
                     tbodyComisiones.innerHTML = Object.keys(reporteComisiones).map(flota => `
@@ -1357,7 +1469,6 @@
                     tbodyComisiones.innerHTML = '<tr><td colspan="2" class="loading-text">Sin datos de comisiones aún.</td></tr>';
                 }
 
-                // Lista de entregas
                 const listContainer = document.getElementById('delivery-list');
                 let html = '';
                 entregasGlobales.forEach(e => {
@@ -1379,9 +1490,6 @@
 
         function sendWhatsAppReport() { alert("Reporte de WhatsApp enviado."); }
 
-        // ==========================================
-        // EXPORTACIÓN PDF MEJORADA
-        // ==========================================
         window.jsPDF = window.jspdf.jsPDF;
 
         function exportarIndividualPDF() {
@@ -1458,7 +1566,7 @@
             }
             const doc = new jsPDF();
             doc.setFontSize(18);
-            doc.text("Reporte Global de Flotas - AguaPanel", 14, 20);
+            doc.text("Reporte Global de Flotas - AGUAPANEL", 14, 20);
             doc.setFontSize(11);
             doc.text(`Fecha: ${new Date().toLocaleDateString('es-BO')} ${new Date().toLocaleTimeString('es-BO')}`, 14, 28);
 
@@ -1525,6 +1633,7 @@
             fetchAsientosContables();
             cargarProductos();
             fetchCaja();
+            cargarClientesZona();
         });
     </script>
 </body>
