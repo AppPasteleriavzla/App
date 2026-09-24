@@ -24,32 +24,27 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.4; padding-bottom: 80px; }
 
-        /* LOGIN */
         #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-body); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; }
         .login-box { width: 100%; max-width: 400px; text-align: center; background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid var(--border); }
         .login-icon { font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem; }
 
-        /* HEADER */
         header { background-color: rgba(15,23,42,0.92); backdrop-filter: blur(12px); color: var(--surface); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
         .logo { font-size: 1.15rem; font-weight: 900; display: flex; align-items: center; gap: 10px; }
         .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #38bdf8, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.9rem; }
         .driver-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(2,132,199,0.2); color: #38bdf8; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .header-btn { background: transparent; border: none; font-size: 1.25rem; cursor: pointer; padding: 4px; display: none; }
 
-        /* NAV */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--surface); border-top: 1px solid var(--border); box-shadow: var(--shadow-nav); display: flex; justify-content: space-around; padding: 10px 5px; padding-bottom: env(safe-area-inset-bottom, 15px); z-index: 999; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-muted); font-size: 0.65rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; width: 33.33%; }
-        .nav-item i { font-size: 1.25rem; margin-bottom: 2px; transition: transform 0.2s; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-muted); font-size: 0.6rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; width: 25%; }
+        .nav-item i { font-size: 1.2rem; margin-bottom: 2px; transition: transform 0.2s; }
         .nav-item.active { color: var(--primary); }
         .nav-item.active i { transform: translateY(-2px); }
 
-        /* MODALES */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.7); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-container { background: var(--surface); width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 20px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
 
-        /* SWITCH */
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px; }
@@ -57,7 +52,6 @@
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* LAYOUT */
         main { padding: 1.25rem; max-width: 500px; margin: 0 auto; }
         .screen { display: none; animation: fadeInScreen 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
         .screen.active { display: block; }
@@ -67,7 +61,6 @@
         .section-title { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
         .section-badge { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-        /* TARJETA CAMIÓN */
         .truck-status-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-md); display: none; }
         .truck-status-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .truck-route-name { font-size: 1.1rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
@@ -77,16 +70,13 @@
         .inventory-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8); border-radius: 5px; transition: width 0.8s ease; }
         .inventory-fill.low { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
-        /* GPS INDICATOR */
         .gps-indicator { font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 15px; background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
         .gps-indicator.error { background: rgba(239,68,68,0.1); color: var(--danger); border-color: rgba(239,68,68,0.3); }
 
-        /* ALERTAS */
         .alert-box { display: none; background: var(--warning-light); border: 1px solid #fcd34d; color: #b45309; padding: 15px; border-radius: var(--radius-md); text-align: center; font-size: 0.85rem; font-weight: 700; margin-bottom: 15px; }
         .debug-error-box { display: none; background: var(--danger-light); border: 1px solid var(--danger); color: #991b1b; padding: 12px; border-radius: var(--radius-md); margin-bottom: 15px; font-size: 0.8rem; word-wrap: break-word; white-space: pre-wrap; }
         .info-box { background: var(--primary-light); border-left: 3px solid var(--primary); padding: 10px 12px; border-radius: 6px; font-size: 0.78rem; color: var(--primary-dark); margin-bottom: 12px; text-align: left; }
 
-        /* FORMULARIOS */
         .admin-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 1.5rem; }
         .form-card { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); }
         .form-title { font-size: 0.9rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: var(--primary-dark); }
@@ -107,7 +97,143 @@
         .btn-state.selected[data-estado="No entregado"] { border-color: var(--danger); background: var(--danger-light); color: #991b1b; }
         .btn-state.selected[data-estado="Pendiente"] { border-color: var(--warning); background: var(--warning-light); color: #b45309; }
 
-        /* HISTORIAL */
+        /* ========== CONTROL DE VACÍOS ========== */
+        .envases-control {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .envases-control.manual {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #fbbf24;
+        }
+        .envases-control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .envases-control-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .envases-control.manual .envases-control-title { color: #b45309; }
+        .envases-mode-pill {
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: white;
+            color: var(--primary-dark);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .envases-control.manual .envases-mode-pill {
+            background: white;
+            color: #b45309;
+        }
+        .envases-stepper {
+            display: grid;
+            grid-template-columns: 48px 1fr 48px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .envases-stepper button {
+            height: 48px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.4rem;
+            font-weight: 900;
+            cursor: pointer;
+            background: white;
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .envases-stepper button:active { transform: scale(0.95); }
+        .envases-stepper button.minus { color: var(--danger); }
+        .envases-stepper button.plus { color: var(--success); }
+        .envases-control.manual .envases-stepper button {
+            border-color: #fbbf24;
+            color: #b45309;
+        }
+        .envases-stepper input {
+            height: 48px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 900;
+            border-radius: 10px;
+            border: 2px solid var(--primary-light);
+            background: white;
+            color: var(--primary-dark);
+            padding: 0;
+        }
+        .envases-control.manual .envases-stepper input {
+            border-color: #fbbf24;
+            color: #b45309;
+        }
+        .envases-stepper input:focus { outline: none; border-color: var(--primary); }
+
+        .envases-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .envases-actions button {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.8);
+            background: white;
+            font-weight: 700;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: var(--primary-dark);
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s;
+        }
+        .envases-actions button:active { transform: scale(0.97); }
+        .envases-actions button.auto-btn {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        .envases-actions button:disabled { opacity: 0.5; }
+
+        .envases-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.3;
+        }
+        .envases-preview i { font-size: 1rem; flex-shrink: 0; }
+        .envases-preview strong { font-weight: 900; }
+        .envases-preview.warn { background: #fef3c7; color: #b45309; }
+        .envases-preview.good { background: #dcfce7; color: #15803d; }
+        .envases-preview.neutral { background: #f1f5f9; color: var(--text-muted); }
+
         .delivery-list-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
         .delivery-item { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.9rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
         .delivery-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -127,7 +253,25 @@
         .st-pendiente { background: #fef3c7; color: #b45309; }
         .loading-text { text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; padding: 20px; }
 
-        /* DIRECTORIO GPS */
+        .ruta-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .ruta-stat { background: var(--surface-subtle); border-radius: 10px; padding: 10px; text-align: center; border: 1px solid var(--border); }
+        .ruta-stat-value { font-size: 1.4rem; font-weight: 900; color: var(--primary-dark); line-height: 1; }
+        .ruta-stat-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+
+        .ruta-cliente-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+        .ruta-cliente-card.visitado { opacity: 0.6; background: var(--surface-subtle); border-left: 4px solid var(--success); }
+        .ruta-cliente-card.pendiente { border-left: 4px solid var(--warning); }
+        .ruta-cliente-card .client-number { width: 42px; height: 42px; background: var(--primary-light); color: var(--primary-dark); font-weight: 900; font-size: 1.1rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ruta-cliente-card.visitado .client-number { background: var(--success-light); color: var(--success); }
+        .client-info { flex: 1; text-align: left; min-width: 0; }
+        .client-name { font-weight: 800; font-size: 0.92rem; margin-bottom: 3px; }
+        .client-detail { font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+        .client-debt-badge { font-size: 0.65rem; color: var(--danger); background: var(--danger-light); padding: 2px 6px; border-radius: 4px; display: inline-block; font-weight: 700; }
+        .client-actions-ruta { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-ruta-nav { background: var(--success); color: white; border: none; padding: 10px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; white-space: nowrap; }
+        .btn-ruta-nav.sin-gps { background: var(--warning); }
+        .btn-ruta-nav.vender { background: var(--primary); }
+
         .client-gps-card { display: flex; flex-direction: column; gap: 8px; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--success); border-radius: var(--radius-md); }
         .client-gps-title { font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
         .client-gps-info { font-size: 0.75rem; color: var(--text-muted); }
@@ -136,15 +280,13 @@
 </head>
 <body>
 
-<!-- ============================================
-     LOGIN
-============================================ -->
+<!-- LOGIN -->
 <div id="login-overlay">
     <div class="login-box">
         <div class="login-icon"><i class="fa-solid fa-id-badge"></i></div>
         <h2 style="margin-bottom: 10px; color: var(--primary-dark);">Acceso a Ruta</h2>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
-            Ingresa el código que te proporcionó administración para sincronizar tu camión.
+            Ingresa el código que te proporcionó administración.
         </p>
         <div id="debug-error-login" class="debug-error-box"></div>
         <form id="form-login">
@@ -159,9 +301,7 @@
     </div>
 </div>
 
-<!-- ============================================
-     MODAL NUEVO CLIENTE
-============================================ -->
+<!-- MODAL CLIENTE NUEVO -->
 <div id="modal-flujo-cliente" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -171,16 +311,16 @@
             <button class="modal-close" onclick="cerrarModalFlujo()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">
-            El cliente <strong id="flujo-nuevo-nombre" style="color: var(--text-main);"></strong> no está en tu lista de hoy. ¿Deseas guardarlo?
+            El cliente <strong id="flujo-nuevo-nombre" style="color: var(--text-main);"></strong> no está registrado. ¿Guardar sus datos?
         </p>
         <div class="input-group">
             <label>Número de Teléfono</label>
             <input type="tel" id="flujo-nuevo-telefono" placeholder="Ej: 70012345">
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: var(--surface-subtle); border-radius: 10px; border: 1px solid var(--border);">
-            <div>
+            <div style="text-align: left;">
                 <label style="margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--text-main); display: block;">¿Guardar Ubicación GPS?</label>
-                <span style="font-size: 0.7rem; color: var(--text-muted);">Desactívalo si el cliente prefiere no compartirla.</span>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">Desactívalo si el cliente no quiere compartirla.</span>
             </div>
             <label class="switch">
                 <input type="checkbox" id="flujo-toggle-gps" checked>
@@ -193,9 +333,7 @@
     </div>
 </div>
 
-<!-- ============================================
-     HEADER
-============================================ -->
+<!-- HEADER -->
 <header>
     <div class="logo"><div class="logo-icon"><i class="fa-solid fa-truck-fast"></i></div>CHOFER</div>
     <div style="display: flex; align-items: center; gap: 10px;">
@@ -212,13 +350,12 @@
 </header>
 
 <main>
-    <!-- ============================================
-         PANTALLA 1: MI RUTA
-    ============================================ -->
+
+    <!-- MI RUTA -->
     <div id="screen-ruta" class="screen active">
         <div class="section-header">
-            <h2 class="section-title"><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Estado de Unidad</h2>
-            <span class="section-badge" id="current-date">Hoy</span>
+            <h2 class="section-title"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> Mi Ruta de Hoy</h2>
+            <span class="section-badge" id="ruta-fecha">Hoy</span>
         </div>
 
         <div id="alerta-sin-ruta" class="alert-box">
@@ -232,7 +369,7 @@
                 <span style="font-size: 0.75rem; background: rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 6px;" id="card-placa">Placa: --</span>
             </div>
             <div class="stock-counter-big" id="card-stock-actual">0</div>
-            <div class="stock-label-sub">Botellones disponibles en camión</div>
+            <div class="stock-label-sub">Botellones disponibles</div>
             <div class="inventory-bar">
                 <div class="inventory-fill" id="card-inventory-fill" style="width: 0%;"></div>
             </div>
@@ -241,28 +378,42 @@
                 <span id="card-porcentaje">0%</span>
             </div>
             <div id="gps-status-indicator" class="gps-indicator" style="display: none;">
-                <i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS Transmitiendo en vivo
+                <i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS transmitiendo
             </div>
         </div>
 
-        <div class="form-card" style="margin-top: 15px;">
-            <div class="form-title"><i class="fa-solid fa-chart-simple"></i> Resumen de Hoy</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div style="text-align: center; padding: 10px; background: var(--success-light); border-radius: 8px;">
-                    <div style="font-size: 1.5rem; font-weight: 900; color: var(--success);" id="resumen-ventas-bs">Bs. 0</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">VENDIDO</div>
+        <div id="ruta-stats-container" style="display: none;">
+            <div class="ruta-stats">
+                <div class="ruta-stat">
+                    <div class="ruta-stat-value" id="ruta-stat-total">0</div>
+                    <div class="ruta-stat-label">Clientes</div>
                 </div>
-                <div style="text-align: center; padding: 10px; background: var(--primary-light); border-radius: 8px;">
-                    <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary-dark);" id="resumen-ventas-count">0</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;">ENTREGAS</div>
+                <div class="ruta-stat">
+                    <div class="ruta-stat-value" style="color: var(--success);" id="ruta-stat-visitados">0</div>
+                    <div class="ruta-stat-label">Visitados</div>
+                </div>
+                <div class="ruta-stat">
+                    <div class="ruta-stat-value" style="color: var(--warning);" id="ruta-stat-pendientes">0</div>
+                    <div class="ruta-stat-label">Pendientes</div>
                 </div>
             </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="font-size: 0.9rem; font-weight: 800;">
+                <i class="fa-solid fa-users"></i> Clientes del Día
+            </h3>
+            <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 0.75rem;" onclick="cargarClientesDeRuta()">
+                <i class="fa-solid fa-rotate"></i> Actualizar
+            </button>
+        </div>
+
+        <div id="lista-ruta-clientes" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="loading-text">Cargando clientes de la ruta...</div>
         </div>
     </div>
 
-    <!-- ============================================
-         PANTALLA 2: VENDER
-    ============================================ -->
+    <!-- VENDER -->
     <div id="screen-vender" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-cash-register" style="color: var(--primary);"></i> Nueva Venta</h2>
@@ -275,66 +426,87 @@
                 <div id="debug-error-venta" class="debug-error-box"></div>
 
                 <form id="form-venta-chofer">
-                    <!-- CLIENTE -->
                     <div class="input-group">
                         <label>Nombre del Cliente / Local</label>
-                        <input type="text" id="venta-cliente" list="clientes-datalist" placeholder="Escribe el nombre del cliente..." autocomplete="off" required>
+                        <input type="text" id="venta-cliente" list="clientes-datalist" placeholder="Escribe el nombre..." autocomplete="off" required>
                         <datalist id="clientes-datalist"></datalist>
                     </div>
 
-                    <!-- UNIDADES -->
                     <div class="input-group">
                         <label>Cantidad de Botellones Entregados</label>
                         <input type="number" id="venta-unidades" placeholder="Ej: 3" min="1" required oninput="calcularTotalVenta()">
                         <small id="stock-disponible-info">Stock disponible: --</small>
                     </div>
 
-                    <!-- PRECIO -->
                     <div class="input-group">
                         <label>Precio Unitario (Bs.)</label>
                         <input type="number" id="venta-precio-unit" value="15" step="0.5" required oninput="calcularTotalVenta()">
                     </div>
 
-                    <!-- TOTAL -->
                     <div class="input-group">
                         <label>Total a Cobrar</label>
                         <input type="text" id="venta-total-calc" value="Bs. 0.00" disabled style="font-weight: 800; color: var(--primary-dark);">
                     </div>
 
-                    <!-- ESTADO DE ENTREGA -->
+                    <!-- ============ CONTROL HÍBRIDO DE VACÍOS ============ -->
+                    <div class="envases-control" id="envases-control">
+                        <div class="envases-control-header">
+                            <div class="envases-control-title">
+                                <i class="fa-solid fa-bottle-water"></i>
+                                Vacíos Recogidos
+                            </div>
+                            <span class="envases-mode-pill" id="envases-mode-pill">
+                                <i class="fa-solid fa-rotate"></i> Auto
+                            </span>
+                        </div>
+
+                        <div class="envases-stepper">
+                            <button type="button" class="minus" onclick="ajustarVacios(-1)">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <input type="number" id="venta-vacios-recogidos" value="0" min="0" oninput="marcarModoManualPorInput()">
+                            <button type="button" class="plus" onclick="ajustarVacios(1)">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+
+                        <div class="envases-actions">
+                            <button type="button" class="auto-btn" id="btn-auto-vacios" onclick="setVaciosAuto()">
+                                <i class="fa-solid fa-rotate"></i> Intercambio 1×1 (Auto)
+                            </button>
+                            <button type="button" id="btn-cero-vacios" onclick="setVaciosCero()">
+                                <i class="fa-solid fa-ban"></i> Cero
+                            </button>
+                        </div>
+
+                        <div class="envases-preview neutral" id="envases-preview">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <span id="envases-preview-text">Ingresa la cantidad de botellones primero</span>
+                        </div>
+                    </div>
+
                     <div class="input-group">
                         <label>Estado de la Entrega</label>
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
                             <button type="button" class="btn-state selected" data-estado="Entregado" onclick="seleccionarEstado('Entregado')">
-                                <i class="fa-solid fa-circle-check"></i>
-                                <span>Entregado</span>
+                                <i class="fa-solid fa-circle-check"></i><span>Entregado</span>
                             </button>
                             <button type="button" class="btn-state" data-estado="No entregado" onclick="seleccionarEstado('No entregado')">
-                                <i class="fa-solid fa-circle-xmark"></i>
-                                <span>No entregado</span>
+                                <i class="fa-solid fa-circle-xmark"></i><span>No entregado</span>
                             </button>
                             <button type="button" class="btn-state" data-estado="Pendiente" onclick="seleccionarEstado('Pendiente')">
-                                <i class="fa-solid fa-clock"></i>
-                                <span>Pendiente</span>
+                                <i class="fa-solid fa-clock"></i><span>Pendiente</span>
                             </button>
                         </div>
                         <input type="hidden" id="venta-estado" value="Entregado">
                     </div>
 
-                    <!-- VACIOS RECOGIDOS -->
-                    <div class="input-group">
-                        <label>Botellones Vacíos RECOGIDOS del cliente</label>
-                        <input type="number" id="venta-vacios-recogidos" value="0" min="0" oninput="actualizarInfoEnvases()">
-                        <small id="envases-info">Sin datos del cliente</small>
-                    </div>
-
-                    <!-- MÉTODO DE PAGO -->
                     <div class="input-group">
                         <label>Método de Pago</label>
                         <select id="venta-metodo" required>
                             <option value="Efectivo">Efectivo</option>
                             <option value="QR">Pago Móvil / QR</option>
-                            <option value="Transferencia">Transferencia Bancaria</option>
+                            <option value="Transferencia">Transferencia</option>
                             <option value="Crédito">Cuenta por Cobrar (Crédito)</option>
                         </select>
                     </div>
@@ -347,9 +519,30 @@
         </div>
     </div>
 
-    <!-- ============================================
-         PANTALLA 3: DIRECTORIO GPS
-    ============================================ -->
+    <!-- HISTORIAL -->
+    <div id="screen-historial" class="screen">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Mis Ventas de Hoy</h2>
+            <span class="section-badge" id="historial-total-count">0</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <div style="text-align: center; padding: 12px; background: var(--success-light); border-radius: 10px;">
+                <div style="font-size: 1.4rem; font-weight: 900; color: var(--success);" id="resumen-ventas-bs">Bs. 0</div>
+                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700;">VENDIDO HOY</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: var(--primary-light); border-radius: 10px;">
+                <div style="font-size: 1.4rem; font-weight: 900; color: var(--primary-dark);" id="resumen-ventas-count">0</div>
+                <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700;">ENTREGAS</div>
+            </div>
+        </div>
+
+        <div class="delivery-list-wrapper" id="driver-delivery-list">
+            <div class="loading-text">Cargando tus ventas...</div>
+        </div>
+    </div>
+
+    <!-- DIRECTORIO GPS -->
     <div id="screen-clientes" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Clientes con GPS</h2>
@@ -357,42 +550,27 @@
         </div>
 
         <div class="info-box">
-            <i class="fa-solid fa-circle-info"></i>
-            Clientes que aceptaron guardar su ubicación. Toca "Navegar" para abrir Google Maps.
+            <i class="fa-solid fa-circle-info"></i> Clientes con ubicación guardada. Toca "Navegar" para abrir Google Maps.
         </div>
 
         <div id="lista-clientes-directorio" style="display: flex; flex-direction: column; gap: 10px;">
-            <div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando ubicaciones...</div>
-        </div>
-    </div>
-
-    <!-- ============================================
-         PANTALLA 4: HISTORIAL
-    ============================================ -->
-    <div id="screen-historial" class="screen">
-        <div class="section-header">
-            <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Mis Ventas de Hoy</h2>
-            <span class="section-badge" id="historial-total-count">0 entregas</span>
-        </div>
-
-        <div class="delivery-list-wrapper" id="driver-delivery-list">
-            <div class="loading-text"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando tus ventas...</div>
+            <div class="loading-text">Cargando ubicaciones...</div>
         </div>
     </div>
 </main>
 
-<!-- ============================================
-     NAVEGACIÓN
-============================================ -->
 <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchScreen('ruta', this)">
-        <i class="fa-solid fa-truck"></i><span>Mi Ruta</span>
+        <i class="fa-solid fa-list-check"></i><span>Mi Ruta</span>
     </div>
     <div class="nav-item" onclick="switchScreen('vender', this)">
         <i class="fa-solid fa-cash-register"></i><span>Vender</span>
     </div>
     <div class="nav-item" onclick="switchScreen('historial', this)">
         <i class="fa-solid fa-clock-rotate-left"></i><span>Historial</span>
+    </div>
+    <div class="nav-item" onclick="switchScreen('clientes', this)">
+        <i class="fa-solid fa-map-location-dot"></i><span>Directorio</span>
     </div>
 </nav>
 
@@ -410,6 +588,7 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 // ============================================
 let datosChoferLogueado = null;
 let unidadSeleccionadaId = null;
+let unidadActual = null;
 let stockActualUnidad = 0;
 let capacidadMaxUnidad = 0;
 let latitudActual = null;
@@ -417,11 +596,14 @@ let longitudActual = null;
 let watchPositionId = null;
 let entregasGlobales = [];
 let clientesGlobal = [];
+let clientesDeRuta = [];
 let clienteSeleccionadoActual = null;
+let vaciosModoManual = false; // ← NUEVO: controla auto vs manual
 
 const fmtBs = (val) => `Bs. ${Number(val).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const formatTime = (s) => new Date(s).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
-document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+const hoyTexto = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+document.getElementById('ruta-fecha').innerText = hoyTexto.toUpperCase();
 
 // ============================================
 // NAVEGACIÓN
@@ -431,16 +613,22 @@ function switchScreen(name, navEl) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     if (navEl) navEl.classList.add('active');
-    if (name === 'ruta') buscarRutaActiva();
+
+    if (name === 'ruta') { buscarRutaActiva(); cargarClientesDeRuta(); }
     if (name === 'historial') fetchHistorialVentasChofer();
+    if (name === 'clientes') renderDirectorioGPS();
+    if (name === 'vender') {
+        // Al entrar a vender, si no hay cliente seleccionado, preparar auto
+        if (!vaciosModoManual) setVaciosAuto();
+    }
 }
 
 function abrirDirectorioClientes() {
-    switchScreen('clientes', null);
+    switchScreen('clientes', document.querySelectorAll('.nav-item')[3]);
 }
 
 // ============================================
-// LOGIN (usa rpc_login_chofer)
+// LOGIN
 // ============================================
 async function inicializarSesion() {
     const codigoGuardado = localStorage.getItem('chofer_codigo');
@@ -460,11 +648,9 @@ async function procesarLogin(codigo, esAutomatico = false) {
     if (!esAutomatico) btnSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verificando...';
 
     try {
-        // Llamada al RPC de login
         const { data, error } = await supabaseClient.rpc('rpc_login_chofer', {
             p_codigo: codigo.toUpperCase()
         });
-
         if (error) throw error;
 
         if (!data.success) {
@@ -484,6 +670,7 @@ async function procesarLogin(codigo, esAutomatico = false) {
         await buscarRutaActiva();
         await fetchHistorialVentasChofer();
         await cargarClientesGlobales();
+        await cargarClientesDeRuta();
 
     } catch (err) {
         console.error('Login error:', err);
@@ -524,10 +711,9 @@ function encenderMotorGPS() {
             longitudActual = position.coords.longitude;
             indicador.style.display = 'flex';
             indicador.className = 'gps-indicator';
-            indicador.innerHTML = '<i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS en vivo';
+            indicador.innerHTML = '<i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS transmitiendo';
 
             if (unidadSeleccionadaId) {
-                // Este UPDATE dispara el trigger que guarda en tracking_flota
                 await supabaseClient.from('flota')
                     .update({ latitud: latitudActual, longitud: longitudActual })
                     .eq('id', unidadSeleccionadaId);
@@ -536,7 +722,7 @@ function encenderMotorGPS() {
         () => {
             indicador.style.display = 'flex';
             indicador.className = 'gps-indicator error';
-            indicador.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Activa el GPS celular';
+            indicador.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Activa el GPS del celular';
         },
         { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
     );
@@ -568,51 +754,347 @@ function getUbicacionPromise() {
 }
 
 // ============================================
-// CÁLCULO DE VENTA
+// RUTA ACTIVA
 // ============================================
-function calcularTotalVenta() {
-    const unidades = parseFloat(document.getElementById('venta-unidades').value) || 0;
-    const precio = parseFloat(document.getElementById('venta-precio-unit').value) || 0;
-    document.getElementById('venta-total-calc').value = fmtBs(unidades * precio);
+async function buscarRutaActiva() {
+    if (!datosChoferLogueado) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('flota')
+            .select('*, choferes(placa)')
+            .eq('chofer_id', datosChoferLogueado.id)
+            .eq('estado', 'ruta')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        const cardCamion = document.getElementById('card-camion');
+        const alerta = document.getElementById('alerta-sin-ruta');
+
+        if (data) {
+            unidadSeleccionadaId = data.id;
+            unidadActual = data;
+            stockActualUnidad = data.stock_actual;
+            capacidadMaxUnidad = data.capacidad_maxima;
+
+            alerta.style.display = 'none';
+            cardCamion.style.display = 'block';
+
+            const pct = Math.max(0, Math.min(100, (stockActualUnidad / capacidadMaxUnidad) * 100));
+            document.getElementById('card-route-name').innerHTML = `<i class="fa-solid fa-route"></i> ${data.nombre}`;
+            document.getElementById('card-placa').innerText = `Placa: ${data.choferes?.placa || 'N/A'}`;
+            document.getElementById('card-stock-actual').innerText = stockActualUnidad;
+            document.getElementById('card-capacidad-max').innerText = capacidadMaxUnidad;
+            document.getElementById('card-inventory-fill').style.width = pct + '%';
+            document.getElementById('card-porcentaje').innerText = Math.round(pct) + '%';
+            document.getElementById('card-inventory-fill').className = pct < 25 ? 'inventory-fill low' : 'inventory-fill';
+
+            const stockInfo = document.getElementById('stock-disponible-info');
+            if (stockInfo) stockInfo.textContent = `Stock disponible: ${stockActualUnidad} botellones`;
+
+            encenderMotorGPS();
+
+        } else {
+            unidadSeleccionadaId = null;
+            unidadActual = null;
+            if (watchPositionId) navigator.geolocation.clearWatch(watchPositionId);
+            document.getElementById('gps-status-indicator').style.display = 'none';
+            alerta.style.display = 'block';
+            cardCamion.style.display = 'none';
+        }
+    } catch (err) {
+        console.error("Error ruta:", err);
+    }
 }
 
+// ============================================
+// CLIENTES DE LA RUTA
+// ============================================
+async function cargarClientesDeRuta() {
+    const cont = document.getElementById('lista-ruta-clientes');
+    const statsContainer = document.getElementById('ruta-stats-container');
+
+    if (!unidadActual) {
+        cont.innerHTML = '<div class="loading-text">Activa una ruta primero.</div>';
+        statsContainer.style.display = 'none';
+        return;
+    }
+
+    cont.innerHTML = '<div class="loading-text">Cargando clientes...</div>';
+
+    try {
+        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const diaHoy = dias[new Date().getDay()];
+
+        let query = supabaseClient.from('clientes').select('*').eq('activo', true);
+        if (unidadActual.ruta_id) {
+            query = query.or(`ruta_id.eq.${unidadActual.ruta_id},zona.eq.${unidadActual.nombre}`);
+        } else {
+            query = query.eq('zona', unidadActual.nombre);
+        }
+
+        const { data, error } = await query.order('orden_visita').order('nombre');
+        if (error) throw error;
+
+        let filtrados = (data || []).filter(c => !c.dia_visita || c.dia_visita === diaHoy);
+        clientesDeRuta = filtrados;
+
+        if (!filtrados.length) {
+            cont.innerHTML = `
+                <div class="loading-text">
+                    <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.5;"></i>
+                    No hay clientes asignados a tu ruta para hoy (${diaHoy}).
+                </div>`;
+            statsContainer.style.display = 'none';
+            return;
+        }
+
+        const clientesVisitadosHoy = new Set();
+        entregasGlobales.forEach(e => {
+            if (e.cliente_id) clientesVisitadosHoy.add(e.cliente_id);
+        });
+
+        const totalVisitados = filtrados.filter(c => clientesVisitadosHoy.has(c.id)).length;
+        const totalPendientes = filtrados.length - totalVisitados;
+
+        document.getElementById('ruta-stat-total').innerText = filtrados.length;
+        document.getElementById('ruta-stat-visitados').innerText = totalVisitados;
+        document.getElementById('ruta-stat-pendientes').innerText = totalPendientes;
+        statsContainer.style.display = 'block';
+
+        cont.innerHTML = filtrados.map((c, i) => {
+            const visitado = clientesVisitadosHoy.has(c.id);
+            const tieneGps = c.latitud && c.longitud;
+
+            let mapsUrl;
+            if (tieneGps) {
+                mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${c.latitud},${c.longitud}&travelmode=driving`;
+            } else {
+                const query = encodeURIComponent(`${c.nombre} ${c.direccion || ''} Santa Cruz Bolivia`);
+                mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+            }
+
+            const envases = c.saldo_envases_prestados || 0;
+            const saldo = c.saldo_pendiente || 0;
+
+            return `
+                <div class="ruta-cliente-card ${visitado ? 'visitado' : 'pendiente'}">
+                    <div class="client-number">
+                        ${visitado ? '<i class="fa-solid fa-check"></i>' : (i + 1)}
+                    </div>
+                    <div class="client-info">
+                        <div class="client-name">${c.nombre}</div>
+                        <div class="client-detail">
+                            ${c.telefono ? `<span><i class="fa-solid fa-phone"></i> ${c.telefono}</span>` : ''}
+                            ${visitado ? `<span style="color: var(--success); font-weight: 800;"><i class="fa-solid fa-check-circle"></i> Visitado</span>` : ''}
+                        </div>
+                        ${envases > 0 ? `<div class="client-debt-badge"><i class="fa-solid fa-bottle-water"></i> ${envases} envases</div>` : ''}
+                        ${saldo > 0 ? `<div class="client-debt-badge" style="margin-left: 4px;"><i class="fa-solid fa-money-bill"></i> ${fmtBs(saldo)}</div>` : ''}
+                    </div>
+                    <div class="client-actions-ruta">
+                        <a href="${mapsUrl}" target="_blank" class="btn-ruta-nav ${tieneGps ? '' : 'sin-gps'}">
+                            <i class="fa-solid fa-${tieneGps ? 'diamond-turn-right' : 'magnifying-glass'}"></i>
+                        </a>
+                        ${!visitado ? `
+                            <button class="btn-ruta-nav vender" onclick="venderAClienteDeRuta('${c.id}')">
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+
+    } catch (err) {
+        console.error('Error clientes ruta:', err);
+        cont.innerHTML = '<div class="loading-text">Error al cargar clientes.</div>';
+    }
+}
+
+function venderAClienteDeRuta(clienteId) {
+    const c = clientesDeRuta.find(x => String(x.id) === String(clienteId));
+    if (!c) return;
+
+    switchScreen('vender', document.querySelectorAll('.nav-item')[1]);
+
+    document.getElementById('venta-cliente').value = c.nombre;
+    clienteSeleccionadoActual = c;
+    actualizarInfoEnvases();
+    actualizarPreviewEnvases(); // ← recalc preview con el nuevo cliente
+
+    setTimeout(() => document.getElementById('venta-unidades').focus(), 300);
+}
+
+// ============================================
+// CÁLCULO DE VENTA + AUTO-SYNC DE VACÍOS
+// ============================================
+function calcularTotalVenta() {
+    const unidades = parseInt(document.getElementById('venta-unidades').value) || 0;
+    const precio = parseFloat(document.getElementById('venta-precio-unit').value) || 0;
+    document.getElementById('venta-total-calc').value = fmtBs(unidades * precio);
+
+    // 🔄 Si estamos en modo automático, sincronizar vacíos = unidades
+    if (!vaciosModoManual) {
+        document.getElementById('venta-vacios-recogidos').value = unidades;
+    }
+
+    actualizarPreviewEnvases();
+}
+
+// ============ CONTROL HÍBRIDO DE VACÍOS ============
+
+/**
+ * Ajusta los vacíos con los botones +/-
+ * Cambia a modo MANUAL automáticamente
+ */
+function ajustarVacios(delta) {
+    const input = document.getElementById('venta-vacios-recogidos');
+    const actual = parseInt(input.value) || 0;
+    const nuevo = Math.max(0, actual + delta);
+    input.value = nuevo;
+
+    // Si el delta fue +1 y estamos en auto, cambiamos a manual
+    // Pero si vuelve a coincidir con las unidades, volvemos a auto
+    const unidades = parseInt(document.getElementById('venta-unidades').value) || 0;
+    if (nuevo === unidades) {
+        setModoAuto();
+    } else {
+        setModoManual();
+    }
+    actualizarPreviewEnvases();
+}
+
+/**
+ * Detecta cuando el usuario escribe directo en el input
+ */
+function marcarModoManualPorInput() {
+    const input = document.getElementById('venta-vacios-recogidos');
+    const unidades = parseInt(document.getElementById('venta-unidades').value) || 0;
+    const valor = parseInt(input.value) || 0;
+
+    if (valor === unidades) {
+        setModoAuto();
+    } else {
+        setModoManual();
+    }
+    actualizarPreviewEnvases();
+}
+
+/**
+ * Intercambio 1×1 automático: vacíos = botellones entregados
+ */
+function setVaciosAuto() {
+    const unidades = parseInt(document.getElementById('venta-unidades').value) || 0;
+    document.getElementById('venta-vacios-recogidos').value = unidades;
+    setModoAuto();
+    actualizarPreviewEnvases();
+}
+
+/**
+ * Botón rápido: cero vacíos recogidos
+ */
+function setVaciosCero() {
+    document.getElementById('venta-vacios-recogidos').value = 0;
+    setModoManual();
+    actualizarPreviewEnvases();
+}
+
+function setModoAuto() {
+    vaciosModoManual = false;
+    const control = document.getElementById('envases-control');
+    const pill = document.getElementById('envases-mode-pill');
+    control.classList.remove('manual');
+    pill.innerHTML = '<i class="fa-solid fa-rotate"></i> Auto';
+}
+
+function setModoManual() {
+    vaciosModoManual = true;
+    const control = document.getElementById('envases-control');
+    const pill = document.getElementById('envases-mode-pill');
+    control.classList.add('manual');
+    pill.innerHTML = '<i class="fa-solid fa-pen"></i> Manual';
+}
+
+/**
+ * Actualiza el preview dinámico: muestra cómo quedará el saldo del cliente
+ */
+function actualizarPreviewEnvases() {
+    const preview = document.getElementById('envases-preview');
+    const texto = document.getElementById('envases-preview-text');
+
+    if (!clienteSeleccionadoActual) {
+        preview.className = 'envases-preview neutral';
+        preview.querySelector('i').className = 'fa-solid fa-info-circle';
+        texto.innerHTML = 'Selecciona un cliente para ver su saldo';
+        return;
+    }
+
+    const unidades = parseInt(document.getElementById('venta-unidades').value) || 0;
+    const vaciosRecogidos = parseInt(document.getElementById('venta-vacios-recogidos').value) || 0;
+    const envasesActuales = clienteSeleccionadoActual.saldo_envases_prestados || 0;
+
+    // Cálculo: el cliente tendrá los actuales + entregados - recogidos
+    const nuevosPrestados = envasesActuales + unidades - vaciosRecogidos;
+
+    let icono, clase, mensaje;
+
+    if (nuevosPrestados === 0) {
+        icono = 'fa-check-circle';
+        clase = 'good';
+        mensaje = `✓ Cliente queda <strong>sin envases pendientes</strong> (intercambio completo)`;
+    } else if (nuevosPrestados > 0) {
+        icono = 'fa-exclamation-triangle';
+        clase = 'warn';
+        mensaje = `El cliente quedará con <strong>${nuevosPrestados} envase${nuevosPrestados > 1 ? 's' : ''} pendiente${nuevosPrestados > 1 ? 's' : ''}</strong> (tenía ${envasesActuales}, recibe ${unidades}, devuelve ${vaciosRecogidos})`;
+    } else {
+        icono = 'fa-hand-holding-heart';
+        clase = 'good';
+        mensaje = `El cliente <strong>devolvió ${Math.abs(nuevosPrestados)} envase${Math.abs(nuevosPrestados) > 1 ? 's' : ''} de más</strong> (quedará con 0)`;
+    }
+
+    preview.className = 'envases-preview ' + clase;
+    preview.querySelector('i').className = 'fa-solid ' + icono;
+    texto.innerHTML = mensaje;
+}
+
+// ============================================
+// SELECCIÓN DE ESTADO DE ENTREGA
+// ============================================
 function seleccionarEstado(estado) {
     document.querySelectorAll('.btn-state').forEach(b => b.classList.remove('selected'));
     document.querySelector(`.btn-state[data-estado="${estado}"]`).classList.add('selected');
     document.getElementById('venta-estado').value = estado;
 
-    // Si no se entrega, deshabilitar campos que no aplican
     const esEntregado = estado === 'Entregado';
     document.getElementById('venta-unidades').disabled = !esEntregado;
     document.getElementById('venta-precio-unit').disabled = !esEntregado;
     document.getElementById('venta-metodo').disabled = !esEntregado;
     document.getElementById('venta-vacios-recogidos').disabled = !esEntregado;
+
     if (!esEntregado) {
         document.getElementById('venta-total-calc').value = 'Bs. 0.00';
+        document.getElementById('venta-vacios-recogidos').value = 0;
+        setModoManual();
+    } else {
+        // Si vuelve a Entregado, restaurar auto si aplica
+        if (!vaciosModoManual) setVaciosAuto();
     }
+
+    actualizarPreviewEnvases();
 }
 
 function actualizarInfoEnvases() {
-    const info = document.getElementById('envases-info');
-    if (!clienteSeleccionadoActual) {
-        info.textContent = 'Sin datos del cliente';
-        return;
-    }
-    const prestados = clienteSeleccionadoActual.saldo_envases_prestados || 0;
-    const saldo = clienteSeleccionadoActual.saldo_pendiente || 0;
-    let texto = `Envases prestados: ${prestados}`;
-    if (saldo > 0) texto += ` | Saldo: ${fmtBs(saldo)}`;
-    info.textContent = texto;
+    // Esta función ahora solo es llamada desde el input de cliente
+    actualizarPreviewEnvases();
 }
 
-// ============================================
-// DETECTAR CLIENTE AL ESCRIBIR
-// ============================================
+// Detectar cliente al escribir
 document.getElementById('venta-cliente').addEventListener('input', (e) => {
     const nombre = e.target.value.trim().toLowerCase();
     const cliente = clientesGlobal.find(c => c.nombre.toLowerCase() === nombre);
     clienteSeleccionadoActual = cliente || null;
-    actualizarInfoEnvases();
+    actualizarPreviewEnvases();
 });
 
 // ============================================
@@ -633,7 +1115,7 @@ async function cargarClientesGlobales() {
 }
 
 // ============================================
-// FLUJO DE VENTA CON VALIDACIÓN
+// FLUJO DE VENTA
 // ============================================
 document.getElementById('form-venta-chofer').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -648,19 +1130,16 @@ document.getElementById('form-venta-chofer').addEventListener('submit', (e) => {
 
     if (!clienteInput) return alert("Ingresa el nombre del cliente.");
 
-    // Si está entregado, validar stock
     if (estado === 'Entregado') {
         if (unidades <= 0) return alert("Ingresa la cantidad de botellones.");
         if (unidades > stockActualUnidad) return alert(`Stock insuficiente. Disponible: ${stockActualUnidad}`);
     }
 
-    // Verificar si el cliente ya existe en la BD global
-    const clienteExiste = clientesGlobal.some(c => c.nombre.toLowerCase() === clienteInput.toLowerCase());
+    const existe = clientesGlobal.some(c => c.nombre.toLowerCase() === clienteInput.toLowerCase());
 
-    if (clienteExiste) {
+    if (existe) {
         registrarVentaFinal(clienteInput, null, null, null);
     } else {
-        // Cliente nuevo → modal de confirmación con GPS
         document.getElementById('flujo-nuevo-nombre').innerText = clienteInput;
         document.getElementById('flujo-nuevo-telefono').value = '';
         document.getElementById('flujo-toggle-gps').checked = true;
@@ -712,7 +1191,7 @@ async function ejecutarVentaConClienteNuevo() {
 }
 
 // ============================================
-// REGISTRAR VENTA — USA RPC ATÓMICO
+// REGISTRAR VENTA CON RPC
 // ============================================
 async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
     const btn = document.getElementById('btn-submit-venta');
@@ -729,7 +1208,6 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
     try {
-        // ✅ UNA SOLA LLAMADA ATÓMICA
         const { data, error } = await supabaseClient.rpc('rpc_registrar_venta', {
             p_flota_id: unidadSeleccionadaId,
             p_cliente_id: clienteSeleccionadoActual?.id || null,
@@ -753,16 +1231,23 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
         document.getElementById('venta-total-calc').value = 'Bs. 0.00';
         document.getElementById('venta-estado').value = 'Entregado';
         document.getElementById('venta-vacios-recogidos').value = '0';
+        document.getElementById('venta-unidades').disabled = false;
+        document.getElementById('venta-precio-unit').disabled = false;
+        document.getElementById('venta-metodo').disabled = false;
+        document.getElementById('venta-vacios-recogidos').disabled = false;
         seleccionarEstado('Entregado');
         clienteSeleccionadoActual = null;
-        actualizarInfoEnvases();
+        setModoAuto(); // ← vuelve a modo automático
+        actualizarPreviewEnvases();
 
-        alert(`✅ ${estado}. Total: ${fmtBs(total)}`);
+        alert(`✅ ${estado}. Total: ${fmtBs(total)}\n🔄 Vacíos recogidos: ${vaciosRecogidos}`);
 
         await buscarRutaActiva();
         await fetchHistorialVentasChofer();
         await cargarClientesGlobales();
-        switchScreen('historial', document.querySelectorAll('.nav-item')[2]);
+        await cargarClientesDeRuta();
+
+        switchScreen('ruta', document.querySelectorAll('.nav-item')[0]);
 
     } catch (err) {
         console.error('Error venta:', err);
@@ -772,62 +1257,6 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Procesar Venta';
-    }
-}
-
-// ============================================
-// RUTA ACTIVA
-// ============================================
-async function buscarRutaActiva() {
-    if (!datosChoferLogueado) return;
-    try {
-        const { data, error } = await supabaseClient
-            .from('flota')
-            .select('*, choferes(placa)')
-            .eq('chofer_id', datosChoferLogueado.id)
-            .eq('estado', 'ruta')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        if (error) throw error;
-
-        const cardCamion = document.getElementById('card-camion');
-        const alerta = document.getElementById('alerta-sin-ruta');
-
-        if (data) {
-            unidadSeleccionadaId = data.id;
-            stockActualUnidad = data.stock_actual;
-            capacidadMaxUnidad = data.capacidad_maxima;
-
-            alerta.style.display = 'none';
-            cardCamion.style.display = 'block';
-
-            const pct = Math.max(0, Math.min(100, (stockActualUnidad / capacidadMaxUnidad) * 100));
-            document.getElementById('card-route-name').innerHTML = `<i class="fa-solid fa-route"></i> ${data.nombre}`;
-            document.getElementById('card-placa').innerText = `Placa: ${data.choferes?.placa || 'N/A'}`;
-            document.getElementById('card-stock-actual').innerText = stockActualUnidad;
-            document.getElementById('card-capacidad-max').innerText = capacidadMaxUnidad;
-            document.getElementById('card-inventory-fill').style.width = pct + '%';
-            document.getElementById('card-porcentaje').innerText = Math.round(pct) + '%';
-            document.getElementById('card-inventory-fill').className = pct < 25 ? 'inventory-fill low' : 'inventory-fill';
-
-            // Actualizar info de stock en el form de venta
-            const stockInfo = document.getElementById('stock-disponible-info');
-            if (stockInfo) stockInfo.textContent = `Stock disponible: ${stockActualUnidad} botellones`;
-
-            encenderMotorGPS();
-
-        } else {
-            unidadSeleccionadaId = null;
-            if (watchPositionId) navigator.geolocation.clearWatch(watchPositionId);
-            document.getElementById('gps-status-indicator').style.display = 'none';
-            alerta.style.display = 'block';
-            cardCamion.style.display = 'none';
-            document.getElementById('driver-delivery-list').innerHTML = '<div class="loading-text">No hay ruta activa.</div>';
-        }
-    } catch (err) {
-        console.error("Error ruta:", err);
     }
 }
 
@@ -852,12 +1281,10 @@ async function fetchHistorialVentasChofer() {
         if (error) throw error;
         entregasGlobales = data || [];
 
-        // Actualizar datalist
         const datalist = document.getElementById('clientes-datalist');
         const unicos = [...new Set(entregasGlobales.map(e => e.cliente))];
         datalist.innerHTML = unicos.map(n => `<option value="${n}">`).join('');
 
-        // Resumen del día
         const ventasBs = entregasGlobales
             .filter(e => (e.estado || 'Entregado') === 'Entregado')
             .reduce((a, e) => a + Number(e.total), 0);
@@ -868,7 +1295,6 @@ async function fetchHistorialVentasChofer() {
         document.getElementById('resumen-ventas-count').innerText = ventasCount;
         document.getElementById('historial-total-count').innerText = `${entregasGlobales.length} registros`;
 
-        // Render historial
         const contenedor = document.getElementById('driver-delivery-list');
         if (!entregasGlobales.length) {
             contenedor.innerHTML = '<div class="loading-text">No hay ventas registradas aún hoy.</div>';
@@ -887,6 +1313,9 @@ async function fetchHistorialVentasChofer() {
                     'Pendiente': 'st-pendiente'
                 }[estado] || 'st-entregado';
 
+                const vacios = e.vacios_devueltos || 0;
+                const badgeVacios = vacios > 0 ? ` • <span style="color: var(--success); font-weight: 700;">🔄 ${vacios} vacíos</span>` : '';
+
                 return `
                     <div class="delivery-item">
                         <div class="delivery-left">
@@ -894,7 +1323,7 @@ async function fetchHistorialVentasChofer() {
                             <div style="min-width: 0;">
                                 <div class="delivery-client">${e.cliente}</div>
                                 <div class="delivery-meta-sub">
-                                    <span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span>
+                                    <span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span>${badgeVacios}
                                 </div>
                             </div>
                         </div>
@@ -907,7 +1336,6 @@ async function fetchHistorialVentasChofer() {
             }).join('');
         }
 
-        // Directorio GPS
         renderDirectorioGPS();
 
     } catch (err) {
@@ -926,7 +1354,7 @@ function renderDirectorioGPS() {
     document.getElementById('clientes-gps-count').innerText = `${conGps.length} ubicaciones`;
 
     if (!conGps.length) {
-        contenedor.innerHTML = '<div class="loading-text">No hay clientes con GPS guardado.</div>';
+        contenedor.innerHTML = '<div class="loading-text">No hay clientes con GPS guardado todavía.</div>';
         return;
     }
 
@@ -940,7 +1368,7 @@ function renderDirectorioGPS() {
                 </div>
                 <div class="client-gps-info">
                     <div><strong>Info:</strong> ${e.referencia_ubicacion || 'Sin detalles'}</div>
-                    <div><strong>Fecha:</strong> ${formatTime(e.created_at)}</div>
+                    <div><strong>Registro:</strong> ${formatTime(e.created_at)}</div>
                 </div>
                 <a href="${linkNav}" target="_blank" class="btn-primary btn-success" style="text-decoration: none; padding: 10px; font-size: 0.85rem;">
                     <i class="fa-solid fa-location-arrow"></i> Navegar
@@ -959,6 +1387,11 @@ function suscribirRealtime() {
         })
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'entregas' }, () => {
             fetchHistorialVentasChofer();
+            cargarClientesDeRuta();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => {
+            cargarClientesGlobales();
+            cargarClientesDeRuta();
         })
         .subscribe();
 }
@@ -973,6 +1406,10 @@ document.addEventListener('DOMContentLoaded', () => {
         procesarLogin(document.getElementById('input-codigo').value.trim());
     });
     suscribirRealtime();
+
+    // Inicializar preview
+    setModoAuto();
+    actualizarPreviewEnvases();
 });
 </script>
 </body>
