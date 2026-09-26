@@ -31,7 +31,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.4; padding-bottom: 80px; }
 
-        /* HEADER */
         header { background-color: rgba(15,23,42,0.92); backdrop-filter: blur(12px); color: var(--surface); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
         .logo { font-size: 1.15rem; font-weight: 900; display: flex; align-items: center; gap: 10px; }
         .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #38bdf8, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.9rem; }
@@ -40,7 +39,6 @@
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.7);} 70% { box-shadow: 0 0 0 6px rgba(52,211,153,0);} 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0);} }
         .tutorial-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
 
-        /* NAV */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--surface); border-top: 1px solid var(--border); box-shadow: var(--shadow-nav); display: flex; overflow-x: auto; padding: 8px 4px; padding-bottom: env(safe-area-inset-bottom, 12px); z-index: 999; scrollbar-width: none; }
         .bottom-nav::-webkit-scrollbar { display: none; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 0.55rem; font-weight: 700; cursor: pointer; transition: all 0.2s; min-width: 62px; padding: 4px 6px; flex-shrink: 0; border-radius: 8px; }
@@ -48,7 +46,6 @@
         .nav-item.active { color: var(--primary); background: var(--primary-light); }
         .nav-item.active i { transform: translateY(-2px); }
 
-        /* LAYOUT */
         main { padding: 1.25rem; max-width: 520px; margin: 0 auto; }
         .screen { display: none; animation: fadeInScreen 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
         .screen.active { display: block; }
@@ -57,7 +54,6 @@
         .section-title { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
         .section-badge { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 
-        /* KPI */
         .kpi-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 1.5rem; }
         .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); }
         .kpi-card.featured { grid-column: span 2; background: linear-gradient(135deg,#0f172a 0%,#1e293b 100%); color: white; border: none; box-shadow: var(--shadow-md); }
@@ -71,14 +67,12 @@
         .kpi-trend { margin-top: 8px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background-color: var(--success-light); color: var(--success); }
         .kpi-card.featured .kpi-trend { background-color: rgba(16,185,129,0.2); color: #34d399; }
 
-        /* CHART */
         .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; }
         .chart-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--border); }
         .chart-stat-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
         .chart-stat-val { font-size: 1.05rem; font-weight: 800; color: var(--primary-dark); margin-top: 2px; }
         .chart-container { position: relative; height: 180px; width: 100%; }
 
-        /* CARDS */
         .admin-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 1.5rem; }
         .form-card { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); }
         .form-title { font-size: 0.9rem; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: var(--primary-dark); }
@@ -88,12 +82,10 @@
         .input-group textarea { resize: vertical; min-height: 60px; }
         .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: var(--primary); background: var(--surface); }
 
-        /* BOTONES */
         .btn-primary { width: 100%; background: linear-gradient(135deg,#0284c7,#0369a1); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-family: inherit; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
         .btn-secondary { background: linear-gradient(135deg,#10b981,#059669); }
         .btn-dark { background: #0f172a; }
-        .btn-purple { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
         .btn-outline { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
         .btn-export { background: linear-gradient(135deg,#16a34a,#15803d); color: white; border: none; }
         .btn-sm { padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; border: none; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
@@ -101,10 +93,7 @@
         .btn-sm-success { background: #dcfce7; color: #15803d; }
         .btn-sm-warning { background: var(--warning-light); color: #b45309; }
         .btn-sm-danger { background: var(--danger-light); color: #991b1b; }
-        .btn-sm-purple { background: var(--purple-light); color: var(--purple); }
-        .btn-sm-dark { background: #e2e8f0; color: #475569; }
 
-        /* TABLAS */
         .table-container { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid var(--border); }
         .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: var(--surface); }
         .data-table th, .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
@@ -114,20 +103,10 @@
         .acc-debit { color: var(--success); font-weight: 700; }
         .acc-credit { color: var(--danger); font-weight: 700; }
 
-        /* PRODUCTOS */
-        .producto-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
-            padding: 1rem; box-shadow: var(--shadow-sm); display: flex; gap: 12px; align-items: flex-start;
-            transition: all 0.2s;
-        }
+        .producto-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); display: flex; gap: 12px; align-items: flex-start; transition: all 0.2s; }
         .producto-card.stock-bajo { border-left: 4px solid var(--warning); }
         .producto-card.sin-stock { border-left: 4px solid var(--danger); opacity: 0.85; }
-        .producto-avatar {
-            width: 48px; height: 48px; border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary-light), #bae6fd);
-            color: var(--primary-dark); font-size: 1.3rem;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
+        .producto-avatar { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--primary-light), #bae6fd); color: var(--primary-dark); font-size: 1.3rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .producto-avatar.cat-bebida { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #b45309; }
         .producto-avatar.cat-snack { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
         .producto-avatar.cat-hielo { background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0369a1; }
@@ -140,41 +119,24 @@
         .producto-precio-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
         .producto-precio-valor { font-weight: 800; font-size: 0.85rem; }
         .producto-precio-valor.margen { color: var(--success); }
-        .producto-stock {
-            display: flex; align-items: center; gap: 6px;
-            background: var(--surface-subtle); border-radius: 8px;
-            padding: 6px 10px; margin-top: 6px;
-            font-size: 0.75rem; font-weight: 700;
-        }
+        .producto-stock { display: flex; align-items: center; gap: 6px; background: var(--surface-subtle); border-radius: 8px; padding: 6px 10px; margin-top: 6px; font-size: 0.75rem; font-weight: 700; }
         .producto-stock.low { background: var(--warning-light); color: #b45309; }
         .producto-stock.out { background: var(--danger-light); color: #991b1b; }
         .producto-stock-num { font-size: 1rem; font-weight: 900; }
         .producto-actions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
-        .btn-icon {
-            width: 32px; height: 32px; border-radius: 8px; border: none;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 0.85rem; transition: all 0.15s;
-        }
-        .btn-icon:active { transform: scale(0.92); }
+        .btn-icon { width: 32px; height: 32px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; }
         .btn-icon-primary { background: var(--primary-light); color: var(--primary-dark); }
-        .btn-icon-success { background: var(--success-light); color: var(--success); }
+        .btn-icon-purple { background: var(--purple-light); color: var(--purple); }
         .btn-icon-warning { background: var(--warning-light); color: var(--warning); }
         .btn-icon-danger { background: var(--danger-light); color: var(--danger); }
-        .btn-icon-purple { background: var(--purple-light); color: var(--purple); }
 
-        /* CARRITO */
-        .cart-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px; background: var(--surface-subtle);
-            border-radius: 10px; margin-bottom: 8px;
-        }
+        .cart-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--surface-subtle); border-radius: 10px; margin-bottom: 8px; }
         .cart-item-info { flex: 1; min-width: 0; }
         .cart-item-nombre { font-weight: 700; font-size: 0.85rem; }
         .cart-item-detalle { font-size: 0.7rem; color: var(--text-muted); }
         .cart-item-actions { display: flex; gap: 4px; }
         .cart-empty { padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.8rem; }
 
-        /* MODALES */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.7); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-container { background: var(--surface); width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 20px; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -187,21 +149,16 @@
         .btn-solid-green { background-color: var(--success); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-solid-danger { background-color: var(--danger); }
         .btn-solid-warning { background-color: var(--warning); }
-        .btn-solid-purple { background-color: var(--purple); }
 
-        /* INFO */
         .loading-text { text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; padding: 20px; }
         .info-block { background: var(--primary-light); border-left: 3px solid var(--primary); padding: 10px 12px; border-radius: 6px; font-size: 0.78rem; color: var(--primary-dark); margin-bottom: 12px; text-align: left; }
-        .warn-block { background: var(--warning-light); border-left: 3px solid var(--warning); padding: 10px 12px; border-radius: 6px; font-size: 0.78rem; color: #b45309; margin-bottom: 12px; text-align: left; }
         .hist-row { padding: 8px 10px; background: var(--surface-subtle); border-radius: 8px; margin-bottom: 6px; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: center; }
 
-        /* MAPA */
         #live-map { width: 100%; height: 400px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 15px; }
         .map-legend { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; font-size: 0.75rem; }
         .map-legend-item { display: flex; align-items: center; gap: 6px; font-weight: 600; }
         .legend-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3); }
 
-        /* FLEET */
         .fleet-wrapper { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; }
         .fleet-card { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); }
         .fleet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -212,7 +169,6 @@
         .fleet-producto-chip { font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--primary-light); color: var(--primary-dark); }
         .fleet-producto-chip.low { background: var(--warning-light); color: #b45309; }
 
-        /* DELIVERY */
         .delivery-list-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
         .delivery-item { background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.9rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
         .delivery-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -231,7 +187,6 @@
         .st-no-entregado { background: #fee2e2; color: #b91c1c; }
         .st-pendiente { background: #fef3c7; color: #b45309; }
 
-        /* CLIENTES */
         .client-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px; }
         .client-number { width: 40px; height: 40px; background: var(--primary-light); color: var(--primary-dark); font-weight: 800; font-size: 1.1rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .client-info { flex: 1; text-align: left; min-width: 0; }
@@ -242,19 +197,27 @@
         .client-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
         .btn-location { background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; justify-content: center; }
 
-        /* FABRICA */
         .factory-kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .factory-kpi-card { background: var(--surface-subtle); padding: 12px; border-radius: 8px; text-align: center; }
         .factory-kpi-value { font-size: 1.5rem; font-weight: 900; color: var(--primary-dark); }
         .factory-kpi-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
 
-        /* STOCK BAJO ALERT */
-        .stock-alert-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; background: var(--warning-light); border-radius: 8px;
-            margin-bottom: 6px; border-left: 3px solid var(--warning);
-        }
+        .stock-alert-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--warning-light); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid var(--warning); }
         .stock-alert-item.out { background: var(--danger-light); border-left-color: var(--danger); }
+
+        #tutorial-overlay { position: fixed; inset: 0; z-index: 10000; pointer-events: none; display: none; }
+        #tutorial-highlight { position: fixed; pointer-events: none; box-shadow: 0 0 0 9999px rgba(15,23,42,0.85); border-radius: 14px; transition: all 0.35s cubic-bezier(0.16,1,0.3,1); z-index: 10001; border: 2px solid #38bdf8; }
+        #tutorial-card { position: fixed; background: white; border-radius: 16px; padding: 20px; max-width: 380px; box-shadow: 0 25px 70px rgba(0,0,0,0.4); pointer-events: auto; z-index: 10002; transition: all 0.35s cubic-bezier(0.16,1,0.3,1); border: 2px solid var(--primary-light); }
+        #tutorial-progress { font-size: 0.7rem; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        #tutorial-sound-toggle { background: var(--surface-subtle); border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        #tutorial-title { font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px; line-height: 1.2; }
+        #tutorial-text { font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 18px; }
+        #tutorial-controls { display: flex; gap: 8px; align-items: center; }
+        #tutorial-controls button { padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: none; font-family: inherit; }
+        #tutorial-prev { background: var(--surface-subtle); color: var(--text-main); }
+        #tutorial-prev:disabled { opacity: 0.4; cursor: not-allowed; }
+        #tutorial-next { background: linear-gradient(135deg,#0284c7,#0369a1); color: white; flex: 1; }
+        #tutorial-skip { background: transparent; color: var(--text-muted); font-size: 0.75rem !important; padding: 8px 10px !important; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -271,7 +234,7 @@
 
 <main>
 
-    <!-- ============ INICIO ============ -->
+    <!-- INICIO -->
     <div id="screen-inicio" class="screen active">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> Balance de Hoy</h2>
@@ -344,7 +307,71 @@
         </div>
     </div>
 
-    <!-- ============ CLIENTES ============ -->
+    <!-- PRODUCTOS -->
+    <div id="screen-productos" class="screen">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> Productos</h2>
+            <span class="section-badge" id="productos-count">0</span>
+        </div>
+        <div class="admin-section">
+            <div class="form-card">
+                <div class="form-title"><i class="fa-solid fa-plus"></i> Nuevo Producto</div>
+                <form id="form-producto">
+                    <div class="input-group"><label>Nombre *</label><input type="text" id="prod-nombre" placeholder="Ej: Botellón 20L" required></div>
+                    <div style="display: flex; gap: 8px;">
+                        <div class="input-group" style="flex: 1;">
+                            <label>Categoría</label>
+                            <select id="prod-categoria">
+                                <option value="Agua">💧 Agua</option>
+                                <option value="Bebida">🥤 Bebida</option>
+                                <option value="Hielo">🧊 Hielo</option>
+                                <option value="Snack">🍫 Snack</option>
+                                <option value="General">📦 General</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="flex: 1;">
+                            <label>Unidad</label>
+                            <select id="prod-unidad">
+                                <option value="botellón">Botellón</option>
+                                <option value="unidad">Unidad</option>
+                                <option value="bolsa">Bolsa</option>
+                                <option value="caja">Caja</option>
+                                <option value="paquete">Paquete</option>
+                                <option value="litro">Litro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <div class="input-group" style="flex: 1;"><label>Costo (Bs) *</label><input type="number" step="0.1" id="prod-costo" placeholder="0.00" required></div>
+                        <div class="input-group" style="flex: 1;"><label>Precio Venta (Bs) *</label><input type="number" step="0.1" id="prod-precio" placeholder="0.00" required></div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <div class="input-group" style="flex: 1;"><label>Comisión Chofer (Bs)</label><input type="number" step="0.1" id="prod-comision" placeholder="0.00" value="0"></div>
+                        <div class="input-group" style="flex: 1;"><label>Stock Inicial</label><input type="number" id="prod-stock" placeholder="0" value="0"></div>
+                    </div>
+                    <div class="input-group"><label>Stock Mínimo (alerta)</label><input type="number" id="prod-stock-min" value="5"></div>
+                    <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="prod-requiere-envase" style="width: auto;">
+                        <label for="prod-requiere-envase" style="margin: 0; cursor: pointer;">🔄 Requiere envase retornable</label>
+                    </div>
+                    <div class="input-group"><label>Descripción</label><textarea id="prod-descripcion" placeholder="Opcional"></textarea></div>
+                    <button type="submit" class="btn-primary btn-secondary"><i class="fa-solid fa-save"></i> Guardar Producto</button>
+                </form>
+            </div>
+
+            <div class="form-card">
+                <div class="form-title"><i class="fa-solid fa-list"></i> Catálogo de Productos</div>
+                <div class="input-group">
+                    <input type="text" id="buscar-producto" placeholder="🔍 Buscar..." oninput="renderProductos()">
+                </div>
+                <div id="lista-productos" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="loading-text">Cargando productos...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLIENTES -->
     <div id="screen-clientes" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-users" style="color: var(--primary);"></i> Clientes</h2>
@@ -398,84 +425,7 @@
         </div>
     </div>
 
-    <!-- ============ PRODUCTOS ============ -->
-    <div id="screen-productos" class="screen">
-        <div class="section-header">
-            <h2 class="section-title"><i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> Productos</h2>
-            <span class="section-badge" id="productos-count">0</span>
-        </div>
-
-        <div class="admin-section">
-            <div class="form-card">
-                <div class="form-title"><i class="fa-solid fa-plus"></i> Nuevo Producto</div>
-                <form id="form-producto">
-                    <div class="input-group"><label>Nombre *</label><input type="text" id="prod-nombre" placeholder="Ej: Botellón 20L" required></div>
-                    <div style="display: flex; gap: 8px;">
-                        <div class="input-group" style="flex: 1;">
-                            <label>Categoría</label>
-                            <select id="prod-categoria">
-                                <option value="Agua">💧 Agua</option>
-                                <option value="Bebida">🥤 Bebida</option>
-                                <option value="Hielo">🧊 Hielo</option>
-                                <option value="Snack">🍫 Snack</option>
-                                <option value="General">📦 General</option>
-                            </select>
-                        </div>
-                        <div class="input-group" style="flex: 1;">
-                            <label>Unidad</label>
-                            <select id="prod-unidad">
-                                <option value="botellón">Botellón</option>
-                                <option value="unidad">Unidad</option>
-                                <option value="bolsa">Bolsa</option>
-                                <option value="caja">Caja</option>
-                                <option value="paquete">Paquete</option>
-                                <option value="litro">Litro</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <div class="input-group" style="flex: 1;">
-                            <label>Costo (Bs) *</label>
-                            <input type="number" step="0.1" id="prod-costo" placeholder="0.00" required>
-                        </div>
-                        <div class="input-group" style="flex: 1;">
-                            <label>Precio Venta (Bs) *</label>
-                            <input type="number" step="0.1" id="prod-precio" placeholder="0.00" required>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <div class="input-group" style="flex: 1;">
-                            <label>Comisión Chofer (Bs)</label>
-                            <input type="number" step="0.1" id="prod-comision" placeholder="0.00" value="0">
-                        </div>
-                        <div class="input-group" style="flex: 1;">
-                            <label>Stock Inicial</label>
-                            <input type="number" id="prod-stock" placeholder="0" value="0">
-                        </div>
-                    </div>
-                    <div class="input-group"><label>Stock Mínimo (alerta)</label><input type="number" id="prod-stock-min" value="5"></div>
-                    <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" id="prod-requiere-envase" style="width: auto;">
-                        <label for="prod-requiere-envase" style="margin: 0; cursor: pointer;">🔄 Requiere envase retornable</label>
-                    </div>
-                    <div class="input-group"><label>Descripción</label><textarea id="prod-descripcion" placeholder="Opcional"></textarea></div>
-                    <button type="submit" class="btn-primary btn-secondary"><i class="fa-solid fa-save"></i> Guardar Producto</button>
-                </form>
-            </div>
-
-            <div class="form-card">
-                <div class="form-title"><i class="fa-solid fa-list"></i> Catálogo de Productos</div>
-                <div class="input-group">
-                    <input type="text" id="buscar-producto" placeholder="🔍 Buscar..." oninput="renderProductos()">
-                </div>
-                <div id="lista-productos" style="display: flex; flex-direction: column; gap: 10px;">
-                    <div class="loading-text">Cargando productos...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============ PEDIDOS ============ -->
+    <!-- PEDIDOS -->
     <div id="screen-pedidos" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-clipboard-list" style="color: var(--primary);"></i> Pedidos</h2>
@@ -503,7 +453,7 @@
         </div>
     </div>
 
-    <!-- ============ RUTAS ============ -->
+    <!-- RUTAS -->
     <div id="screen-rutas" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-route" style="color: var(--primary);"></i> Clientes por Ruta</h2>
@@ -531,14 +481,13 @@
         </div>
     </div>
 
-    <!-- ============ FÁBRICA ============ -->
+    <!-- FÁBRICA -->
     <div id="screen-fabrica" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-industry" style="color: var(--primary);"></i> Fábrica & Producción</h2>
             <span class="section-badge">Control Interno</span>
         </div>
         <div class="admin-section">
-
             <div class="form-card">
                 <div class="form-title"><i class="fa-solid fa-warehouse"></i> Inventario General</div>
                 <div class="table-container">
@@ -554,27 +503,14 @@
                 <form id="form-produccion">
                     <div class="input-group">
                         <label>Producto *</label>
-                        <select id="prod-produccion-select" required>
-                            <option value="">Cargando productos...</option>
-                        </select>
+                        <select id="prod-produccion-select" required><option value="">Cargando...</option></select>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <div class="input-group" style="flex: 1;">
-                            <label>Cantidad *</label>
-                            <input type="number" id="prod-produccion-cantidad" min="1" placeholder="Ej: 100" required>
-                        </div>
-                        <div class="input-group" style="flex: 1;">
-                            <label>Costo Unitario (Bs)</label>
-                            <input type="number" step="0.1" id="prod-produccion-costo" placeholder="Opcional">
-                        </div>
+                        <div class="input-group" style="flex: 1;"><label>Cantidad *</label><input type="number" id="prod-produccion-cantidad" min="1" placeholder="Ej: 100" required></div>
+                        <div class="input-group" style="flex: 1;"><label>Costo Unitario (Bs)</label><input type="number" step="0.1" id="prod-produccion-costo" placeholder="Opcional"></div>
                     </div>
-                    <div class="input-group">
-                        <label>Motivo / Notas</label>
-                        <input type="text" id="prod-produccion-motivo" placeholder="Producción del día" value="Producción">
-                    </div>
-                    <button type="submit" class="btn-primary btn-dark" id="btn-submit-prod">
-                        <i class="fa-solid fa-plus"></i> Ingresar al Inventario
-                    </button>
+                    <div class="input-group"><label>Motivo / Notas</label><input type="text" id="prod-produccion-motivo" placeholder="Producción del día" value="Producción"></div>
+                    <button type="submit" class="btn-primary btn-dark" id="btn-submit-prod"><i class="fa-solid fa-plus"></i> Ingresar al Inventario</button>
                 </form>
             </div>
 
@@ -583,9 +519,7 @@
                 <form id="form-ajuste">
                     <div class="input-group">
                         <label>Producto *</label>
-                        <select id="prod-ajuste-select" required>
-                            <option value="">Cargando...</option>
-                        </select>
+                        <select id="prod-ajuste-select" required><option value="">Cargando...</option></select>
                     </div>
                     <div class="input-group">
                         <label>Tipo de Ajuste</label>
@@ -596,17 +530,9 @@
                             <option value="compra">🛒 Compra externa</option>
                         </select>
                     </div>
-                    <div class="input-group">
-                        <label>Cantidad (positiva para sumar, negativa para restar) *</label>
-                        <input type="number" id="prod-ajuste-cantidad" placeholder="Ej: -5" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Motivo</label>
-                        <input type="text" id="prod-ajuste-motivo" placeholder="Detalle del ajuste">
-                    </div>
-                    <button type="submit" class="btn-primary" style="background: #64748b;">
-                        <i class="fa-solid fa-sliders"></i> Aplicar Ajuste
-                    </button>
+                    <div class="input-group"><label>Cantidad (positiva para sumar, negativa para restar) *</label><input type="number" id="prod-ajuste-cantidad" placeholder="Ej: -5" required></div>
+                    <div class="input-group"><label>Motivo</label><input type="text" id="prod-ajuste-motivo" placeholder="Detalle del ajuste"></div>
+                    <button type="submit" class="btn-primary" style="background: #64748b;"><i class="fa-solid fa-sliders"></i> Aplicar Ajuste</button>
                 </form>
             </div>
 
@@ -639,7 +565,7 @@
         </div>
     </div>
 
-    <!-- ============ FLOTA ============ -->
+    <!-- FLOTA -->
     <div id="screen-flota" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-truck-fast" style="color: var(--primary);"></i> Gestión de Flota</h2>
@@ -657,27 +583,18 @@
                         <label>Nombre de la Ruta / Zona *</label>
                         <input type="text" id="flota-ruta" placeholder="Ej: Ruta Norte" required>
                     </div>
-
-                    <div class="form-title" style="font-size: 0.8rem; margin-top: 15px; margin-bottom: 10px;">
-                        <i class="fa-solid fa-boxes-stacked"></i> Productos a cargar
-                    </div>
+                    <div class="form-title" style="font-size: 0.8rem; margin-top: 15px; margin-bottom: 10px;"><i class="fa-solid fa-boxes-stacked"></i> Productos a cargar</div>
                     <div class="input-group">
                         <label>Agregar producto</label>
                         <div style="display: flex; gap: 6px;">
-                            <select id="flota-add-producto" style="flex: 1;">
-                                <option value="">Seleccionar...</option>
-                            </select>
+                            <select id="flota-add-producto" style="flex: 1;"><option value="">Seleccionar...</option></select>
                             <input type="number" id="flota-add-cantidad" placeholder="Cant." min="1" style="width: 80px;">
-                            <button type="button" class="btn-primary" style="width: auto; padding: 12px 14px;" onclick="agregarProductoAlCarrito('despacho')">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
+                            <button type="button" class="btn-primary" style="width: auto; padding: 12px 14px;" onclick="agregarProductoAlCarrito('despacho')"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
-
                     <div id="carrito-despacho" style="margin-top: 10px;">
                         <div class="cart-empty"><i class="fa-solid fa-cart-shopping" style="font-size: 1.5rem; opacity: 0.4; display: block; margin-bottom: 6px;"></i>Sin productos agregados</div>
                     </div>
-
                     <button type="submit" class="btn-primary btn-secondary" id="btn-submit-flota" style="margin-top: 15px;">
                         <i class="fa-solid fa-paper-plane"></i> Iniciar Ruta
                     </button>
@@ -686,15 +603,11 @@
 
             <hr style="border: 0; border-top: 1px dashed var(--border);">
 
-            <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-dark); text-align: left;">
-                <i class="fa-solid fa-map-location-dot"></i> Unidades en Ruta
-            </h3>
-
+            <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-dark); text-align: left;"><i class="fa-solid fa-map-location-dot"></i> Unidades en Ruta</h3>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button class="btn-outline" onclick="exportarGlobalPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
                 <button class="btn-outline btn-export" onclick="exportarGlobalExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
             </div>
-
             <div class="fleet-wrapper" id="fleet-list"><div class="loading-text">Cargando flota...</div></div>
 
             <hr style="border: 0; border-top: 1px dashed var(--border);">
@@ -718,7 +631,7 @@
         </div>
     </div>
 
-    <!-- ============ MAPA ============ -->
+    <!-- MAPA -->
     <div id="screen-mapa" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-satellite-dish" style="color: var(--primary);"></i> Mapa en Vivo</h2>
@@ -738,7 +651,7 @@
         </div>
     </div>
 
-    <!-- ============ ENTREGAS ============ -->
+    <!-- ENTREGAS -->
     <div id="screen-entregas" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Entregas</h2>
@@ -760,7 +673,7 @@
         </div>
     </div>
 
-    <!-- ============ REPORTES ============ -->
+    <!-- REPORTES -->
     <div id="screen-reportes" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-chart-bar" style="color: var(--primary);"></i> Reportes</h2>
@@ -817,7 +730,7 @@
         </div>
     </div>
 
-    <!-- ============ FINANZAS ============ -->
+    <!-- FINANZAS -->
     <div id="screen-finanzas" class="screen">
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-wallet" style="color: var(--primary);"></i> Finanzas</h2>
@@ -903,7 +816,7 @@
     <div class="nav-item" onclick="switchScreen('finanzas', this)"><i class="fa-solid fa-wallet"></i><span>Finanzas</span></div>
 </nav>
 
-<!-- ============ MODALES ============ -->
+    <!-- MODALES -->
 <div id="historialModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header"><h3 id="historial-title"><i class="fa-solid fa-clock-rotate-left"></i> Historial</h3><button class="modal-close" onclick="cerrarModal('historialModal')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -999,15 +912,8 @@
         </div>
         <h4 style="font-size: 0.85rem; margin-bottom: 8px;">📦 Stock actual en camión</h4>
         <div id="modal-fleet-stock" style="margin-bottom: 15px;"></div>
-
-        <button class="btn-solid btn-solid-green" style="margin-bottom: 10px;" onclick="abrirRecargarModal()">
-            <i class="fa-solid fa-plus-circle"></i> Recargar Unidad
-        </button>
-
-        <button class="btn-solid btn-solid-warning" style="margin-bottom: 10px;" onclick="abrirCerrarRutaModal()">
-            <i class="fa-solid fa-lock"></i> Cerrar Ruta y Liquidar
-        </button>
-
+        <button class="btn-solid btn-solid-green" style="margin-bottom: 10px;" onclick="abrirRecargarModal()"><i class="fa-solid fa-plus-circle"></i> Recargar Unidad</button>
+        <button class="btn-solid btn-solid-warning" style="margin-bottom: 10px;" onclick="abrirCerrarRutaModal()"><i class="fa-solid fa-lock"></i> Cerrar Ruta y Liquidar</button>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
             <button class="btn-solid" style="background-color: #25D366;" onclick="sendWhatsAppReport()"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
             <button class="btn-solid" style="background-color: #dc2626;" onclick="exportarIndividualPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
@@ -1051,7 +957,7 @@
     <div id="tutorial-highlight"></div>
     <div id="tutorial-card">
         <div id="tutorial-progress">
-            <span id="tutorial-progress-text">1 / 12</span>
+            <span id="tutorial-progress-text">1 / 13</span>
             <button id="tutorial-sound-toggle" onclick="toggleTutorialSound()">🔊</button>
         </div>
         <h3 id="tutorial-title"></h3>
@@ -1064,25 +970,9 @@
     </div>
 </div>
 
-<style>
-    #tutorial-overlay { position: fixed; inset: 0; z-index: 10000; pointer-events: none; display: none; }
-    #tutorial-highlight { position: fixed; pointer-events: none; box-shadow: 0 0 0 9999px rgba(15,23,42,0.85); border-radius: 14px; transition: all 0.35s cubic-bezier(0.16,1,0.3,1); z-index: 10001; border: 2px solid #38bdf8; }
-    #tutorial-card { position: fixed; background: white; border-radius: 16px; padding: 20px; max-width: 380px; box-shadow: 0 25px 70px rgba(0,0,0,0.4); pointer-events: auto; z-index: 10002; transition: all 0.35s cubic-bezier(0.16,1,0.3,1); border: 2px solid var(--primary-light); }
-    #tutorial-progress { font-size: 0.7rem; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    #tutorial-sound-toggle { background: var(--surface-subtle); border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-    #tutorial-title { font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px; line-height: 1.2; }
-    #tutorial-text { font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 18px; }
-    #tutorial-controls { display: flex; gap: 8px; align-items: center; }
-    #tutorial-controls button { padding: 10px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: none; font-family: inherit; }
-    #tutorial-prev { background: var(--surface-subtle); color: var(--text-main); }
-    #tutorial-prev:disabled { opacity: 0.4; cursor: not-allowed; }
-    #tutorial-next { background: linear-gradient(135deg,#0284c7,#0369a1); color: white; flex: 1; }
-    #tutorial-skip { background: transparent; color: var(--text-muted); font-size: 0.75rem !important; padding: 8px 10px !important; text-decoration: underline; }
-</style>
-
 <script>
 // ============================================
-// CONFIG
+// CONFIGURACIÓN
 // ============================================
 const { createClient } = supabase;
 const supabaseUrl = 'https://wzixsohxprcobfsmiksf.supabase.co';
@@ -1090,7 +980,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 // ============================================
-// STATE
+// VARIABLES GLOBALES
 // ============================================
 let costoProduccion = 5;
 let precioVenta = 15;
@@ -1129,7 +1019,7 @@ document.getElementById('entregas-desde').value = hoyISO();
 document.getElementById('entregas-hasta').value = hoyISO();
 
 // ============================================
-// NAV
+// NAVEGACIÓN
 // ============================================
 function switchScreen(name, el) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1138,7 +1028,7 @@ function switchScreen(name, el) {
     if (el) el.classList.add('active');
 
     if (name === 'inicio') { fetchEntregas(); cargarMorososInicio(); cargarStockBajo(); }
-    if (name === 'productos') { cargarProductos(); }
+    if (name === 'productos') cargarProductos();
     if (name === 'mapa') initMapa();
     if (name === 'finanzas') { fetchCaja(); fetchEntregas(); }
     if (name === 'clientes') { cargarClientesDirectorio(); llenarSelectRutas(); }
@@ -1198,18 +1088,9 @@ function renderProductos() {
                         ${!p.activo ? '<span class="producto-categoria-pill" style="background:#e2e8f0;color:#475569;">Inactivo</span>' : ''}
                     </div>
                     <div class="producto-precios">
-                        <div class="producto-precio">
-                            <span class="producto-precio-label">Costo</span>
-                            <span class="producto-precio-valor">${fmtBs(p.costo || 0)}</span>
-                        </div>
-                        <div class="producto-precio">
-                            <span class="producto-precio-label">Venta</span>
-                            <span class="producto-precio-valor">${fmtBs(p.precio_venta)}</span>
-                        </div>
-                        <div class="producto-precio">
-                            <span class="producto-precio-label">Margen</span>
-                            <span class="producto-precio-valor margen">${fmtBs(margen)} (${margenPct}%)</span>
-                        </div>
+                        <div class="producto-precio"><span class="producto-precio-label">Costo</span><span class="producto-precio-valor">${fmtBs(p.costo || 0)}</span></div>
+                        <div class="producto-precio"><span class="producto-precio-label">Venta</span><span class="producto-precio-valor">${fmtBs(p.precio_venta)}</span></div>
+                        <div class="producto-precio"><span class="producto-precio-label">Margen</span><span class="producto-precio-valor margen">${fmtBs(margen)} (${margenPct}%)</span></div>
                     </div>
                     <div class="producto-stock ${stockClass}">
                         <i class="fa-solid fa-boxes-stacked"></i>
@@ -1308,12 +1189,7 @@ async function abrirKardex(id, nombre) {
     document.getElementById('kardexModal').style.display = 'flex';
 
     try {
-        const { data, error } = await supabaseClient
-            .from('movimientos_producto')
-            .select('*')
-            .eq('producto_id', id)
-            .order('created_at', { ascending: false })
-            .limit(50);
+        const { data, error } = await supabaseClient.from('movimientos_producto').select('*').eq('producto_id', id).order('created_at', { ascending: false }).limit(50);
         if (error) throw error;
 
         if (!data || !data.length) {
@@ -1321,11 +1197,7 @@ async function abrirKardex(id, nombre) {
             return;
         }
 
-        const tipoIcon = {
-            'produccion': '🏭', 'venta': '💰', 'ajuste': '🔧',
-            'devolucion': '↩️', 'perdida': '💔', 'compra': '🛒',
-            'despacho': '🚚', 'retorno': '🏠'
-        };
+        const tipoIcon = {'produccion':'🏭','venta':'💰','ajuste':'🔧','devolucion':'↩️','perdida':'💔','compra':'🛒','despacho':'🚚','retorno':'🏠'};
 
         document.getElementById('kardex-body').innerHTML = data.map(m => `
             <div class="hist-row">
@@ -1351,17 +1223,10 @@ async function abrirKardex(id, nombre) {
 async function cargarStockBajo() {
     const cont = document.getElementById('stock-bajo-lista');
     try {
-        const { data } = await supabaseClient
-            .from('productos')
-            .select('nombre, stock_actual, stock_minimo, categoria')
-            .eq('activo', true)
-            .order('stock_actual');
-
+        const { data } = await supabaseClient.from('productos').select('nombre, stock_actual, stock_minimo, categoria').eq('activo', true).order('stock_actual');
         const alertas = (data || []).filter(p => (p.stock_actual || 0) <= (p.stock_minimo || 5));
 
-        // KPI productos
-        const total = (data || []).length;
-        document.getElementById('kpi-productos').innerText = total;
+        document.getElementById('kpi-productos').innerText = (data || []).length;
         if (alertas.length > 0) {
             document.getElementById('kpi-productos-trend').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${alertas.length} con stock bajo`;
             document.getElementById('kpi-productos-trend').style.background = 'var(--warning-light)';
@@ -1379,9 +1244,7 @@ async function cargarStockBajo() {
                     <strong style="font-size: 0.85rem;">${p.nombre}</strong>
                     <div style="font-size: 0.7rem; color: var(--text-muted);">${p.categoria}</div>
                 </div>
-                <div style="text-align: right; font-weight: 800; font-size: 0.85rem;">
-                    ${p.stock_actual} / min ${p.stock_minimo}
-                </div>
+                <div style="text-align: right; font-weight: 800; font-size: 0.85rem;">${p.stock_actual} / min ${p.stock_minimo}</div>
             </div>
         `).join('');
     } catch (e) {
@@ -1390,13 +1253,12 @@ async function cargarStockBajo() {
 }
 
 // ============================================
-// SELECTS DE PRODUCTOS (para formularios)
+// SELECTS DE PRODUCTOS
 // ============================================
 function llenarSelectsProductos() {
     const opts = '<option value="">Seleccionar producto...</option>' +
         productosGlobal.filter(p => p.activo !== false)
             .map(p => `<option value="${p.id}">${p.nombre} (Stock: ${p.stock_actual || 0})</option>`).join('');
-
     ['prod-produccion-select','prod-ajuste-select','flota-add-producto','recargar-producto'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = opts;
@@ -1411,7 +1273,7 @@ function llenarSelectsProductosPedido() {
 }
 
 // ============================================
-// FÁBRICA — INVENTARIO
+// FÁBRICA
 // ============================================
 async function cargarInventarioFabrica() {
     const tbody = document.getElementById('fabrica-inventario-tbody');
@@ -1432,8 +1294,7 @@ async function cargarInventarioFabrica() {
                 <td>${fmtBs(p.costo || 0)}</td>
                 <td class="acc-debit">${fmtBs(valor)}</td>
             </tr>`;
-        }).join('') + `
-            <tr style="background: var(--surface-subtle); font-weight: 900;">
+        }).join('') + `<tr style="background: var(--surface-subtle); font-weight: 900;">
                 <td colspan="3">VALOR TOTAL INVENTARIO</td>
                 <td class="acc-debit">${fmtBs(totalValor)}</td>
             </tr>`;
@@ -1454,10 +1315,8 @@ document.getElementById('form-produccion').addEventListener('submit', async (e) 
     btn.disabled = true;
     try {
         const { data, error } = await supabaseClient.rpc('rpc_registrar_produccion_producto', {
-            p_producto_id: productoId,
-            p_cantidad: cantidad,
-            p_costo_unitario: costo,
-            p_motivo: motivo
+            p_producto_id: productoId, p_cantidad: cantidad,
+            p_costo_unitario: costo, p_motivo: motivo
         });
         if (error) throw error;
         if (!data.success) throw new Error(data.error);
@@ -1477,16 +1336,11 @@ document.getElementById('form-ajuste').addEventListener('submit', async (e) => {
     const tipo = document.getElementById('prod-ajuste-tipo').value;
     const cantidad = parseInt(document.getElementById('prod-ajuste-cantidad').value);
     const motivo = document.getElementById('prod-ajuste-motivo').value || 'Ajuste';
-
     if (!productoId) return alert('Selecciona un producto');
     if (!cantidad) return alert('Cantidad inválida');
-
     try {
         const { data, error } = await supabaseClient.rpc('rpc_ajustar_stock_producto', {
-            p_producto_id: productoId,
-            p_cantidad: cantidad,
-            p_tipo: tipo,
-            p_motivo: motivo
+            p_producto_id: productoId, p_cantidad: cantidad, p_tipo: tipo, p_motivo: motivo
         });
         if (error) throw error;
         if (!data.success) throw new Error(data.error);
@@ -1498,35 +1352,26 @@ document.getElementById('form-ajuste').addEventListener('submit', async (e) => {
     } catch (err) { alert('Error: ' + err.message); }
 });
 
-// ============================================
-// ENVASES (llenós/vacíos)
-// ============================================
 async function fetchEnvases() {
     try {
         const { data } = await supabaseClient.from('inventario_fabrica').select('*').eq('id', 1).single();
-        if (data) {
-            stockFabricaLlenos = data.stock_llenos || 0;
-            stockFabricaVacios = data.stock_vacios || 0;
-        }
+        if (data) { stockFabricaLlenos = data.stock_llenos || 0; stockFabricaVacios = data.stock_vacios || 0; }
         document.getElementById('fab-llenos').innerText = stockFabricaLlenos;
         document.getElementById('fab-vacios').innerText = stockFabricaVacios;
     } catch (e) { console.error(e); }
 }
 
 document.getElementById('btn-guardar-arqueo').addEventListener('click', async () => {
-    const fl = prompt('Stock físico de botellones LLENOS en fábrica:', stockFabricaLlenos);
+    const fl = prompt('Stock físico LLENOS:', stockFabricaLlenos);
     if (fl === null) return;
-    const fv = prompt('Stock físico de botellones VACÍOS en fábrica:', stockFabricaVacios);
+    const fv = prompt('Stock físico VACÍOS:', stockFabricaVacios);
     if (fv === null) return;
-    const fisicoLlenos = parseInt(fl) || 0;
-    const fisicoVacios = parseInt(fv) || 0;
-
     try {
         await supabaseClient.from('conciliaciones').insert([
-            { concepto: 'Fábrica Llenos', stock_teorico: stockFabricaLlenos, stock_fisico: fisicoLlenos },
-            { concepto: 'Envases Vacíos', stock_teorico: stockFabricaVacios, stock_fisico: fisicoVacios }
+            { concepto: 'Fábrica Llenos', stock_teorico: stockFabricaLlenos, stock_fisico: parseInt(fl) || 0 },
+            { concepto: 'Envases Vacíos', stock_teorico: stockFabricaVacios, stock_fisico: parseInt(fv) || 0 }
         ]);
-        await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: fisicoLlenos, stock_vacios: fisicoVacios });
+        await supabaseClient.from('inventario_fabrica').upsert({ id: 1, stock_llenos: parseInt(fl) || 0, stock_vacios: parseInt(fv) || 0 });
         alert('✅ Arqueo guardado');
         fetchEnvases();
     } catch (e) { alert('Error: ' + e.message); }
@@ -1535,11 +1380,9 @@ document.getElementById('btn-guardar-arqueo').addEventListener('click', async ()
 async function fetchAsientosContables() {
     try {
         const { data } = await supabaseClient.from('asientos_contables').select('*').order('created_at', { ascending: false }).limit(20);
-        const tbody = document.getElementById('asientos-tbody');
-        tbody.innerHTML = (data||[]).length ? data.map(a => `
+        document.getElementById('asientos-tbody').innerHTML = (data||[]).length ? data.map(a => `
             <tr>
-                <td>${formatTime(a.created_at)}</td>
-                <td>${a.concepto}</td>
+                <td>${formatTime(a.created_at)}</td><td>${a.concepto}</td>
                 <td class="acc-debit">${a.cuenta_debe} ${fmtBs(a.monto)}</td>
                 <td class="acc-credit">${a.cuenta_haber} ${fmtBs(a.monto)}</td>
             </tr>`).join('') : '<tr><td colspan="4" class="loading-text">Sin asientos.</td></tr>';
@@ -1547,37 +1390,24 @@ async function fetchAsientosContables() {
 }
 
 // ============================================
-// CARRITO DESPACHO / RECARGA
+// CARRITO
 // ============================================
 function agregarProductoAlCarrito(tipo) {
     const selectId = tipo === 'despacho' ? 'flota-add-producto' : 'recargar-producto';
     const cantId = tipo === 'despacho' ? 'flota-add-cantidad' : 'recargar-cantidad';
     const productoId = document.getElementById(selectId).value;
     const cantidad = parseInt(document.getElementById(cantId).value);
-
     if (!productoId) return alert('Selecciona un producto');
     if (!cantidad || cantidad <= 0) return alert('Cantidad inválida');
 
     const producto = productosGlobal.find(p => String(p.id) === String(productoId));
     if (!producto) return;
-
-    if (producto.stock_actual < cantidad) {
-        return alert(`Stock insuficiente de ${producto.nombre}. Disponible: ${producto.stock_actual}`);
-    }
+    if (producto.stock_actual < cantidad) return alert(`Stock insuficiente. Disponible: ${producto.stock_actual}`);
 
     const carrito = tipo === 'despacho' ? carritoDespacho : carritoRecarga;
     const existente = carrito.find(i => String(i.producto_id) === String(productoId));
-    if (existente) {
-        existente.cantidad += cantidad;
-    } else {
-        carrito.push({
-            producto_id: producto.id,
-            nombre: producto.nombre,
-            cantidad: cantidad,
-            precio_venta: producto.precio_venta,
-            requiere_envase: producto.requiere_envase
-        });
-    }
+    if (existente) existente.cantidad += cantidad;
+    else carrito.push({ producto_id: producto.id, nombre: producto.nombre, cantidad, requiere_envase: producto.requiere_envase });
 
     document.getElementById(selectId).value = '';
     document.getElementById(cantId).value = '';
@@ -1587,23 +1417,18 @@ function agregarProductoAlCarrito(tipo) {
 function renderCarrito(tipo) {
     const carrito = tipo === 'despacho' ? carritoDespacho : carritoRecarga;
     const cont = document.getElementById(tipo === 'despacho' ? 'carrito-despacho' : 'carrito-recarga');
-
     if (!carrito.length) {
         cont.innerHTML = '<div class="cart-empty"><i class="fa-solid fa-cart-shopping" style="font-size: 1.5rem; opacity: 0.4; display: block; margin-bottom: 6px;"></i>Sin productos</div>';
         return;
     }
-
     cont.innerHTML = carrito.map((item, i) => `
         <div class="cart-item">
             <div class="cart-item-info">
                 <div class="cart-item-nombre">${item.nombre}</div>
                 <div class="cart-item-detalle">Cantidad: <strong>${item.cantidad}</strong> ${item.requiere_envase ? '🔄' : ''}</div>
             </div>
-            <div class="cart-item-actions">
-                <button class="btn-icon btn-icon-danger" onclick="quitarDelCarrito('${tipo}', ${i})"><i class="fa-solid fa-trash"></i></button>
-            </div>
-        </div>
-    `).join('');
+            <div class="cart-item-actions"><button class="btn-icon btn-icon-danger" onclick="quitarDelCarrito('${tipo}', ${i})"><i class="fa-solid fa-trash"></i></button></div>
+        </div>`).join('');
 }
 
 function quitarDelCarrito(tipo, index) {
@@ -1620,27 +1445,17 @@ document.getElementById('form-flota').addEventListener('submit', async (e) => {
     const btn = document.getElementById('btn-submit-flota');
     const chofer_id = document.getElementById('flota-chofer-select').value;
     const nombre = document.getElementById('flota-ruta').value.trim();
-
     if (!chofer_id) return alert('Seleccione un chofer');
     if (!nombre) return alert('Nombre de ruta requerido');
     if (!carritoDespacho.length) return alert('Agrega al menos un producto');
 
     btn.disabled = true;
     try {
-        const items = carritoDespacho.map(i => ({
-            producto_id: i.producto_id,
-            cantidad: i.cantidad
-        }));
-
-        const { data, error } = await supabaseClient.rpc('rpc_despachar_flota', {
-            p_nombre: nombre,
-            p_chofer_id: chofer_id,
-            p_items: items
-        });
+        const items = carritoDespacho.map(i => ({ producto_id: i.producto_id, cantidad: i.cantidad }));
+        const { data, error } = await supabaseClient.rpc('rpc_despachar_flota', { p_nombre: nombre, p_chofer_id: chofer_id, p_items: items });
         if (error) throw error;
         if (!data.success) throw new Error(data.error || 'Error desconocido');
-
-        alert(`✅ Ruta "${nombre}" despachada\n${data.total_botellones} botellones de agua + otros productos`);
+        alert(`✅ Ruta "${nombre}" despachada`);
         carritoDespacho = [];
         renderCarrito('despacho');
         e.target.reset();
@@ -1657,32 +1472,20 @@ document.getElementById('form-flota').addEventListener('submit', async (e) => {
 // ============================================
 async function fetchFlota() {
     try {
-        const { data, error } = await supabaseClient
-            .from('flota')
-            .select('*, choferes(nombre, placa)')
-            .order('created_at', { ascending: false });
+        const { data, error } = await supabaseClient.from('flota').select('*, choferes(nombre, placa)').order('created_at', { ascending: false });
         if (error) throw error;
         flotaGlobalTodas = data || [];
         const activas = flotaGlobalTodas.filter(f => f.estado === 'ruta');
         flotaGlobalActiva = activas;
-
         let totalAgua = 0;
         activas.forEach(f => totalAgua += (f.stock_actual || 0));
         document.getElementById('kpi-unidades').innerText = totalAgua;
 
         const cont = document.getElementById('fleet-list');
-        if (!activas.length) {
-            cont.innerHTML = '<div class="loading-text">No hay unidades en ruta.</div>';
-            return;
-        }
+        if (!activas.length) { cont.innerHTML = '<div class="loading-text">No hay unidades en ruta.</div>'; return; }
 
-        // Cargar stock de productos de cada flota activa
         const flotaIds = activas.map(f => f.id);
-        const { data: stocks } = await supabaseClient
-            .from('flota_stock')
-            .select('flota_id, producto_id, cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)')
-            .in('flota_id', flotaIds);
-
+        const { data: stocks } = await supabaseClient.from('flota_stock').select('flota_id, producto_id, cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)').in('flota_id', flotaIds);
         const stocksPorFlota = {};
         (stocks || []).forEach(s => {
             if (!stocksPorFlota[s.flota_id]) stocksPorFlota[s.flota_id] = [];
@@ -1695,12 +1498,8 @@ async function fetchFlota() {
                 const low = p.cantidad_actual < 10;
                 return `<span class="fleet-producto-chip ${low ? 'low' : ''}">${p.productos?.nombre}: ${p.cantidad_actual}</span>`;
             }).join('');
-
             return `<div class="fleet-card">
-                <div class="fleet-header">
-                    <div class="fleet-name"><i class="fa-solid fa-truck"></i> ${f.nombre}</div>
-                    <div class="fleet-trip">En curso</div>
-                </div>
+                <div class="fleet-header"><div class="fleet-name"><i class="fa-solid fa-truck"></i> ${f.nombre}</div><div class="fleet-trip">En curso</div></div>
                 <div class="fleet-chofer"><i class="fa-solid fa-id-card"></i> <strong>${f.choferes?.nombre || 'N/A'}</strong> • ${f.choferes?.placa || 'S/P'}</div>
                 <div class="fleet-productos">${chips || '<span style="color:var(--text-muted);font-size:0.75rem;">Sin productos cargados</span>'}</div>
                 <button class="btn-sm btn-sm-primary" style="width: 100%; padding: 10px;" onclick="openFleetModal('${f.id}','${f.nombre.replace(/'/g,"\\'")}','${f.chofer_id}')">
@@ -1712,51 +1511,30 @@ async function fetchFlota() {
 }
 
 async function openFleetModal(id, nombre, choferId) {
-    currentFleetId = id;
-    currentFleetName = nombre;
-    currentFleetChoferId = choferId;
+    currentFleetId = id; currentFleetName = nombre; currentFleetChoferId = choferId;
     document.getElementById('modal-fleet-name').innerHTML = `<i class="fa-solid fa-truck"></i> ${nombre}`;
-
     let income = 0, units = 0;
     entregasDelDia.forEach(e => {
-        if (e.flota && e.flota.nombre === nombre && e.estado !== 'No entregado') {
-            income += Number(e.total);
-            units += Number(e.unidades);
-        }
+        if (e.flota && e.flota.nombre === nombre && e.estado !== 'No entregado') { income += Number(e.total); units += Number(e.unidades); }
     });
     document.getElementById('modal-fleet-income').innerText = fmtBs(income);
     document.getElementById('modal-fleet-units').innerText = units;
     document.getElementById('modal-fleet-comision').innerText = fmtBs(reporteComisionesGlobal[nombre] || 0);
 
-    // Cargar stock actual
-    const { data: stock } = await supabaseClient
-        .from('flota_stock')
-        .select('cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)')
-        .eq('flota_id', id);
-
+    const { data: stock } = await supabaseClient.from('flota_stock').select('cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)').eq('flota_id', id);
     const stockDiv = document.getElementById('modal-fleet-stock');
-    if (!stock || !stock.length) {
-        stockDiv.innerHTML = '<div class="loading-text">Sin productos cargados</div>';
-    } else {
-        stockDiv.innerHTML = stock.map(s => `
-            <div class="hist-row">
-                <div>
-                    <strong>${s.productos?.nombre}</strong>
-                    ${s.productos?.requiere_envase ? '<span style="font-size:0.65rem;color:var(--primary);">🔄</span>' : ''}
-                </div>
-                <div style="text-align:right;">
-                    <strong>${s.cantidad_actual}</strong>
-                    <small style="color:var(--text-muted)"> / ${s.cantidad_inicial}</small>
-                </div>
-            </div>
-        `).join('');
-    }
+    if (!stock || !stock.length) stockDiv.innerHTML = '<div class="loading-text">Sin productos cargados</div>';
+    else stockDiv.innerHTML = stock.map(s => `
+        <div class="hist-row">
+            <div><strong>${s.productos?.nombre}</strong> ${s.productos?.requiere_envase ? '<span style="font-size:0.65rem;color:var(--primary);">🔄</span>' : ''}</div>
+            <div style="text-align:right;"><strong>${s.cantidad_actual}</strong><small style="color:var(--text-muted)"> / ${s.cantidad_inicial}</small></div>
+        </div>`).join('');
 
     document.getElementById('fleetModal').style.display = 'flex';
 }
 
 // ============================================
-// RECARGAR FLOTA
+// RECARGAR
 // ============================================
 function abrirRecargarModal() {
     cerrarModal('fleetModal');
@@ -1769,21 +1547,12 @@ function abrirRecargarModal() {
 
 async function confirmarRecarga() {
     if (!carritoRecarga.length) return alert('Agrega al menos un producto');
-
     try {
-        const items = carritoRecarga.map(i => ({
-            producto_id: i.producto_id,
-            cantidad: i.cantidad
-        }));
-
-        const { data, error } = await supabaseClient.rpc('rpc_recargar_flota', {
-            p_flota_id: currentFleetId,
-            p_items: items
-        });
+        const items = carritoRecarga.map(i => ({ producto_id: i.producto_id, cantidad: i.cantidad }));
+        const { data, error } = await supabaseClient.rpc('rpc_recargar_flota', { p_flota_id: currentFleetId, p_items: items });
         if (error) throw error;
         if (!data.success) throw new Error(data.error || 'Error');
-
-        alert(`✅ Recarga aplicada. +${data.botellones_extra} botellones de agua`);
+        alert(`✅ Recarga aplicada`);
         cerrarModal('recargarModal');
         carritoRecarga = [];
         cargarProductos();
@@ -1803,18 +1572,13 @@ async function abrirCerrarRutaModal() {
     document.getElementById('cerrarRutaModal').style.display = 'flex';
 
     try {
-        const { data: stock, error } = await supabaseClient
-            .from('flota_stock')
-            .select('producto_id, cantidad_inicial, cantidad_actual, productos(nombre, unidad_medida)')
-            .eq('flota_id', currentFleetId);
+        const { data: stock, error } = await supabaseClient.from('flota_stock').select('producto_id, cantidad_inicial, cantidad_actual, productos(nombre, unidad_medida)').eq('flota_id', currentFleetId);
         if (error) throw error;
-
         if (!stock || !stock.length) {
             document.getElementById('cerrar-ruta-lista').innerHTML = '<div class="loading-text">Sin productos en esta flota</div>';
             cerrarRutaItems = [];
             return;
         }
-
         cerrarRutaItems = stock.map(s => ({
             producto_id: s.producto_id,
             nombre: s.productos?.nombre || 'Producto',
@@ -1822,7 +1586,6 @@ async function abrirCerrarRutaModal() {
             teorico: s.cantidad_actual,
             fisico: s.cantidad_actual
         }));
-
         renderCerrarRuta();
     } catch (e) {
         document.getElementById('cerrar-ruta-lista').innerHTML = '<div class="loading-text">Error al cargar.</div>';
@@ -1836,12 +1599,9 @@ function renderCerrarRuta() {
                 <strong>${item.nombre}</strong>
                 <div style="font-size: 0.7rem; color: var(--text-muted);">Cargado: ${item.cargado} • Teórico: ${item.teorico}</div>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <input type="number" min="0" value="${item.fisico}" onchange="actualizarSobrante(${i}, this.value)"
-                    style="width: 70px; padding: 6px; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-weight: 700;">
-            </div>
+            <div><input type="number" min="0" value="${item.fisico}" onchange="actualizarSobrante(${i}, this.value)" style="width: 70px; padding: 6px; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-weight: 700;"></div>
         </div>
-    `).join('') + '<p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; text-align: center;">Ingresa el stock físico real que retorna del camión.</p>';
+    `).join('') + '<p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; text-align: center;">Ingresa el stock físico real que retorna.</p>';
 }
 
 function actualizarSobrante(index, valor) {
@@ -1850,23 +1610,12 @@ function actualizarSobrante(index, valor) {
 
 async function confirmarCerrarRuta() {
     const vacios = parseInt(document.getElementById('cerrar-ruta-vacios').value) || 0;
-
-    if (!confirm(`¿Cerrar la ruta ${currentFleetName}?\nSobrantes registrados: ${cerrarRutaItems.length} productos\nVacíos recuperados: ${vacios}`)) return;
-
+    if (!confirm(`¿Cerrar la ruta ${currentFleetName}?`)) return;
     try {
-        const itemsSobrantes = cerrarRutaItems.map(i => ({
-            producto_id: i.producto_id,
-            cantidad: i.fisico
-        }));
-
-        const { data, error } = await supabaseClient.rpc('rpc_cerrar_ruta', {
-            p_flota_id: currentFleetId,
-            p_items_sobrantes: itemsSobrantes,
-            p_vacios_recuperados: vacios
-        });
+        const itemsSobrantes = cerrarRutaItems.map(i => ({ producto_id: i.producto_id, cantidad: i.fisico }));
+        const { data, error } = await supabaseClient.rpc('rpc_cerrar_ruta', { p_flota_id: currentFleetId, p_items_sobrantes: itemsSobrantes, p_vacios_recuperados: vacios });
         if (error) throw error;
         if (!data.success) throw new Error(data.error || 'Error');
-
         alert(`✅ Ruta ${currentFleetName} cerrada`);
         cerrarModal('cerrarRutaModal');
         cargarProductos();
@@ -1885,14 +1634,10 @@ async function fetchChoferes() {
         const { data, error } = await supabaseClient.from('choferes').select('*').order('nombre');
         if (error) throw error;
         const activos = (data || []).filter(c => c.activo !== false);
-        const opts = '<option value="">Seleccionar chofer...</option>' +
-            activos.map(c => `<option value="${c.id}">${c.nombre} (${c.placa || 'S/P'})</option>`).join('');
+        const opts = '<option value="">Seleccionar chofer...</option>' + activos.map(c => `<option value="${c.id}">${c.nombre} (${c.placa || 'S/P'})</option>`).join('');
         const sel = document.getElementById('flota-chofer-select');
         if (sel) sel.innerHTML = opts;
-
-        document.getElementById('choferes-tbody').innerHTML = data.length
-            ? data.map(c => `<tr><td><strong>${c.codigo}</strong></td><td>${c.nombre}</td><td>${c.placa || '—'}</td></tr>`).join('')
-            : '<tr><td colspan="3">Sin choferes.</td></tr>';
+        document.getElementById('choferes-tbody').innerHTML = data.length ? data.map(c => `<tr><td><strong>${c.codigo}</strong></td><td>${c.nombre}</td><td>${c.placa || '—'}</td></tr>`).join('') : '<tr><td colspan="3">Sin choferes.</td></tr>';
     } catch (e) { console.error(e); }
 }
 
@@ -1920,8 +1665,7 @@ document.getElementById('form-chofer').addEventListener('submit', async (e) => {
 async function llenarSelectRutas() {
     try {
         const { data } = await supabaseClient.from('rutas').select('nombre').eq('activa', true).order('nombre');
-        const opciones = '<option value="">Sin ruta</option>' +
-            (data || []).map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+        const opciones = '<option value="">Sin ruta</option>' + (data || []).map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
         document.getElementById('cli-ruta').innerHTML = opciones;
         document.getElementById('edit-cli-ruta').innerHTML = opciones;
     } catch (e) { console.error(e); }
@@ -1930,10 +1674,7 @@ async function llenarSelectRutas() {
 function obtenerUbicacionCliente() {
     if (!navigator.geolocation) return alert('Geolocalización no soportada');
     navigator.geolocation.getCurrentPosition(
-        p => {
-            document.getElementById('cli-lat').value = p.coords.latitude.toFixed(6);
-            document.getElementById('cli-lng').value = p.coords.longitude.toFixed(6);
-        },
+        p => { document.getElementById('cli-lat').value = p.coords.latitude.toFixed(6); document.getElementById('cli-lng').value = p.coords.longitude.toFixed(6); },
         () => alert('No se pudo obtener ubicación.')
     );
 }
@@ -1987,13 +1728,10 @@ function renderClientesDirectorio() {
     const q = (document.getElementById('buscar-cliente')?.value || '').toLowerCase();
     const cont = document.getElementById('directorio-clientes');
     const filtrados = clientesGlobal.filter(c => !q || c.nombre.toLowerCase().includes(q) || (c.telefono||'').includes(q));
-
     if (!filtrados.length) { cont.innerHTML = '<div class="loading-text">Sin clientes.</div>'; return; }
 
     cont.innerHTML = filtrados.map(c => {
-        let mapsUrl = c.latitud && c.longitud
-            ? `https://www.google.com/maps/dir/?api=1&destination=${c.latitud},${c.longitud}`
-            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.nombre + ' ' + (c.direccion||'') + ' Santa Cruz Bolivia')}`;
+        const mapsUrl = c.latitud && c.longitud ? `https://www.google.com/maps/dir/?api=1&destination=${c.latitud},${c.longitud}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.nombre + ' ' + (c.direccion||'') + ' Santa Cruz Bolivia')}`;
         const deuda = (c.saldo_envases_prestados || 0);
         const saldo = (c.saldo_pendiente || 0);
         return `
@@ -2027,22 +1765,11 @@ async function verHistorialCliente(clienteId, nombre) {
     modal.style.display = 'flex';
 
     try {
-        const { data, error } = await supabaseClient
-            .from('entregas')
-            .select('id, unidades, total, metodo_pago, estado, created_at, flota(nombre), entregas_detalles(cantidad, productos(nombre))')
-            .eq('cliente_id', clienteId)
-            .order('created_at', { ascending: false })
-            .limit(100);
+        const { data, error } = await supabaseClient.from('entregas').select('id, unidades, total, metodo_pago, estado, created_at, flota(nombre), entregas_detalles(cantidad, productos(nombre))').eq('cliente_id', clienteId).order('created_at', { ascending: false }).limit(100);
         if (error) throw error;
+        const { data: abonos } = await supabaseClient.from('abonos').select('monto, metodo_pago, created_at').eq('cliente_id', clienteId).order('created_at', { ascending: false });
 
-        const { data: abonos } = await supabaseClient.from('abonos').select('monto, metodo_pago, created_at')
-            .eq('cliente_id', clienteId).order('created_at', { ascending: false });
-
-        if (!data || !data.length) {
-            body.innerHTML = '<div class="loading-text">Sin historial de compras.</div>';
-            return;
-        }
-
+        if (!data || !data.length) { body.innerHTML = '<div class="loading-text">Sin historial.</div>'; return; }
         const totalCompras = data.reduce((a,e) => a + Number(e.total), 0);
         const totalAbonos = (abonos || []).reduce((a,e) => a + Number(e.monto), 0);
 
@@ -2054,18 +1781,10 @@ async function verHistorialCliente(clienteId, nombre) {
             </div>
             ${data.slice(0, 20).map(e => {
                 const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${d.productos?.nombre || ''}`).join(', ');
-                return `
-                    <div class="hist-row">
-                        <div>
-                            <strong>${formatDate(e.created_at)} ${formatTime(e.created_at)}</strong><br>
-                            <small style="color:var(--text-muted)">${e.flota?.nombre || 'S/R'} • ${e.metodo_pago}</small>
-                            ${detalle ? `<br><small style="color:var(--primary);">${detalle}</small>` : ''}
-                        </div>
-                        <div style="text-align:right;">
-                            <strong>${fmtBs(e.total)}</strong><br>
-                            <span class="status-pill ${e.estado === 'No entregado' ? 'st-no-entregado' : 'st-entregado'}">${e.estado || 'Entregado'}</span>
-                        </div>
-                    </div>`;
+                return `<div class="hist-row">
+                    <div><strong>${formatDate(e.created_at)} ${formatTime(e.created_at)}</strong><br><small style="color:var(--text-muted)">${e.flota?.nombre || 'S/R'} • ${e.metodo_pago}</small>${detalle ? `<br><small style="color:var(--primary);">${detalle}</small>` : ''}</div>
+                    <div style="text-align:right;"><strong>${fmtBs(e.total)}</strong><br><span class="status-pill ${e.estado === 'No entregado' ? 'st-no-entregado' : 'st-entregado'}">${e.estado || 'Entregado'}</span></div>
+                </div>`;
             }).join('')}
         `;
     } catch (e) { body.innerHTML = '<div class="loading-text">Error: ' + e.message + '</div>'; }
@@ -2085,11 +1804,9 @@ async function registrarAbono() {
     if (!clienteAbonoActual) return;
     const monto = parseFloat(document.getElementById('abono-monto').value);
     if (!monto || monto <= 0) return alert('Monto inválido');
-
     try {
         const { data, error } = await supabaseClient.rpc('rpc_registrar_abono', {
-            p_cliente_id: clienteAbonoActual.id,
-            p_monto: monto,
+            p_cliente_id: clienteAbonoActual.id, p_monto: monto,
             p_metodo_pago: document.getElementById('abono-metodo').value,
             p_notas: document.getElementById('abono-notas').value || null
         });
@@ -2153,8 +1870,7 @@ async function cargarClientesZona() {
         const { data: rutas } = await supabaseClient.from('rutas').select('nombre').eq('activa', true).order('nombre');
         const selRuta = document.getElementById('map-zona');
         const currentRuta = selRuta.value;
-        selRuta.innerHTML = '<option value="Todos">Todos</option>' +
-            (rutas || []).map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+        selRuta.innerHTML = '<option value="Todos">Todos</option>' + (rutas || []).map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
         if (currentRuta) selRuta.value = currentRuta;
 
         let query = supabaseClient.from('clientes').select('*').eq('activo', true).order('nombre');
@@ -2163,29 +1879,20 @@ async function cargarClientesZona() {
 
         const { data, error } = await query;
         if (error) throw error;
-
-        if (!data || !data.length) {
-            lista.innerHTML = '<div class="loading-text">Sin clientes con esos filtros.</div>';
-            return;
-        }
+        if (!data || !data.length) { lista.innerHTML = '<div class="loading-text">Sin clientes con esos filtros.</div>'; return; }
 
         lista.innerHTML = data.map((c, i) => {
             const tieneGps = c.latitud && c.longitud;
-            const mapsUrl = tieneGps
-                ? `https://www.google.com/maps/dir/?api=1&destination=${c.latitud},${c.longitud}&travelmode=driving`
-                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.nombre + ' ' + (c.direccion||'') + ' Santa Cruz Bolivia')}`;
-            return `
-                <div class="client-card">
-                    <div class="client-number">${i+1}</div>
-                    <div class="client-info">
-                        <div class="client-name">${c.nombre}</div>
-                        <div class="client-detail"><span><i class="fa-solid fa-phone"></i> ${c.telefono || '—'}</span></div>
-                        ${c.zona ? `<div class="client-route-info"><i class="fa-solid fa-truck"></i> ${c.zona}</div>` : ''}
-                    </div>
-                    <a href="${mapsUrl}" target="_blank" class="btn-location" style="${!tieneGps ? 'background: var(--warning);' : ''}">
-                        <i class="fa-solid fa-diamond-turn-right"></i>
-                    </a>
-                </div>`;
+            const mapsUrl = tieneGps ? `https://www.google.com/maps/dir/?api=1&destination=${c.latitud},${c.longitud}&travelmode=driving` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.nombre + ' ' + (c.direccion||'') + ' Santa Cruz Bolivia')}`;
+            return `<div class="client-card">
+                <div class="client-number">${i+1}</div>
+                <div class="client-info">
+                    <div class="client-name">${c.nombre}</div>
+                    <div class="client-detail"><span><i class="fa-solid fa-phone"></i> ${c.telefono || '—'}</span></div>
+                    ${c.zona ? `<div class="client-route-info"><i class="fa-solid fa-truck"></i> ${c.zona}</div>` : ''}
+                </div>
+                <a href="${mapsUrl}" target="_blank" class="btn-location" style="${!tieneGps ? 'background: var(--warning);' : ''}"><i class="fa-solid fa-diamond-turn-right"></i></a>
+            </div>`;
         }).join('');
     } catch (e) { lista.innerHTML = '<div class="loading-text">Error.</div>'; }
 }
@@ -2209,13 +1916,10 @@ document.getElementById('form-pedido').addEventListener('submit', async (e) => {
         const cantidad = parseInt(document.getElementById('ped-cantidad').value);
         const { error } = await supabaseClient.from('pedidos').insert([{
             cliente_id: document.getElementById('ped-cliente').value,
-            producto_id: prodId || null,
-            producto_nombre: prod?.nombre || null,
-            cantidad,
-            total_estimado: prod ? cantidad * prod.precio_venta : 0,
+            producto_id: prodId || null, producto_nombre: prod?.nombre || null,
+            cantidad, total_estimado: prod ? cantidad * prod.precio_venta : 0,
             fecha_entrega: document.getElementById('ped-fecha').value || hoyISO(),
-            notas: document.getElementById('ped-notas').value || null,
-            estado: 'Pendiente'
+            notas: document.getElementById('ped-notas').value || null, estado: 'Pendiente'
         }]);
         if (error) throw error;
         alert('✅ Pedido registrado');
@@ -2229,8 +1933,7 @@ async function cargarPedidos() {
     const cont = document.getElementById('lista-pedidos');
     cont.innerHTML = '<div class="loading-text">Cargando...</div>';
     try {
-        const { data, error } = await supabaseClient.from('pedidos')
-            .select('*, clientes(nombre)').order('created_at', { ascending: false }).limit(50);
+        const { data, error } = await supabaseClient.from('pedidos').select('*, clientes(nombre)').order('created_at', { ascending: false }).limit(50);
         if (error) throw error;
         pedidosGlobal = data || [];
         if (!pedidosGlobal.length) { cont.innerHTML = '<div class="loading-text">Sin pedidos.</div>'; return; }
@@ -2243,11 +1946,10 @@ async function cargarPedidos() {
                     <strong>${fmtBs(p.total_estimado)}</strong>
                     <span class="status-pill ${st}">${p.estado}</span>
                 </div>
-                ${p.estado === 'Pendiente' ? `
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <button class="btn-sm btn-sm-success" onclick="cambiarEstadoPedido('${p.id}', 'Entregado')"><i class="fa-solid fa-check"></i></button>
-                        <button class="btn-sm btn-sm-danger" onclick="cambiarEstadoPedido('${p.id}', 'No entregado')"><i class="fa-solid fa-xmark"></i></button>
-                    </div>` : ''}
+                ${p.estado === 'Pendiente' ? `<div style="display:flex; flex-direction:column; gap:4px;">
+                    <button class="btn-sm btn-sm-success" onclick="cambiarEstadoPedido('${p.id}', 'Entregado')"><i class="fa-solid fa-check"></i></button>
+                    <button class="btn-sm btn-sm-danger" onclick="cambiarEstadoPedido('${p.id}', 'No entregado')"><i class="fa-solid fa-xmark"></i></button>
+                </div>` : ''}
             </div>`;
         }).join('');
     } catch (e) { cont.innerHTML = '<div class="loading-text">Error.</div>'; }
@@ -2275,19 +1977,15 @@ async function fetchEntregas() {
         const hasta = document.getElementById('entregas-hasta').value || hoyISO();
         document.getElementById('entregas-fecha-label').innerText = desde === hasta ? formatDate(desde + 'T12:00:00') : `${formatDate(desde + 'T12:00:00')} – ${formatDate(hasta + 'T12:00:00')}`;
 
-        const { data, error } = await supabaseClient
-            .from('entregas')
-            .select(`id, cliente, cliente_id, unidades, metodo_pago, total, created_at, vacios_devueltos, estado,
-                     flota ( nombre ), entregas_detalles ( cantidad, comision_unitaria, productos(nombre) )`)
-            .gte('created_at', `${desde}T00:00:00`)
-            .lte('created_at', `${hasta}T23:59:59`)
+        const { data, error } = await supabaseClient.from('entregas')
+            .select(`id, cliente, cliente_id, unidades, metodo_pago, total, created_at, vacios_devueltos, estado, flota ( nombre ), entregas_detalles ( cantidad, comision_unitaria, productos(nombre) )`)
+            .gte('created_at', `${desde}T00:00:00`).lte('created_at', `${hasta}T23:59:59`)
             .order('created_at', { ascending: false });
         if (error) throw error;
 
         entregasDelDia = data || [];
         let totalIngresos = 0;
         const comisiones = {};
-
         entregasDelDia.forEach(e => {
             if (e.estado === 'No entregado') return;
             totalIngresos += Number(e.total);
@@ -2297,14 +1995,12 @@ async function fetchEntregas() {
                 e.entregas_detalles.forEach(d => comisiones[n] += d.cantidad * d.comision_unitaria);
             }
         });
-
         reporteComisionesGlobal = comisiones;
         ventasDelDiaBs = totalIngresos;
         document.getElementById('kpi-ingresos').innerText = fmtBs(totalIngresos);
         calcularGanancia();
 
-        const tbCom = document.getElementById('comisiones-tbody');
-        tbCom.innerHTML = Object.keys(comisiones).length ? Object.keys(comisiones).map(f => `
+        document.getElementById('comisiones-tbody').innerHTML = Object.keys(comisiones).length ? Object.keys(comisiones).map(f => `
             <tr><td><strong>${f}</strong></td><td class="acc-debit">${fmtBs(comisiones[f])}</td></tr>`).join('')
             : '<tr><td colspan="2" class="loading-text">Sin comisiones.</td></tr>';
 
@@ -2314,26 +2010,22 @@ async function fetchEntregas() {
             const cls = est === 'No entregado' ? 'st-no-entregado' : est === 'Pendiente' ? 'st-pendiente' : 'st-entregado';
             const payCls = {Efectivo:'pay-efectivo',QR:'pay-qr',Crédito:'pay-credito',Transferencia:'pay-transferencia'}[e.metodo_pago] || '';
             const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${d.productos?.nombre || ''}`).join(', ');
-            return `
-                <div class="delivery-item">
-                    <div class="delivery-left">
-                        <div class="truck-avatar"><i class="fa-solid fa-truck-droplet"></i></div>
-                        <div style="min-width: 0;">
-                            <div class="delivery-client">${e.cliente}</div>
-                            <div class="delivery-meta-sub">
-                                <span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span> • <span>${e.flota?.nombre || 'S/R'}</span>
-                            </div>
-                            ${detalle ? `<div style="font-size:0.7rem; color:var(--primary);">${detalle}</div>` : ''}
-                        </div>
+            return `<div class="delivery-item">
+                <div class="delivery-left">
+                    <div class="truck-avatar"><i class="fa-solid fa-truck-droplet"></i></div>
+                    <div style="min-width: 0;">
+                        <div class="delivery-client">${e.cliente}</div>
+                        <div class="delivery-meta-sub"><span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span> • <span>${e.flota?.nombre || 'S/R'}</span></div>
+                        ${detalle ? `<div style="font-size:0.7rem; color:var(--primary);">${detalle}</div>` : ''}
                     </div>
-                    <div class="delivery-right">
-                        <div class="delivery-price">${fmtBs(e.total)}</div>
-                        <span class="payment-pill ${payCls}">${e.metodo_pago}</span>
-                        <span class="status-pill ${cls}">${est}</span>
-                    </div>
-                </div>`;
+                </div>
+                <div class="delivery-right">
+                    <div class="delivery-price">${fmtBs(e.total)}</div>
+                    <span class="payment-pill ${payCls}">${e.metodo_pago}</span>
+                    <span class="status-pill ${cls}">${est}</span>
+                </div>
+            </div>`;
         }).join('') : '<div class="loading-text">Sin entregas.</div>';
-
         renderChart();
     } catch (e) { console.error(e); }
 }
@@ -2358,11 +2050,10 @@ function renderChart() {
     if (fluidChartInstance) fluidChartInstance.destroy();
     fluidChartInstance = new Chart(ctx, {
         type: 'line',
-        data: {
-            labels: horas.map(h => `${String(h).padStart(2,'0')}h`),
-            datasets: [{ label: 'Ingresos', data, borderColor: '#0284c7', backgroundColor: 'rgba(2,132,199,0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#0284c7', pointRadius: 3 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } }
+        data: { labels: horas.map(h => `${String(h).padStart(2,'0')}h`),
+            datasets: [{ label: 'Ingresos', data, borderColor: '#0284c7', backgroundColor: 'rgba(2,132,199,0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#0284c7', pointRadius: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } }
     });
 }
 
@@ -2371,12 +2062,8 @@ function renderChart() {
 // ============================================
 async function cargarMorososInicio() {
     try {
-        const { data } = await supabaseClient.from('clientes')
-            .select('id, nombre, saldo_envases_prestados, saldo_pendiente')
-            .or('saldo_envases_prestados.gt.0,saldo_pendiente.gt.0')
-            .order('saldo_pendiente', { ascending: false }).limit(10);
-        const tbody = document.getElementById('inicio-morosos-tbody');
-        tbody.innerHTML = (data || []).length ? data.map(c => `
+        const { data } = await supabaseClient.from('clientes').select('id, nombre, saldo_envases_prestados, saldo_pendiente').or('saldo_envases_prestados.gt.0,saldo_pendiente.gt.0').order('saldo_pendiente', { ascending: false }).limit(10);
+        document.getElementById('inicio-morosos-tbody').innerHTML = (data || []).length ? data.map(c => `
             <tr class="${(c.saldo_pendiente||0) > 0 ? 'row-danger' : ''}">
                 <td>${c.nombre}</td><td>${c.saldo_envases_prestados || 0}</td><td>${fmtBs(c.saldo_pendiente || 0)}</td>
             </tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin deudas</td></tr>';
@@ -2440,29 +2127,16 @@ document.getElementById('form-caja').addEventListener('submit', async (e) => {
 async function fetchCaja() {
     try {
         const hoy = hoyISO();
-        const { data: movs } = await supabaseClient.from('movimientos_caja').select('*')
-            .gte('created_at', `${hoy}T00:00:00`).lte('created_at', `${hoy}T23:59:59`);
-        const { data: movsAll } = await supabaseClient.from('movimientos_caja').select('*')
-            .order('created_at', { ascending: false }).limit(20);
-
+        const { data: movs } = await supabaseClient.from('movimientos_caja').select('*').gte('created_at', `${hoy}T00:00:00`).lte('created_at', `${hoy}T23:59:59`);
+        const { data: movsAll } = await supabaseClient.from('movimientos_caja').select('*').order('created_at', { ascending: false }).limit(20);
         let totalCaja = 0;
         (movs||[]).forEach(m => totalCaja += m.tipo === 'ingreso' ? m.monto : -m.monto);
-
-        const { data: ventas } = await supabaseClient.from('entregas')
-            .select('total, metodo_pago, estado')
-            .in('metodo_pago', ['Efectivo','QR','Transferencia'])
-            .eq('estado', 'Entregado')
-            .gte('created_at', `${hoy}T00:00:00`).lte('created_at', `${hoy}T23:59:59`);
+        const { data: ventas } = await supabaseClient.from('entregas').select('total, metodo_pago, estado').in('metodo_pago', ['Efectivo','QR','Transferencia']).eq('estado', 'Entregado').gte('created_at', `${hoy}T00:00:00`).lte('created_at', `${hoy}T23:59:59`);
         (ventas||[]).forEach(v => totalCaja += parseFloat(v.total));
-
         document.getElementById('kpi-caja').innerText = fmtBs(totalCaja);
-
         document.getElementById('caja-tbody').innerHTML = (movsAll||[]).length ? movsAll.map(m => `
-            <tr>
-                <td>${formatTime(m.created_at)}</td>
-                <td>${m.descripcion}</td>
-                <td class="${m.tipo === 'ingreso' ? 'acc-debit' : 'acc-credit'}">${m.tipo === 'ingreso' ? '+' : '-'}${fmtBs(m.monto)}</td>
-            </tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin movimientos.</td></tr>';
+            <tr><td>${formatTime(m.created_at)}</td><td>${m.descripcion}</td>
+            <td class="${m.tipo === 'ingreso' ? 'acc-debit' : 'acc-credit'}">${m.tipo === 'ingreso' ? '+' : '-'}${fmtBs(m.monto)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin movimientos.</td></tr>';
     } catch (e) { console.error(e); }
 }
 
@@ -2471,38 +2145,28 @@ async function fetchCaja() {
 // ============================================
 async function cargarReportes() {
     try {
-        // Top productos
         const productosVendidos = {};
         entregasDelDia.filter(e => e.estado === 'Entregado').forEach(e => {
             (e.entregas_detalles || []).forEach(d => {
                 const nombre = d.productos?.nombre || 'Producto';
                 if (!productosVendidos[nombre]) productosVendidos[nombre] = { cantidad: 0, total: 0 };
                 productosVendidos[nombre].cantidad += d.cantidad;
-                productosVendidos[nombre].total += d.cantidad * d.comision_unitaria; // aprox
             });
         });
-
-        const tbp = document.getElementById('reporte-top-productos-tbody');
         const top = Object.keys(productosVendidos).sort((a,b) => productosVendidos[b].cantidad - productosVendidos[a].cantidad).slice(0, 10);
-        tbp.innerHTML = top.length ? top.map(n => `
-            <tr><td>${n}</td><td>${productosVendidos[n].cantidad}</td><td>${fmtBs(productosVendidos[n].total)}</td></tr>`).join('')
-            : '<tr><td colspan="3" class="loading-text">Sin ventas.</td></tr>';
+        document.getElementById('reporte-top-productos-tbody').innerHTML = top.length ? top.map(n => `
+            <tr><td>${n}</td><td>${productosVendidos[n].cantidad}</td><td>—</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin ventas.</td></tr>';
 
-        // Botellones por vehículo
-        const tb = document.getElementById('reporte-botellones-tbody');
         const rows = flotaGlobalTodas.map(f => {
             const ef = entregasDelDia.filter(e => e.flota?.nombre === f.nombre && e.estado === 'Entregado');
             const vend = ef.reduce((a,e) => a + Number(e.unidades), 0);
             const ret = ef.reduce((a,e) => a + (e.vacios_devueltos||0), 0);
-            const carg = f.capacidad_maxima;
-            return { ruta: f.nombre, carg, vend, ret, dif: carg - vend - f.stock_actual };
+            return { ruta: f.nombre, carg: f.capacidad_maxima, vend, ret, dif: f.capacidad_maxima - vend - f.stock_actual };
         });
-        tb.innerHTML = rows.length ? rows.map(r => `
+        document.getElementById('reporte-botellones-tbody').innerHTML = rows.length ? rows.map(r => `
             <tr><td>${r.ruta}</td><td>${r.carg}</td><td>${r.vend}</td><td>${r.ret}</td>
-            <td class="${r.dif !== 0 ? 'acc-credit' : ''}">${r.dif}</td></tr>`).join('')
-            : '<tr><td colspan="5" class="loading-text">Sin datos.</td></tr>';
+            <td class="${r.dif !== 0 ? 'acc-credit' : ''}">${r.dif}</td></tr>`).join('') : '<tr><td colspan="5" class="loading-text">Sin datos.</td></tr>';
 
-        // Cobranza
         const mets = {};
         entregasDelDia.filter(e => e.estado === 'Entregado').forEach(e => {
             const m = e.metodo_pago || 'N/A';
@@ -2510,18 +2174,11 @@ async function cargarReportes() {
             mets[m].n++; mets[m].t += Number(e.total);
         });
         document.getElementById('reporte-cobranza-tbody').innerHTML = Object.keys(mets).length ? Object.keys(mets).map(m => `
-            <tr><td>${m}</td><td>${mets[m].n}</td><td class="acc-debit">${fmtBs(mets[m].t)}</td></tr>`).join('')
-            : '<tr><td colspan="3" class="loading-text">Sin cobros.</td></tr>';
+            <tr><td>${m}</td><td>${mets[m].n}</td><td class="acc-debit">${fmtBs(mets[m].t)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin cobros.</td></tr>';
 
-        // Morosos
-        const { data: morosos } = await supabaseClient.from('clientes')
-            .select('nombre, saldo_envases_prestados, saldo_pendiente')
-            .or('saldo_envases_prestados.gt.0,saldo_pendiente.gt.0')
-            .order('saldo_pendiente', { ascending: false });
+        const { data: morosos } = await supabaseClient.from('clientes').select('nombre, saldo_envases_prestados, saldo_pendiente').or('saldo_envases_prestados.gt.0,saldo_pendiente.gt.0').order('saldo_pendiente', { ascending: false });
         document.getElementById('reporte-morosos-tbody').innerHTML = (morosos||[]).length ? morosos.map(c => `
-            <tr class="${(c.saldo_pendiente||0) > 0 ? 'row-danger' : ''}">
-                <td>${c.nombre}</td><td>${c.saldo_envases_prestados || 0}</td><td>${fmtBs(c.saldo_pendiente || 0)}</td></tr>`).join('')
-            : '<tr><td colspan="3" class="loading-text">Sin deudas.</td></tr>';
+            <tr class="${(c.saldo_pendiente||0) > 0 ? 'row-danger' : ''}"><td>${c.nombre}</td><td>${c.saldo_envases_prestados || 0}</td><td>${fmtBs(c.saldo_pendiente || 0)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin deudas.</td></tr>';
     } catch (e) { console.error(e); }
 }
 
@@ -2543,32 +2200,16 @@ function exportarGlobalPDF() {
     doc.setFontSize(18);
     doc.text('Reporte Global - Aqua Vita', 14, 20);
     doc.text(`Fecha: ${new Date().toLocaleString('es-BO')}`, 14, 28);
-
     let tIng = 0, tCom = 0;
     const rows = flotaGlobalActiva.map(f => {
         const ef = entregasDelDia.filter(e => e.flota?.nombre === f.nombre && e.estado === 'Entregado');
-        let ing = 0;
-        ef.forEach(e => { ing += Number(e.total); });
+        let ing = 0; ef.forEach(e => { ing += Number(e.total); });
         const com = reporteComisionesGlobal[f.nombre] || 0;
         tIng += ing; tCom += com;
         return [f.nombre, f.choferes?.nombre || 'S/A', f.stock_actual, fmtBs(ing), fmtBs(com), fmtBs(ing - com)];
     });
-
-    doc.autoTable({
-        startY: 35,
-        head: [['Resumen','Total']],
-        body: [
-            ['Ingresos Brutos', fmtBs(tIng)],
-            ['Comisiones', fmtBs(tCom)],
-            ['Ganancia (aprox)', fmtBs(tIng - tCom)]
-        ],
-        theme: 'grid', headStyles: { fillColor: [2,132,199] }
-    });
-    doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 10,
-        head: [['Ruta','Chofer','Stock','Ingresos','Comisión','Neto']],
-        body: rows, theme: 'striped', headStyles: { fillColor: [71,85,105] }
-    });
+    doc.autoTable({ startY: 35, head: [['Resumen','Total']], body: [['Ingresos', fmtBs(tIng)], ['Comisiones', fmtBs(tCom)], ['Neto', fmtBs(tIng - tCom)]], theme: 'grid', headStyles: { fillColor: [2,132,199] } });
+    doc.autoTable({ startY: doc.lastAutoTable.finalY + 10, head: [['Ruta','Chofer','Stock','Ingresos','Comisión','Neto']], body: rows, theme: 'striped', headStyles: { fillColor: [71,85,105] } });
     doc.save('Reporte_Global_AquaVita.pdf');
 }
 
@@ -2576,8 +2217,7 @@ function exportarGlobalExcel() {
     if (!flotaGlobalActiva.length) return alert('No hay unidades activas.');
     const data = flotaGlobalActiva.map(f => {
         const ef = entregasDelDia.filter(e => e.flota?.nombre === f.nombre && e.estado === 'Entregado');
-        let ing = 0;
-        ef.forEach(e => { ing += Number(e.total); });
+        let ing = 0; ef.forEach(e => { ing += Number(e.total); });
         const com = reporteComisionesGlobal[f.nombre] || 0;
         return { Ruta: f.nombre, Chofer: f.choferes?.nombre || 'S/A', Stock_Actual: f.stock_actual, Ingresos: ing, Comision: com, Neto: ing - com };
     });
@@ -2601,8 +2241,7 @@ function exportarEntregasPDF() {
     doc.setFontSize(16);
     doc.text('Entregas - Aqua Vita', 14, 18);
     doc.autoTable({
-        startY: 25,
-        head: [['Hora','Cliente','Ruta','Bot.','Estado','Pago','Total']],
+        startY: 25, head: [['Hora','Cliente','Ruta','Bot.','Estado','Pago','Total']],
         body: entregasDelDia.map(e => [formatTime(e.created_at), e.cliente, e.flota?.nombre || 'S/R', e.unidades, e.estado || 'Entregado', e.metodo_pago, fmtBs(e.total)]),
         theme: 'striped', headStyles: { fillColor: [2,132,199] }, styles: { fontSize: 8 }
     });
@@ -2617,20 +2256,10 @@ function exportarIndividualPDF() {
     const entregasFlota = entregasDelDia.filter(e => e.flota?.nombre === currentFleetName && e.estado === 'Entregado');
     const totalIngresos = entregasFlota.reduce((a,e) => a + Number(e.total), 0);
     const comision = reporteComisionesGlobal[currentFleetName] || 0;
-
     doc.setFontSize(18);
     doc.text('Reporte de Ruta - Aqua Vita', 14, 20);
     doc.text(`Unidad: ${currentFleetName}`, 14, 28);
-    doc.autoTable({
-        startY: 35,
-        head: [['Concepto','Valor']],
-        body: [
-            ['Ingresos', fmtBs(totalIngresos)],
-            ['Comisión Chofer', fmtBs(comision)],
-            ['Neto', fmtBs(totalIngresos - comision)]
-        ],
-        theme: 'grid', headStyles: { fillColor: [2,132,199] }
-    });
+    doc.autoTable({ startY: 35, head: [['Concepto','Valor']], body: [['Ingresos', fmtBs(totalIngresos)], ['Comisión', fmtBs(comision)], ['Neto', fmtBs(totalIngresos - comision)]], theme: 'grid', headStyles: { fillColor: [2,132,199] } });
     doc.save(`Reporte_${currentFleetName.replace(/ /g,'_')}.pdf`);
 }
 
@@ -2677,10 +2306,7 @@ async function renderMapaCamiones() {
                 mapMarkers[f.id] = marker;
             }
             html += `<div style="padding: 10px; background: var(--surface-subtle); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="font-weight: 700; font-size: 0.85rem;">${f.nombre}</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted);">${f.choferes?.nombre || 'N/A'} • ${f.stock_actual} bot.</div>
-                </div>
+                <div><div style="font-weight: 700; font-size: 0.85rem;">${f.nombre}</div><div style="font-size: 0.72rem; color: var(--text-muted);">${f.choferes?.nombre || 'N/A'} • ${f.stock_actual} bot.</div></div>
                 <span style="font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: ${color}20; color: ${color};">${estadoTexto}</span>
             </div>`;
         });
@@ -2694,22 +2320,22 @@ async function renderMapaCamiones() {
 // TUTORIAL
 // ============================================
 const TUTORIAL_STORAGE_KEY = 'aquavita_admin_tutorial_v3';
-let tutorialIndex = 0, tutorialActivo = false, tutorialSoundEnabled = true;
+let tutorialIndex = 0, tutorialSoundEnabled = true;
 
 const TUTORIAL_STEPS = [
-    { target: 'header .logo', screen: null, title: '👋 ¡Bienvenido!', text: 'Te guío por el panel de Aqua Vita. Ahora incluye gestión completa de productos.' },
+    { target: 'header .logo', screen: null, title: '👋 ¡Bienvenido!', text: 'Te guío por el panel de Aqua Vita.' },
     { target: '[onclick*="\'inicio\'"]', screen: 'inicio', title: '📊 Inicio', text: 'Balance del día, alertas de stock bajo y ventas por hora.' },
-    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Crea, edita y controla todos los productos. Cada uno con costo, precio, margen y stock.' },
-    { target: '[onclick*="\'clientes\'"]', screen: 'clientes', title: '👥 Clientes', text: 'Registra clientes con GPS y consulta su historial completo.' },
-    { target: '[onclick*="\'pedidos\'"]', screen: 'pedidos', title: '📋 Pedidos', text: 'Sistema de preventa para el día siguiente.' },
-    { target: '[onclick*="\'rutas\'"]', screen: 'rutas', title: '🗺️ Rutas', text: 'Clientes por ruta con navegación Google Maps.' },
-    { target: '[onclick*="\'fabrica\'"]', screen: 'fabrica', title: '🏭 Fábrica', text: 'Inventario general, producción de cualquier producto y ajustes de stock.' },
-    { target: '[onclick*="\'flota\'"]', screen: 'flota', title: '🚚 Flota', text: 'Despacha camiones cargando varios productos a la vez.' },
-    { target: '[onclick*="\'mapa\'"]', screen: 'mapa', title: '📡 Mapa', text: 'Ubicación en tiempo real de los camiones.' },
-    { target: '[onclick*="\'entregas\'"]', screen: 'entregas', title: '📦 Entregas', text: 'Historial completo con filtro por fecha.' },
-    { target: '[onclick*="\'reportes\'"]', screen: 'reportes', title: '📈 Reportes', text: 'Top productos, botellones por vehículo, cobranza y morosos.' },
-    { target: '[onclick*="\'finanzas\'"]', screen: 'finanzas', title: '💰 Finanzas', text: 'Saldo, ganancia neta, comisiones y precios.' },
-    { target: '.tutorial-btn', screen: 'inicio', title: '✅ ¡Listo!', text: 'Toca el ícono 🎓 para volver a ver este tutorial. ¡Éxito!' }
+    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Crea, edita y controla todos los productos.' },
+    { target: '[onclick*="\'clientes\'"]', screen: 'clientes', title: '👥 Clientes', text: 'Registra clientes con GPS e historial completo.' },
+    { target: '[onclick*="\'pedidos\'"]', screen: 'pedidos', title: '📋 Pedidos', text: 'Sistema de preventa.' },
+    { target: '[onclick*="\'rutas\'"]', screen: 'rutas', title: '🗺️ Rutas', text: 'Clientes por ruta con navegación.' },
+    { target: '[onclick*="\'fabrica\'"]', screen: 'fabrica', title: '🏭 Fábrica', text: 'Inventario y producción.' },
+    { target: '[onclick*="\'flota\'"]', screen: 'flota', title: '🚚 Flota', text: 'Despacho multi-producto.' },
+    { target: '[onclick*="\'mapa\'"]', screen: 'mapa', title: '📡 Mapa', text: 'Ubicación en tiempo real.' },
+    { target: '[onclick*="\'entregas\'"]', screen: 'entregas', title: '📦 Entregas', text: 'Historial completo.' },
+    { target: '[onclick*="\'reportes\'"]', screen: 'reportes', title: '📈 Reportes', text: 'Top productos y cobranza.' },
+    { target: '[onclick*="\'finanzas\'"]', screen: 'finanzas', title: '💰 Finanzas', text: 'Saldo y ganancia neta.' },
+    { target: '.tutorial-btn', screen: 'inicio', title: '✅ ¡Listo!', text: 'Toca el ícono 🎓 para repetir el tutorial.' }
 ];
 
 function speakTutorial(texto) {
@@ -2729,13 +2355,13 @@ function detenerVoz() { if ('speechSynthesis' in window) window.speechSynthesis.
 
 function iniciarTutorial(manual = false) {
     if (!manual && localStorage.getItem(TUTORIAL_STORAGE_KEY) === 'seen') return;
-    tutorialIndex = 0; tutorialActivo = true;
+    tutorialIndex = 0;
     document.getElementById('tutorial-overlay').style.display = 'block';
     mostrarPasoTutorial();
 }
 
 function cerrarTutorial() {
-    tutorialActivo = false; detenerVoz();
+    detenerVoz();
     document.getElementById('tutorial-overlay').style.display = 'none';
     localStorage.setItem(TUTORIAL_STORAGE_KEY, 'seen');
 }
@@ -2772,10 +2398,7 @@ function mostrarPasoTutorial() {
 
     setTimeout(() => {
         const target = document.querySelector(paso.target);
-        if (!target) {
-            if (tutorialIndex < TUTORIAL_STEPS.length - 1) { tutorialIndex++; mostrarPasoTutorial(); }
-            return;
-        }
+        if (!target) { if (tutorialIndex < TUTORIAL_STEPS.length - 1) { tutorialIndex++; mostrarPasoTutorial(); } return; }
         target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         setTimeout(() => {
             const rect = target.getBoundingClientRect();
@@ -2785,13 +2408,11 @@ function mostrarPasoTutorial() {
             highlight.style.left = (rect.left - pad) + 'px';
             highlight.style.width = (rect.width + pad * 2) + 'px';
             highlight.style.height = (rect.height + pad * 2) + 'px';
-
             const card = document.getElementById('tutorial-card');
             const cardWidth = Math.min(360, window.innerWidth - 32);
             const cardLeft = Math.max(16, (window.innerWidth - cardWidth) / 2);
             card.style.width = cardWidth + 'px';
             card.style.left = cardLeft + 'px';
-
             const espacioAbajo = window.innerHeight - rect.bottom;
             if (espacioAbajo > 260) card.style.top = (rect.bottom + 20) + 'px';
             else if (rect.top > 260) card.style.top = (rect.top - 240) + 'px';
@@ -2805,16 +2426,10 @@ function mostrarPasoTutorial() {
 // ============================================
 function suscribirRealtime() {
     supabaseClient.channel('admin-live')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'flota' }, () => {
-            fetchFlota();
-            if (document.getElementById('screen-mapa').classList.contains('active')) renderMapaCamiones();
-        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'flota' }, () => { fetchFlota(); if (document.getElementById('screen-mapa').classList.contains('active')) renderMapaCamiones(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, () => fetchEntregas())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => cargarClientesDirectorio())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => {
-            cargarProductos();
-            cargarStockBajo();
-        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => { cargarProductos(); cargarStockBajo(); })
         .subscribe();
 }
 
