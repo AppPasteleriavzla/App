@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aqua Vita - Panel Gerencial v2.3</title>
+    <title>Aqua Vita - Panel Gerencial v2.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -816,7 +816,6 @@
     <div class="nav-item" onclick="switchScreen('finanzas', this)"><i class="fa-solid fa-wallet"></i><span>Finanzas</span></div>
 </nav>
 
-    <!-- MODALES -->
 <div id="historialModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header"><h3 id="historial-title"><i class="fa-solid fa-clock-rotate-left"></i> Historial</h3><button class="modal-close" onclick="cerrarModal('historialModal')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -980,14 +979,31 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 // ============================================
+// HELPERS
+// ============================================
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtBs = (v) => `Bs. ${Number(v).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+const formatTime = (s) => new Date(s).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
+const formatDate = (s) => new Date(s).toLocaleDateString('es-BO',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+// Fecha local (hora boliviana), no UTC
+function hoyISO() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+}
+
+const catIcon = (c) => ({Agua:'fa-droplet',Bebida:'fa-bottle-water',Hielo:'fa-snowflake',Snack:'fa-cookie-bite',General:'fa-box'}[c]||'fa-box');
+const catClass = (c) => ({Agua:'',Bebida:'cat-bebida',Hielo:'cat-hielo',Snack:'cat-snack',General:'cat-otro'}[c]||'cat-otro');
+
+// ============================================
 // VARIABLES GLOBALES
 // ============================================
 let costoProduccion = 5;
 let precioVenta = 15;
 let ventasDelDiaBs = 0;
-let unidadesVendidasDia = 0;
-let stockFabricaLlenos = 0;
-let stockFabricaVacios = 0;
 let fluidChartInstance = null;
 let entregasDelDia = [];
 let flotaGlobalActiva = [];
@@ -995,7 +1011,7 @@ let flotaGlobalTodas = [];
 let productosGlobal = [];
 let clientesGlobal = [];
 let pedidosGlobal = [];
-let reporteComisionesGlobal = {};
+let reporteComisionesGlobal = {};  // ahora por flota_id
 let clienteAbonoActual = null;
 let clienteEditActual = null;
 let liveMap = null;
@@ -1007,13 +1023,6 @@ let carritoDespacho = [];
 let carritoRecarga = [];
 let cerrarRutaItems = [];
 
-const fmtBs = (v) => `Bs. ${Number(v).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-const formatTime = (s) => new Date(s).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
-const formatDate = (s) => new Date(s).toLocaleDateString('es-BO',{day:'2-digit',month:'2-digit',year:'numeric'});
-const hoyISO = () => new Date().toISOString().split('T')[0];
-const catIcon = (c) => ({Agua:'fa-droplet',Bebida:'fa-bottle-water',Hielo:'fa-snowflake',Snack:'fa-cookie-bite',General:'fa-box'}[c]||'fa-box');
-const catClass = (c) => ({Agua:'',Bebida:'cat-bebida',Hielo:'cat-hielo',Snack:'cat-snack',General:'cat-otro'}[c]||'cat-otro');
-
 document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
 document.getElementById('entregas-desde').value = hoyISO();
 document.getElementById('entregas-hasta').value = hoyISO();
@@ -1021,16 +1030,28 @@ document.getElementById('entregas-hasta').value = hoyISO();
 // ============================================
 // NAVEGACIÓN
 // ============================================
-function switchScreen(name, el) {
+async function switchScreen(name, el) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     if (el) el.classList.add('active');
 
-    if (name === 'inicio') { fetchEntregas(); cargarMorososInicio(); cargarStockBajo(); }
+    // Pantallas que siempre muestran "hoy" → resetear filtro
+    if (['inicio','finanzas','reportes'].includes(name)) {
+        const desde = document.getElementById('entregas-desde');
+        const hasta = document.getElementById('entregas-hasta');
+        const hoy = hoyISO();
+        if (desde.value !== hoy || hasta.value !== hoy) {
+            desde.value = hoy;
+            hasta.value = hoy;
+            await fetchEntregas();
+        }
+    }
+
+    if (name === 'inicio') { cargarMorososInicio(); cargarStockBajo(); }
     if (name === 'productos') cargarProductos();
     if (name === 'mapa') initMapa();
-    if (name === 'finanzas') { fetchCaja(); fetchEntregas(); }
+    if (name === 'finanzas') fetchCaja();
     if (name === 'clientes') { cargarClientesDirectorio(); llenarSelectRutas(); }
     if (name === 'pedidos') { llenarSelectClientesPedido(); cargarPedidos(); }
     if (name === 'reportes') cargarReportes();
@@ -1082,8 +1103,8 @@ function renderProductos() {
                 </div>
                 <div class="producto-info">
                     <div class="producto-nombre">
-                        ${p.nombre}
-                        <span class="producto-categoria-pill">${p.categoria}</span>
+                        ${esc(p.nombre)}
+                        <span class="producto-categoria-pill">${esc(p.categoria)}</span>
                         ${p.requiere_envase ? '<span class="producto-categoria-pill" style="background:#dbeafe;color:#1e40af;">🔄 Envase</span>' : ''}
                         ${!p.activo ? '<span class="producto-categoria-pill" style="background:#e2e8f0;color:#475569;">Inactivo</span>' : ''}
                     </div>
@@ -1095,13 +1116,14 @@ function renderProductos() {
                     <div class="producto-stock ${stockClass}">
                         <i class="fa-solid fa-boxes-stacked"></i>
                         <span class="producto-stock-num">${stock}</span>
-                        <span>${p.unidad_medida || 'unidad'}(s) ${stock === 0 ? '— AGOTADO' : (stock <= stockMin ? '— BAJO' : '')}</span>
+                        <span>${esc(p.unidad_medida || 'unidad')}(s) ${stock === 0 ? '— AGOTADO' : (stock <= stockMin ? '— BAJO' : '')}</span>
                     </div>
                 </div>
                 <div class="producto-actions">
-                    <button class="btn-icon btn-icon-primary" onclick="abrirKardex('${p.id}', '${p.nombre.replace(/'/g,"\\'")}')" title="Kardex"><i class="fa-solid fa-scroll"></i></button>
+                    <button class="btn-icon btn-icon-primary" onclick="abrirKardex('${p.id}')" title="Kardex"><i class="fa-solid fa-scroll"></i></button>
                     <button class="btn-icon btn-icon-purple" onclick="abrirEditarProducto('${p.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-icon btn-icon-warning" onclick="eliminarProducto('${p.id}', '${p.nombre.replace(/'/g,"\\'")}')" title="Desactivar"><i class="fa-solid fa-eye-slash"></i></button>
+                    <button class="btn-icon btn-icon-warning" onclick="desactivarProducto('${p.id}')" title="Desactivar"><i class="fa-solid fa-eye-slash"></i></button>
+                    <button class="btn-icon btn-icon-danger" onclick="borrarProductoFisico('${p.id}')" title="Borrar permanentemente"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>`;
     }).join('');
@@ -1175,16 +1197,75 @@ async function guardarEdicionProducto() {
     } catch (e) { alert('Error: ' + e.message); }
 }
 
-async function eliminarProducto(id, nombre) {
-    if (!confirm(`¿Desactivar "${nombre}"? No aparecerá en el catálogo del chofer.`)) return;
+// Desactivar (soft delete) — el producto queda oculto en el catálogo
+async function desactivarProducto(id) {
+    const p = productosGlobal.find(x => String(x.id) === String(id));
+    if (!p) return;
+    if (!confirm(`¿Desactivar "${p.nombre}"? No aparecerá en el catálogo del chofer.`)) return;
     try {
-        await supabaseClient.from('productos').update({ activo: false }).eq('id', id);
+        const { error } = await supabaseClient.from('productos').update({ activo: false }).eq('id', id);
+        if (error) throw error;
         cargarProductos();
     } catch (e) { alert('Error: ' + e.message); }
 }
 
-async function abrirKardex(id, nombre) {
-    document.getElementById('kardex-title').innerHTML = `<i class="fa-solid fa-scroll"></i> ${nombre}`;
+// Borrado físico (hard delete) — sólo si no tiene dependencias
+async function borrarProductoFisico(id) {
+    const p = productosGlobal.find(x => String(x.id) === String(id));
+    if (!p) return;
+
+    if (!confirm(`⚠️ ¿BORRAR PERMANENTEMENTE "${p.nombre}"?\n\nEsta acción NO se puede deshacer.`)) return;
+
+    try {
+        // Verificar dependencias
+        const [entregas, movimientos, flotaStock, pedidos] = await Promise.all([
+            supabaseClient.from('entregas_detalles').select('id', { count: 'exact', head: true }).eq('producto_id', id),
+            supabaseClient.from('movimientos_producto').select('id', { count: 'exact', head: true }).eq('producto_id', id),
+            supabaseClient.from('flota_stock').select('id', { count: 'exact', head: true }).eq('producto_id', id),
+            supabaseClient.from('pedidos').select('id', { count: 'exact', head: true }).eq('producto_id', id)
+        ]);
+
+        const counts = {
+            entregas: entregas.count || 0,
+            movimientos: movimientos.count || 0,
+            flota: flotaStock.count || 0,
+            pedidos: pedidos.count || 0
+        };
+        const total = counts.entregas + counts.movimientos + counts.flota + counts.pedidos;
+
+        if (total > 0) {
+            const detalle = [];
+            if (counts.entregas > 0) detalle.push(`• ${counts.entregas} entrega(s)`);
+            if (counts.movimientos > 0) detalle.push(`• ${counts.movimientos} movimiento(s) de stock`);
+            if (counts.flota > 0) detalle.push(`• ${counts.flota} registro(s) de stock en camión`);
+            if (counts.pedidos > 0) detalle.push(`• ${counts.pedidos} pedido(s)`);
+
+            if (confirm(`⚠️ El producto "${p.nombre}" tiene registros asociados:\n\n${detalle.join('\n')}\n\nNo se puede borrar permanentemente (rompería el historial).\n\n¿Deseas DESACTIVARLO en su lugar?`)) {
+                const { error } = await supabaseClient.from('productos').update({ activo: false }).eq('id', id);
+                if (error) throw error;
+                alert('✅ Producto desactivado (oculto del catálogo)');
+                cargarProductos();
+                cargarStockBajo();
+            }
+            return;
+        }
+
+        // Sin dependencias: borrar físicamente
+        const { error } = await supabaseClient.from('productos').delete().eq('id', id);
+        if (error) throw error;
+        alert(`✅ Producto "${p.nombre}" eliminado permanentemente`);
+        cargarProductos();
+        cargarStockBajo();
+        cargarInventarioFabrica();
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+
+async function abrirKardex(id) {
+    const p = productosGlobal.find(x => String(x.id) === String(id));
+    const nombre = p?.nombre || 'Producto';
+    document.getElementById('kardex-title').innerHTML = `<i class="fa-solid fa-scroll"></i> ${esc(nombre)}`;
     document.getElementById('kardex-body').innerHTML = '<div class="loading-text">Cargando...</div>';
     document.getElementById('kardexModal').style.display = 'flex';
 
@@ -1202,9 +1283,9 @@ async function abrirKardex(id, nombre) {
         document.getElementById('kardex-body').innerHTML = data.map(m => `
             <div class="hist-row">
                 <div>
-                    <strong>${tipoIcon[m.tipo] || '•'} ${m.tipo.toUpperCase()}</strong><br>
+                    <strong>${tipoIcon[m.tipo] || '•'} ${esc(m.tipo.toUpperCase())}</strong><br>
                     <small style="color:var(--text-muted)">${formatDate(m.created_at)} ${formatTime(m.created_at)}</small>
-                    ${m.motivo ? `<br><small style="color:var(--text-muted)">${m.motivo}</small>` : ''}
+                    ${m.motivo ? `<br><small style="color:var(--text-muted)">${esc(m.motivo)}</small>` : ''}
                 </div>
                 <div style="text-align:right;">
                     <strong style="color: ${m.cantidad > 0 ? 'var(--success)' : 'var(--danger)'};">${m.cantidad > 0 ? '+' : ''}${m.cantidad}</strong><br>
@@ -1227,10 +1308,15 @@ async function cargarStockBajo() {
         const alertas = (data || []).filter(p => (p.stock_actual || 0) <= (p.stock_minimo || 5));
 
         document.getElementById('kpi-productos').innerText = (data || []).length;
+        const trend = document.getElementById('kpi-productos-trend');
         if (alertas.length > 0) {
-            document.getElementById('kpi-productos-trend').innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${alertas.length} con stock bajo`;
-            document.getElementById('kpi-productos-trend').style.background = 'var(--warning-light)';
-            document.getElementById('kpi-productos-trend').style.color = '#b45309';
+            trend.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${alertas.length} con stock bajo`;
+            trend.style.background = 'var(--warning-light)';
+            trend.style.color = '#b45309';
+        } else {
+            trend.innerHTML = '<i class="fa-solid fa-check"></i> En inventario';
+            trend.style.background = '';
+            trend.style.color = '';
         }
 
         if (!alertas.length) {
@@ -1241,8 +1327,8 @@ async function cargarStockBajo() {
         cont.innerHTML = alertas.map(p => `
             <div class="stock-alert-item ${p.stock_actual === 0 ? 'out' : ''}">
                 <div>
-                    <strong style="font-size: 0.85rem;">${p.nombre}</strong>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">${p.categoria}</div>
+                    <strong style="font-size: 0.85rem;">${esc(p.nombre)}</strong>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">${esc(p.categoria)}</div>
                 </div>
                 <div style="text-align: right; font-weight: 800; font-size: 0.85rem;">${p.stock_actual} / min ${p.stock_minimo}</div>
             </div>
@@ -1258,7 +1344,7 @@ async function cargarStockBajo() {
 function llenarSelectsProductos() {
     const opts = '<option value="">Seleccionar producto...</option>' +
         productosGlobal.filter(p => p.activo !== false)
-            .map(p => `<option value="${p.id}">${p.nombre} (Stock: ${p.stock_actual || 0})</option>`).join('');
+            .map(p => `<option value="${p.id}">${esc(p.nombre)} (Stock: ${p.stock_actual || 0})</option>`).join('');
     ['prod-produccion-select','prod-ajuste-select','flota-add-producto','recargar-producto'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.innerHTML = opts;
@@ -1269,7 +1355,7 @@ function llenarSelectsProductosPedido() {
     const selProd = document.getElementById('ped-producto');
     if (!selProd) return;
     selProd.innerHTML = productosGlobal.filter(p => p.activo !== false)
-        .map(p => `<option value="${p.id}">${p.nombre} (Bs.${p.precio_venta})</option>`).join('');
+        .map(p => `<option value="${p.id}">${esc(p.nombre)} (Bs.${p.precio_venta})</option>`).join('');
 }
 
 // ============================================
@@ -1289,8 +1375,8 @@ async function cargarInventarioFabrica() {
             const valor = (p.stock_actual || 0) * (p.costo || 0);
             totalValor += valor;
             return `<tr>
-                <td><strong>${p.nombre}</strong><br><small style="color:var(--text-muted)">${p.categoria}</small></td>
-                <td>${p.stock_actual || 0} ${p.unidad_medida || ''}</td>
+                <td><strong>${esc(p.nombre)}</strong><br><small style="color:var(--text-muted)">${esc(p.categoria)}</small></td>
+                <td>${p.stock_actual || 0} ${esc(p.unidad_medida || '')}</td>
                 <td>${fmtBs(p.costo || 0)}</td>
                 <td class="acc-debit">${fmtBs(valor)}</td>
             </tr>`;
@@ -1360,6 +1446,8 @@ async function fetchEnvases() {
         document.getElementById('fab-vacios').innerText = stockFabricaVacios;
     } catch (e) { console.error(e); }
 }
+let stockFabricaLlenos = 0;
+let stockFabricaVacios = 0;
 
 document.getElementById('btn-guardar-arqueo').addEventListener('click', async () => {
     const fl = prompt('Stock físico LLENOS:', stockFabricaLlenos);
@@ -1382,9 +1470,10 @@ async function fetchAsientosContables() {
         const { data } = await supabaseClient.from('asientos_contables').select('*').order('created_at', { ascending: false }).limit(20);
         document.getElementById('asientos-tbody').innerHTML = (data||[]).length ? data.map(a => `
             <tr>
-                <td>${formatTime(a.created_at)}</td><td>${a.concepto}</td>
-                <td class="acc-debit">${a.cuenta_debe} ${fmtBs(a.monto)}</td>
-                <td class="acc-credit">${a.cuenta_haber} ${fmtBs(a.monto)}</td>
+                <td>${formatDate(a.created_at)} ${formatTime(a.created_at)}</td>
+                <td>${esc(a.concepto)}</td>
+                <td class="acc-debit">${esc(a.cuenta_debe)} ${fmtBs(a.monto)}</td>
+                <td class="acc-credit">${esc(a.cuenta_haber)} ${fmtBs(a.monto)}</td>
             </tr>`).join('') : '<tr><td colspan="4" class="loading-text">Sin asientos.</td></tr>';
     } catch (e) { console.error(e); }
 }
@@ -1424,7 +1513,7 @@ function renderCarrito(tipo) {
     cont.innerHTML = carrito.map((item, i) => `
         <div class="cart-item">
             <div class="cart-item-info">
-                <div class="cart-item-nombre">${item.nombre}</div>
+                <div class="cart-item-nombre">${esc(item.nombre)}</div>
                 <div class="cart-item-detalle">Cantidad: <strong>${item.cantidad}</strong> ${item.requiere_envase ? '🔄' : ''}</div>
             </div>
             <div class="cart-item-actions"><button class="btn-icon btn-icon-danger" onclick="quitarDelCarrito('${tipo}', ${i})"><i class="fa-solid fa-trash"></i></button></div>
@@ -1477,9 +1566,19 @@ async function fetchFlota() {
         flotaGlobalTodas = data || [];
         const activas = flotaGlobalTodas.filter(f => f.estado === 'ruta');
         flotaGlobalActiva = activas;
-        let totalAgua = 0;
-        activas.forEach(f => totalAgua += (f.stock_actual || 0));
-        document.getElementById('kpi-unidades').innerText = totalAgua;
+
+        // KPI "En Ruta": sumar unidades reales de flota_stock de productos con envase
+        let totalUnidades = 0;
+        if (activas.length) {
+            const flotaIds = activas.map(f => f.id);
+            const { data: stocks } = await supabaseClient.from('flota_stock')
+                .select('flota_id, cantidad_actual, productos(requiere_envase)')
+                .in('flota_id', flotaIds);
+            (stocks || []).forEach(s => {
+                if (s.productos?.requiere_envase) totalUnidades += Number(s.cantidad_actual || 0);
+            });
+        }
+        document.getElementById('kpi-unidades').innerText = totalUnidades;
 
         const cont = document.getElementById('fleet-list');
         if (!activas.length) { cont.innerHTML = '<div class="loading-text">No hay unidades en ruta.</div>'; return; }
@@ -1496,13 +1595,13 @@ async function fetchFlota() {
             const productosFlota = stocksPorFlota[f.id] || [];
             const chips = productosFlota.map(p => {
                 const low = p.cantidad_actual < 10;
-                return `<span class="fleet-producto-chip ${low ? 'low' : ''}">${p.productos?.nombre}: ${p.cantidad_actual}</span>`;
+                return `<span class="fleet-producto-chip ${low ? 'low' : ''}">${esc(p.productos?.nombre || 'Producto')}: ${p.cantidad_actual}</span>`;
             }).join('');
             return `<div class="fleet-card">
-                <div class="fleet-header"><div class="fleet-name"><i class="fa-solid fa-truck"></i> ${f.nombre}</div><div class="fleet-trip">En curso</div></div>
-                <div class="fleet-chofer"><i class="fa-solid fa-id-card"></i> <strong>${f.choferes?.nombre || 'N/A'}</strong> • ${f.choferes?.placa || 'S/P'}</div>
+                <div class="fleet-header"><div class="fleet-name"><i class="fa-solid fa-truck"></i> ${esc(f.nombre)}</div><div class="fleet-trip">En curso</div></div>
+                <div class="fleet-chofer"><i class="fa-solid fa-id-card"></i> <strong>${esc(f.choferes?.nombre || 'N/A')}</strong> • ${esc(f.choferes?.placa || 'S/P')}</div>
                 <div class="fleet-productos">${chips || '<span style="color:var(--text-muted);font-size:0.75rem;">Sin productos cargados</span>'}</div>
-                <button class="btn-sm btn-sm-primary" style="width: 100%; padding: 10px;" onclick="openFleetModal('${f.id}','${f.nombre.replace(/'/g,"\\'")}','${f.chofer_id}')">
+                <button class="btn-sm btn-sm-primary" style="width: 100%; padding: 10px;" onclick="openFleetModal('${f.id}')">
                     <i class="fa-solid fa-list-check"></i> Gestionar / Liquidar
                 </button>
             </div>`;
@@ -1510,23 +1609,41 @@ async function fetchFlota() {
     } catch (e) { console.error(e); }
 }
 
-async function openFleetModal(id, nombre, choferId) {
-    currentFleetId = id; currentFleetName = nombre; currentFleetChoferId = choferId;
-    document.getElementById('modal-fleet-name').innerHTML = `<i class="fa-solid fa-truck"></i> ${nombre}`;
+async function openFleetModal(id) {
+    const f = flotaGlobalTodas.find(x => String(x.id) === String(id));
+    if (!f) return alert('Unidad no encontrada');
+    currentFleetId = id;
+    currentFleetName = f.nombre;
+    currentFleetChoferId = f.chofer_id;
+
+    // Asegurar que entregasDelDia sea de HOY
+    const hoy = hoyISO();
+    const desde = document.getElementById('entregas-desde');
+    const hasta = document.getElementById('entregas-hasta');
+    if (desde.value !== hoy || hasta.value !== hoy) {
+        desde.value = hoy; hasta.value = hoy;
+        await fetchEntregas();
+    }
+
+    document.getElementById('modal-fleet-name').innerHTML = `<i class="fa-solid fa-truck"></i> ${esc(f.nombre)}`;
+
     let income = 0, units = 0;
     entregasDelDia.forEach(e => {
-        if (e.flota && e.flota.nombre === nombre && e.estado !== 'No entregado') { income += Number(e.total); units += Number(e.unidades); }
+        if (e.flota_id === id && e.estado === 'Entregado') {
+            income += Number(e.total);
+            units += Number(e.unidades);
+        }
     });
     document.getElementById('modal-fleet-income').innerText = fmtBs(income);
     document.getElementById('modal-fleet-units').innerText = units;
-    document.getElementById('modal-fleet-comision').innerText = fmtBs(reporteComisionesGlobal[nombre] || 0);
+    document.getElementById('modal-fleet-comision').innerText = fmtBs(reporteComisionesGlobal[id] || 0);
 
     const { data: stock } = await supabaseClient.from('flota_stock').select('cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)').eq('flota_id', id);
     const stockDiv = document.getElementById('modal-fleet-stock');
     if (!stock || !stock.length) stockDiv.innerHTML = '<div class="loading-text">Sin productos cargados</div>';
     else stockDiv.innerHTML = stock.map(s => `
         <div class="hist-row">
-            <div><strong>${s.productos?.nombre}</strong> ${s.productos?.requiere_envase ? '<span style="font-size:0.65rem;color:var(--primary);">🔄</span>' : ''}</div>
+            <div><strong>${esc(s.productos?.nombre || 'Producto')}</strong> ${s.productos?.requiere_envase ? '<span style="font-size:0.65rem;color:var(--primary);">🔄</span>' : ''}</div>
             <div style="text-align:right;"><strong>${s.cantidad_actual}</strong><small style="color:var(--text-muted)"> / ${s.cantidad_inicial}</small></div>
         </div>`).join('');
 
@@ -1596,7 +1713,7 @@ function renderCerrarRuta() {
     document.getElementById('cerrar-ruta-lista').innerHTML = cerrarRutaItems.map((item, i) => `
         <div class="hist-row">
             <div>
-                <strong>${item.nombre}</strong>
+                <strong>${esc(item.nombre)}</strong>
                 <div style="font-size: 0.7rem; color: var(--text-muted);">Cargado: ${item.cargado} • Teórico: ${item.teorico}</div>
             </div>
             <div><input type="number" min="0" value="${item.fisico}" onchange="actualizarSobrante(${i}, this.value)" style="width: 70px; padding: 6px; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-weight: 700;"></div>
@@ -1634,10 +1751,10 @@ async function fetchChoferes() {
         const { data, error } = await supabaseClient.from('choferes').select('*').order('nombre');
         if (error) throw error;
         const activos = (data || []).filter(c => c.activo !== false);
-        const opts = '<option value="">Seleccionar chofer...</option>' + activos.map(c => `<option value="${c.id}">${c.nombre} (${c.placa || 'S/P'})</option>`).join('');
+        const opts = '<option value="">Seleccionar chofer...</option>' + activos.map(c => `<option value="${c.id}">${esc(c.nombre)} (${esc(c.placa || 'S/P')})</option>`).join('');
         const sel = document.getElementById('flota-chofer-select');
         if (sel) sel.innerHTML = opts;
-        document.getElementById('choferes-tbody').innerHTML = data.length ? data.map(c => `<tr><td><strong>${c.codigo}</strong></td><td>${c.nombre}</td><td>${c.placa || '—'}</td></tr>`).join('') : '<tr><td colspan="3">Sin choferes.</td></tr>';
+        document.getElementById('choferes-tbody').innerHTML = data.length ? data.map(c => `<tr><td><strong>${esc(c.codigo)}</strong></td><td>${esc(c.nombre)}</td><td>${esc(c.placa || '—')}</td></tr>`).join('') : '<tr><td colspan="3">Sin choferes.</td></tr>';
     } catch (e) { console.error(e); }
 }
 
@@ -1665,7 +1782,7 @@ document.getElementById('form-chofer').addEventListener('submit', async (e) => {
 async function llenarSelectRutas() {
     try {
         const { data } = await supabaseClient.from('rutas').select('nombre').eq('activa', true).order('nombre');
-        const opciones = '<option value="">Sin ruta</option>' + (data || []).map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+        const opciones = '<option value="">Sin ruta</option>' + (data || []).map(r => `<option value="${esc(r.nombre)}">${esc(r.nombre)}</option>`).join('');
         document.getElementById('cli-ruta').innerHTML = opciones;
         document.getElementById('edit-cli-ruta').innerHTML = opciones;
     } catch (e) { console.error(e); }
@@ -1738,18 +1855,18 @@ function renderClientesDirectorio() {
             <div class="client-card">
                 <div class="client-number"><i class="fa-solid fa-user"></i></div>
                 <div class="client-info">
-                    <div class="client-name">${c.nombre}</div>
+                    <div class="client-name">${esc(c.nombre)}</div>
                     <div class="client-detail">
-                        <span><i class="fa-solid fa-phone"></i> ${c.telefono || '—'}</span>
-                        ${c.dia_visita ? `<span><i class="fa-solid fa-calendar"></i> ${c.dia_visita}</span>` : ''}
+                        <span><i class="fa-solid fa-phone"></i> ${esc(c.telefono || '—')}</span>
+                        ${c.dia_visita ? `<span><i class="fa-solid fa-calendar"></i> ${esc(c.dia_visita)}</span>` : ''}
                     </div>
-                    ${c.zona ? `<div class="client-route-info"><i class="fa-solid fa-truck"></i> ${c.zona}</div>` : ''}
+                    ${c.zona ? `<div class="client-route-info"><i class="fa-solid fa-truck"></i> ${esc(c.zona)}</div>` : ''}
                     ${deuda > 0 ? `<div class="client-debt"><i class="fa-solid fa-bottle-water"></i> ${deuda} envases</div>` : ''}
                     ${saldo > 0 ? `<div class="client-debt"><i class="fa-solid fa-money-bill"></i> ${fmtBs(saldo)}</div>` : ''}
                 </div>
                 <div class="client-actions">
                     <a href="${mapsUrl}" target="_blank" class="btn-location"><i class="fa-solid fa-diamond-turn-right"></i></a>
-                    <button class="btn-location" style="background: var(--primary);" onclick="verHistorialCliente('${c.id}', '${c.nombre.replace(/'/g,"\\'")}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                    <button class="btn-location" style="background: var(--primary);" onclick="verHistorialCliente('${c.id}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
                     ${saldo > 0 ? `<button class="btn-location" style="background: var(--warning);" onclick="abrirModalAbono('${c.id}')"><i class="fa-solid fa-hand-holding-dollar"></i></button>` : ''}
                     <button class="btn-location" style="background: var(--text-muted);" onclick="abrirEditarCliente('${c.id}')"><i class="fa-solid fa-pen"></i></button>
                 </div>
@@ -1757,10 +1874,13 @@ function renderClientesDirectorio() {
     }).join('');
 }
 
-async function verHistorialCliente(clienteId, nombre) {
+async function verHistorialCliente(clienteId) {
+    const c = clientesGlobal.find(x => String(x.id) === String(clienteId));
+    const nombre = c?.nombre || 'Cliente';
+
     const modal = document.getElementById('historialModal');
     const body = document.getElementById('historial-body');
-    document.getElementById('historial-title').innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${nombre}`;
+    document.getElementById('historial-title').innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${esc(nombre)}`;
     body.innerHTML = '<div class="loading-text">Cargando...</div>';
     modal.style.display = 'flex';
 
@@ -1780,19 +1900,20 @@ async function verHistorialCliente(clienteId, nombre) {
                 ${totalAbonos > 0 ? `<p>Abonos recibidos: <span style="color: var(--success);">${fmtBs(totalAbonos)}</span></p>` : ''}
             </div>
             ${data.slice(0, 20).map(e => {
-                const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${d.productos?.nombre || ''}`).join(', ');
+                const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${esc(d.productos?.nombre || '')}`).join(', ');
                 return `<div class="hist-row">
-                    <div><strong>${formatDate(e.created_at)} ${formatTime(e.created_at)}</strong><br><small style="color:var(--text-muted)">${e.flota?.nombre || 'S/R'} • ${e.metodo_pago}</small>${detalle ? `<br><small style="color:var(--primary);">${detalle}</small>` : ''}</div>
-                    <div style="text-align:right;"><strong>${fmtBs(e.total)}</strong><br><span class="status-pill ${e.estado === 'No entregado' ? 'st-no-entregado' : 'st-entregado'}">${e.estado || 'Entregado'}</span></div>
+                    <div><strong>${formatDate(e.created_at)} ${formatTime(e.created_at)}</strong><br><small style="color:var(--text-muted)">${esc(e.flota?.nombre || 'S/R')} • ${esc(e.metodo_pago)}</small>${detalle ? `<br><small style="color:var(--primary);">${detalle}</small>` : ''}</div>
+                    <div style="text-align:right;"><strong>${fmtBs(e.total)}</strong><br><span class="status-pill ${e.estado === 'No entregado' ? 'st-no-entregado' : 'st-entregado'}">${esc(e.estado || 'Entregado')}</span></div>
                 </div>`;
             }).join('')}
         `;
-    } catch (e) { body.innerHTML = '<div class="loading-text">Error: ' + e.message + '</div>'; }
+    } catch (e) { body.innerHTML = '<div class="loading-text">Error: ' + esc(e.message) + '</div>'; }
 }
 
-function abrirModalAbono(clienteId) {
-    const c = clientesGlobal.find(x => String(x.id) === String(clienteId));
-    if (!c) return;
+async function abrirModalAbono(clienteId) {
+    // Re-leer cliente para evitar saldo desactualizado
+    const { data: c } = await supabaseClient.from('clientes').select('*').eq('id', clienteId).single();
+    if (!c) return alert('Cliente no encontrado');
     clienteAbonoActual = c;
     document.getElementById('abono-cliente-nombre').innerText = c.nombre;
     document.getElementById('abono-saldo-actual').innerText = fmtBs(c.saldo_pendiente || 0);
@@ -1870,7 +1991,7 @@ async function cargarClientesZona() {
         const { data: rutas } = await supabaseClient.from('rutas').select('nombre').eq('activa', true).order('nombre');
         const selRuta = document.getElementById('map-zona');
         const currentRuta = selRuta.value;
-        selRuta.innerHTML = '<option value="Todos">Todos</option>' + (rutas || []).map(r => `<option value="${r.nombre}">${r.nombre}</option>`).join('');
+        selRuta.innerHTML = '<option value="Todos">Todos</option>' + (rutas || []).map(r => `<option value="${esc(r.nombre)}">${esc(r.nombre)}</option>`).join('');
         if (currentRuta) selRuta.value = currentRuta;
 
         let query = supabaseClient.from('clientes').select('*').eq('activo', true).order('nombre');
@@ -1887,9 +2008,9 @@ async function cargarClientesZona() {
             return `<div class="client-card">
                 <div class="client-number">${i+1}</div>
                 <div class="client-info">
-                    <div class="client-name">${c.nombre}</div>
-                    <div class="client-detail"><span><i class="fa-solid fa-phone"></i> ${c.telefono || '—'}</span></div>
-                    ${c.zona ? `<div class="client-route-info"><i class="fa-solid fa-truck"></i> ${c.zona}</div>` : ''}
+                    <div class="client-name">${esc(c.nombre)}</div>
+                    <div class="client-detail"><span><i class="fa-solid fa-phone"></i> ${esc(c.telefono || '—')}</span></div>
+                    ${c.zona ? `<div class="client-route-info"><i class="fa-solid fa-truck"></i> ${esc(c.zona)}</div>` : ''}
                 </div>
                 <a href="${mapsUrl}" target="_blank" class="btn-location" style="${!tieneGps ? 'background: var(--warning);' : ''}"><i class="fa-solid fa-diamond-turn-right"></i></a>
             </div>`;
@@ -1903,7 +2024,7 @@ async function cargarClientesZona() {
 async function llenarSelectClientesPedido() {
     const { data } = await supabaseClient.from('clientes').select('id, nombre').eq('activo', true).order('nombre');
     const sel = document.getElementById('ped-cliente');
-    if (sel) sel.innerHTML = '<option value="">Seleccionar...</option>' + (data||[]).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    if (sel) sel.innerHTML = '<option value="">Seleccionar...</option>' + (data||[]).map(c => `<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
 }
 
 document.getElementById('form-pedido').addEventListener('submit', async (e) => {
@@ -1941,10 +2062,10 @@ async function cargarPedidos() {
             const st = p.estado === 'Entregado' ? 'st-entregado' : p.estado === 'No entregado' ? 'st-no-entregado' : 'st-pendiente';
             return `<div class="hist-row" style="padding: 12px;">
                 <div>
-                    <strong>${p.clientes?.nombre || 'Cliente'}</strong><br>
-                    <small style="color:var(--text-muted)">${p.cantidad} x ${p.producto_nombre || 'Producto'} • ${p.fecha_entrega}</small><br>
+                    <strong>${esc(p.clientes?.nombre || 'Cliente')}</strong><br>
+                    <small style="color:var(--text-muted)">${p.cantidad} x ${esc(p.producto_nombre || 'Producto')} • ${p.fecha_entrega}</small><br>
                     <strong>${fmtBs(p.total_estimado)}</strong>
-                    <span class="status-pill ${st}">${p.estado}</span>
+                    <span class="status-pill ${st}">${esc(p.estado)}</span>
                 </div>
                 ${p.estado === 'Pendiente' ? `<div style="display:flex; flex-direction:column; gap:4px;">
                     <button class="btn-sm btn-sm-success" onclick="cambiarEstadoPedido('${p.id}', 'Entregado')"><i class="fa-solid fa-check"></i></button>
@@ -1977,9 +2098,13 @@ async function fetchEntregas() {
         const hasta = document.getElementById('entregas-hasta').value || hoyISO();
         document.getElementById('entregas-fecha-label').innerText = desde === hasta ? formatDate(desde + 'T12:00:00') : `${formatDate(desde + 'T12:00:00')} – ${formatDate(hasta + 'T12:00:00')}`;
 
+        // Rango en hora LOCAL
+        const desdeUTC = new Date(`${desde}T00:00:00`).toISOString();
+        const hastaUTC = new Date(`${hasta}T23:59:59.999`).toISOString();
+
         const { data, error } = await supabaseClient.from('entregas')
-            .select(`id, cliente, cliente_id, unidades, metodo_pago, total, created_at, vacios_devueltos, estado, flota ( nombre ), entregas_detalles ( cantidad, comision_unitaria, productos(nombre) )`)
-            .gte('created_at', `${desde}T00:00:00`).lte('created_at', `${hasta}T23:59:59`)
+            .select(`id, cliente, cliente_id, flota_id, unidades, metodo_pago, total, created_at, vacios_devueltos, estado, flota ( id, nombre ), entregas_detalles ( producto_id, cantidad, comision_unitaria, productos(nombre, costo) )`)
+            .gte('created_at', desdeUTC).lte('created_at', hastaUTC)
             .order('created_at', { ascending: false });
         if (error) throw error;
 
@@ -1987,12 +2112,11 @@ async function fetchEntregas() {
         let totalIngresos = 0;
         const comisiones = {};
         entregasDelDia.forEach(e => {
-            if (e.estado === 'No entregado') return;
+            if (e.estado !== 'Entregado') return;
             totalIngresos += Number(e.total);
-            if (e.flota && e.entregas_detalles) {
-                const n = e.flota.nombre;
-                if (!comisiones[n]) comisiones[n] = 0;
-                e.entregas_detalles.forEach(d => comisiones[n] += d.cantidad * d.comision_unitaria);
+            if (e.flota_id && e.entregas_detalles) {
+                if (!comisiones[e.flota_id]) comisiones[e.flota_id] = 0;
+                e.entregas_detalles.forEach(d => comisiones[e.flota_id] += d.cantidad * d.comision_unitaria);
             }
         });
         reporteComisionesGlobal = comisiones;
@@ -2000,8 +2124,11 @@ async function fetchEntregas() {
         document.getElementById('kpi-ingresos').innerText = fmtBs(totalIngresos);
         calcularGanancia();
 
-        document.getElementById('comisiones-tbody').innerHTML = Object.keys(comisiones).length ? Object.keys(comisiones).map(f => `
-            <tr><td><strong>${f}</strong></td><td class="acc-debit">${fmtBs(comisiones[f])}</td></tr>`).join('')
+        document.getElementById('comisiones-tbody').innerHTML = Object.keys(comisiones).length 
+            ? Object.keys(comisiones).map(fid => {
+                const f = flotaGlobalTodas.find(x => String(x.id) === String(fid));
+                return `<tr><td><strong>${esc(f?.nombre || fid)}</strong></td><td class="acc-debit">${fmtBs(comisiones[fid])}</td></tr>`;
+            }).join('')
             : '<tr><td colspan="2" class="loading-text">Sin comisiones.</td></tr>';
 
         const list = document.getElementById('delivery-list');
@@ -2009,20 +2136,20 @@ async function fetchEntregas() {
             const est = e.estado || 'Entregado';
             const cls = est === 'No entregado' ? 'st-no-entregado' : est === 'Pendiente' ? 'st-pendiente' : 'st-entregado';
             const payCls = {Efectivo:'pay-efectivo',QR:'pay-qr',Crédito:'pay-credito',Transferencia:'pay-transferencia'}[e.metodo_pago] || '';
-            const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${d.productos?.nombre || ''}`).join(', ');
+            const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${esc(d.productos?.nombre || '')}`).join(', ');
             return `<div class="delivery-item">
                 <div class="delivery-left">
                     <div class="truck-avatar"><i class="fa-solid fa-truck-droplet"></i></div>
                     <div style="min-width: 0;">
-                        <div class="delivery-client">${e.cliente}</div>
-                        <div class="delivery-meta-sub"><span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span> • <span>${e.flota?.nombre || 'S/R'}</span></div>
+                        <div class="delivery-client">${esc(e.cliente)}</div>
+                        <div class="delivery-meta-sub"><span><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</span> • <span>${esc(e.flota?.nombre || 'S/R')}</span></div>
                         ${detalle ? `<div style="font-size:0.7rem; color:var(--primary);">${detalle}</div>` : ''}
                     </div>
                 </div>
                 <div class="delivery-right">
                     <div class="delivery-price">${fmtBs(e.total)}</div>
-                    <span class="payment-pill ${payCls}">${e.metodo_pago}</span>
-                    <span class="status-pill ${cls}">${est}</span>
+                    <span class="payment-pill ${payCls}">${esc(e.metodo_pago)}</span>
+                    <span class="status-pill ${cls}">${esc(est)}</span>
                 </div>
             </div>`;
         }).join('') : '<div class="loading-text">Sin entregas.</div>';
@@ -2034,7 +2161,7 @@ function renderChart() {
     const horas = Array.from({length: 12}, (_,i) => i + 8);
     const data = horas.map(() => 0);
     entregasDelDia.forEach(e => {
-        if (e.estado === 'No entregado') return;
+        if (e.estado !== 'Entregado') return;
         const h = new Date(e.created_at).getHours();
         const idx = horas.indexOf(h);
         if (idx >= 0) data[idx] += Number(e.total);
@@ -2065,7 +2192,7 @@ async function cargarMorososInicio() {
         const { data } = await supabaseClient.from('clientes').select('id, nombre, saldo_envases_prestados, saldo_pendiente').or('saldo_envases_prestados.gt.0,saldo_pendiente.gt.0').order('saldo_pendiente', { ascending: false }).limit(10);
         document.getElementById('inicio-morosos-tbody').innerHTML = (data || []).length ? data.map(c => `
             <tr class="${(c.saldo_pendiente||0) > 0 ? 'row-danger' : ''}">
-                <td>${c.nombre}</td><td>${c.saldo_envases_prestados || 0}</td><td>${fmtBs(c.saldo_pendiente || 0)}</td>
+                <td>${esc(c.nombre)}</td><td>${c.saldo_envases_prestados || 0}</td><td>${fmtBs(c.saldo_pendiente || 0)}</td>
             </tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin deudas</td></tr>';
     } catch (e) { console.error(e); }
 }
@@ -2081,7 +2208,6 @@ async function fetchConfiguracion() {
             precioVenta = parseFloat(data.precio_venta) || 0;
             document.getElementById('conf-costo').value = costoProduccion;
             document.getElementById('conf-venta').value = precioVenta;
-            calcularGanancia();
         }
     } catch (e) { console.error(e); }
 }
@@ -2094,13 +2220,20 @@ document.getElementById('form-configuracion').addEventListener('submit', async (
     if (error) return alert('Error: ' + error.message);
     costoProduccion = c; precioVenta = v;
     alert('✅ Configuración guardada');
-    calcularGanancia();
 });
 
+// Ganancia real: ingresos - costo real por producto - comisiones
 function calcularGanancia() {
-    const ganancia = ventasDelDiaBs - (unidadesVendidasDia * costoProduccion);
-    const comisiones = Object.values(reporteComisionesGlobal).reduce((a,v) => a + v, 0);
-    document.getElementById('kpi-ganancia').innerText = fmtBs(ganancia - comisiones);
+    let ingresos = 0, costo = 0, comisiones = 0;
+    entregasDelDia.forEach(e => {
+        if (e.estado !== 'Entregado') return;
+        ingresos += Number(e.total);
+        (e.entregas_detalles || []).forEach(d => {
+            costo += d.cantidad * Number(d.productos?.costo || 0);
+            comisiones += d.cantidad * Number(d.comision_unitaria || 0);
+        });
+    });
+    document.getElementById('kpi-ganancia').innerText = fmtBs(ingresos - costo - comisiones);
 }
 
 // ============================================
@@ -2127,15 +2260,18 @@ document.getElementById('form-caja').addEventListener('submit', async (e) => {
 async function fetchCaja() {
     try {
         const hoy = hoyISO();
-        const { data: movs } = await supabaseClient.from('movimientos_caja').select('*').gte('created_at', `${hoy}T00:00:00`).lte('created_at', `${hoy}T23:59:59`);
+        const desdeUTC = new Date(`${hoy}T00:00:00`).toISOString();
+        const hastaUTC = new Date(`${hoy}T23:59:59.999`).toISOString();
+
+        const { data: movs } = await supabaseClient.from('movimientos_caja').select('*').gte('created_at', desdeUTC).lte('created_at', hastaUTC);
         const { data: movsAll } = await supabaseClient.from('movimientos_caja').select('*').order('created_at', { ascending: false }).limit(20);
         let totalCaja = 0;
-        (movs||[]).forEach(m => totalCaja += m.tipo === 'ingreso' ? m.monto : -m.monto);
-        const { data: ventas } = await supabaseClient.from('entregas').select('total, metodo_pago, estado').in('metodo_pago', ['Efectivo','QR','Transferencia']).eq('estado', 'Entregado').gte('created_at', `${hoy}T00:00:00`).lte('created_at', `${hoy}T23:59:59`);
+        (movs||[]).forEach(m => totalCaja += m.tipo === 'ingreso' ? Number(m.monto) : -Number(m.monto));
+        const { data: ventas } = await supabaseClient.from('entregas').select('total, metodo_pago, estado').in('metodo_pago', ['Efectivo','QR','Transferencia']).eq('estado', 'Entregado').gte('created_at', desdeUTC).lte('created_at', hastaUTC);
         (ventas||[]).forEach(v => totalCaja += parseFloat(v.total));
         document.getElementById('kpi-caja').innerText = fmtBs(totalCaja);
         document.getElementById('caja-tbody').innerHTML = (movsAll||[]).length ? movsAll.map(m => `
-            <tr><td>${formatTime(m.created_at)}</td><td>${m.descripcion}</td>
+            <tr><td>${formatDate(m.created_at)} ${formatTime(m.created_at)}</td><td>${esc(m.descripcion)}</td>
             <td class="${m.tipo === 'ingreso' ? 'acc-debit' : 'acc-credit'}">${m.tipo === 'ingreso' ? '+' : '-'}${fmtBs(m.monto)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin movimientos.</td></tr>';
     } catch (e) { console.error(e); }
 }
@@ -2149,22 +2285,23 @@ async function cargarReportes() {
         entregasDelDia.filter(e => e.estado === 'Entregado').forEach(e => {
             (e.entregas_detalles || []).forEach(d => {
                 const nombre = d.productos?.nombre || 'Producto';
-                if (!productosVendidos[nombre]) productosVendidos[nombre] = { cantidad: 0, total: 0 };
+                if (!productosVendidos[nombre]) productosVendidos[nombre] = { cantidad: 0 };
                 productosVendidos[nombre].cantidad += d.cantidad;
             });
         });
         const top = Object.keys(productosVendidos).sort((a,b) => productosVendidos[b].cantidad - productosVendidos[a].cantidad).slice(0, 10);
         document.getElementById('reporte-top-productos-tbody').innerHTML = top.length ? top.map(n => `
-            <tr><td>${n}</td><td>${productosVendidos[n].cantidad}</td><td>—</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin ventas.</td></tr>';
+            <tr><td>${esc(n)}</td><td>${productosVendidos[n].cantidad}</td><td>—</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin ventas.</td></tr>';
 
-        const rows = flotaGlobalTodas.map(f => {
-            const ef = entregasDelDia.filter(e => e.flota?.nombre === f.nombre && e.estado === 'Entregado');
+        // Solo flotas activas + usar flota_id
+        const rows = flotaGlobalTodas.filter(f => f.estado === 'ruta').map(f => {
+            const ef = entregasDelDia.filter(e => e.flota_id === f.id && e.estado === 'Entregado');
             const vend = ef.reduce((a,e) => a + Number(e.unidades), 0);
             const ret = ef.reduce((a,e) => a + (e.vacios_devueltos||0), 0);
-            return { ruta: f.nombre, carg: f.capacidad_maxima, vend, ret, dif: f.capacidad_maxima - vend - f.stock_actual };
+            return { ruta: f.nombre, carg: f.capacidad_maxima, vend, ret, dif: f.capacidad_maxima - vend - (f.stock_actual || 0) };
         });
         document.getElementById('reporte-botellones-tbody').innerHTML = rows.length ? rows.map(r => `
-            <tr><td>${r.ruta}</td><td>${r.carg}</td><td>${r.vend}</td><td>${r.ret}</td>
+            <tr><td>${esc(r.ruta)}</td><td>${r.carg}</td><td>${r.vend}</td><td>${r.ret}</td>
             <td class="${r.dif !== 0 ? 'acc-credit' : ''}">${r.dif}</td></tr>`).join('') : '<tr><td colspan="5" class="loading-text">Sin datos.</td></tr>';
 
         const mets = {};
@@ -2174,11 +2311,11 @@ async function cargarReportes() {
             mets[m].n++; mets[m].t += Number(e.total);
         });
         document.getElementById('reporte-cobranza-tbody').innerHTML = Object.keys(mets).length ? Object.keys(mets).map(m => `
-            <tr><td>${m}</td><td>${mets[m].n}</td><td class="acc-debit">${fmtBs(mets[m].t)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin cobros.</td></tr>';
+            <tr><td>${esc(m)}</td><td>${mets[m].n}</td><td class="acc-debit">${fmtBs(mets[m].t)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin cobros.</td></tr>';
 
         const { data: morosos } = await supabaseClient.from('clientes').select('nombre, saldo_envases_prestados, saldo_pendiente').or('saldo_envases_prestados.gt.0,saldo_pendiente.gt.0').order('saldo_pendiente', { ascending: false });
         document.getElementById('reporte-morosos-tbody').innerHTML = (morosos||[]).length ? morosos.map(c => `
-            <tr class="${(c.saldo_pendiente||0) > 0 ? 'row-danger' : ''}"><td>${c.nombre}</td><td>${c.saldo_envases_prestados || 0}</td><td>${fmtBs(c.saldo_pendiente || 0)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin deudas.</td></tr>';
+            <tr class="${(c.saldo_pendiente||0) > 0 ? 'row-danger' : ''}"><td>${esc(c.nombre)}</td><td>${c.saldo_envases_prestados || 0}</td><td>${fmtBs(c.saldo_pendiente || 0)}</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin deudas.</td></tr>';
     } catch (e) { console.error(e); }
 }
 
@@ -2202,9 +2339,9 @@ function exportarGlobalPDF() {
     doc.text(`Fecha: ${new Date().toLocaleString('es-BO')}`, 14, 28);
     let tIng = 0, tCom = 0;
     const rows = flotaGlobalActiva.map(f => {
-        const ef = entregasDelDia.filter(e => e.flota?.nombre === f.nombre && e.estado === 'Entregado');
+        const ef = entregasDelDia.filter(e => e.flota_id === f.id && e.estado === 'Entregado');
         let ing = 0; ef.forEach(e => { ing += Number(e.total); });
-        const com = reporteComisionesGlobal[f.nombre] || 0;
+        const com = reporteComisionesGlobal[f.id] || 0;
         tIng += ing; tCom += com;
         return [f.nombre, f.choferes?.nombre || 'S/A', f.stock_actual, fmtBs(ing), fmtBs(com), fmtBs(ing - com)];
     });
@@ -2216,9 +2353,9 @@ function exportarGlobalPDF() {
 function exportarGlobalExcel() {
     if (!flotaGlobalActiva.length) return alert('No hay unidades activas.');
     const data = flotaGlobalActiva.map(f => {
-        const ef = entregasDelDia.filter(e => e.flota?.nombre === f.nombre && e.estado === 'Entregado');
+        const ef = entregasDelDia.filter(e => e.flota_id === f.id && e.estado === 'Entregado');
         let ing = 0; ef.forEach(e => { ing += Number(e.total); });
-        const com = reporteComisionesGlobal[f.nombre] || 0;
+        const com = reporteComisionesGlobal[f.id] || 0;
         return { Ruta: f.nombre, Chofer: f.choferes?.nombre || 'S/A', Stock_Actual: f.stock_actual, Ingresos: ing, Comision: com, Neto: ing - com };
     });
     exportToExcel(data, `Flota_${hoyISO()}.xlsx`, 'Flota');
@@ -2253,9 +2390,9 @@ function exportarReporteDiarioPDF() { exportarEntregasPDF(); }
 
 function exportarIndividualPDF() {
     const doc = new jsPDF();
-    const entregasFlota = entregasDelDia.filter(e => e.flota?.nombre === currentFleetName && e.estado === 'Entregado');
+    const entregasFlota = entregasDelDia.filter(e => e.flota_id === currentFleetId && e.estado === 'Entregado');
     const totalIngresos = entregasFlota.reduce((a,e) => a + Number(e.total), 0);
-    const comision = reporteComisionesGlobal[currentFleetName] || 0;
+    const comision = reporteComisionesGlobal[currentFleetId] || 0;
     doc.setFontSize(18);
     doc.text('Reporte de Ruta - Aqua Vita', 14, 20);
     doc.text(`Unidad: ${currentFleetName}`, 14, 28);
@@ -2264,7 +2401,7 @@ function exportarIndividualPDF() {
 }
 
 function sendWhatsAppReport() {
-    const entregasFlota = entregasDelDia.filter(e => e.flota?.nombre === currentFleetName && e.estado === 'Entregado');
+    const entregasFlota = entregasDelDia.filter(e => e.flota_id === currentFleetId && e.estado === 'Entregado');
     const totalIngresos = entregasFlota.reduce((a,e) => a + Number(e.total), 0);
     const texto = `*Reporte de Ruta - Aqua Vita*\n🏢 Unidad: ${currentFleetName}\n📅 ${new Date().toLocaleDateString('es-BO')}\n\n💰 Ingresos: ${fmtBs(totalIngresos)}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
@@ -2302,11 +2439,11 @@ async function renderMapaCamiones() {
                 if (minutos < 5) { color = '#10b981'; estadoTexto = 'Activo'; }
                 else if (minutos < 30) { color = '#f59e0b'; estadoTexto = 'Reciente'; }
                 const marker = L.circleMarker([f.latitud, f.longitud], { radius: 12, fillColor: color, color: '#fff', weight: 3, fillOpacity: 0.9 }).addTo(liveMap);
-                marker.bindPopup(`<strong>${f.nombre}</strong><br>${f.choferes?.nombre || 'Sin chofer'}<br>Stock: ${f.stock_actual}`);
+                marker.bindPopup(`<strong>${esc(f.nombre)}</strong><br>${esc(f.choferes?.nombre || 'Sin chofer')}<br>Stock: ${f.stock_actual}`);
                 mapMarkers[f.id] = marker;
             }
             html += `<div style="padding: 10px; background: var(--surface-subtle); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <div><div style="font-weight: 700; font-size: 0.85rem;">${f.nombre}</div><div style="font-size: 0.72rem; color: var(--text-muted);">${f.choferes?.nombre || 'N/A'} • ${f.stock_actual} bot.</div></div>
+                <div><div style="font-weight: 700; font-size: 0.85rem;">${esc(f.nombre)}</div><div style="font-size: 0.72rem; color: var(--text-muted);">${esc(f.choferes?.nombre || 'N/A')} • ${f.stock_actual} bot.</div></div>
                 <span style="font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: ${color}20; color: ${color};">${estadoTexto}</span>
             </div>`;
         });
@@ -2325,7 +2462,7 @@ let tutorialIndex = 0, tutorialSoundEnabled = true;
 const TUTORIAL_STEPS = [
     { target: 'header .logo', screen: null, title: '👋 ¡Bienvenido!', text: 'Te guío por el panel de Aqua Vita.' },
     { target: '[onclick*="\'inicio\'"]', screen: 'inicio', title: '📊 Inicio', text: 'Balance del día, alertas de stock bajo y ventas por hora.' },
-    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Crea, edita y controla todos los productos.' },
+    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Crea, edita, desactiva o borra productos permanentemente.' },
     { target: '[onclick*="\'clientes\'"]', screen: 'clientes', title: '👥 Clientes', text: 'Registra clientes con GPS e historial completo.' },
     { target: '[onclick*="\'pedidos\'"]', screen: 'pedidos', title: '📋 Pedidos', text: 'Sistema de preventa.' },
     { target: '[onclick*="\'rutas\'"]', screen: 'rutas', title: '🗺️ Rutas', text: 'Clientes por ruta con navegación.' },
@@ -2427,7 +2564,9 @@ function mostrarPasoTutorial() {
 function suscribirRealtime() {
     supabaseClient.channel('admin-live')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'flota' }, () => { fetchFlota(); if (document.getElementById('screen-mapa').classList.contains('active')) renderMapaCamiones(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'flota_stock' }, () => { fetchFlota(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, () => fetchEntregas())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'abonos' }, () => { cargarClientesDirectorio(); fetchCaja(); cargarMorososInicio(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => cargarClientesDirectorio())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => { cargarProductos(); cargarStockBajo(); })
         .subscribe();
