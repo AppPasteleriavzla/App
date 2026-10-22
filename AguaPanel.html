@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aqua Vita - Panel Gerencial v2.4</title>
+    <title>Aqua Vita - Panel Gerencial v2.5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -103,9 +103,13 @@
         .acc-debit { color: var(--success); font-weight: 700; }
         .acc-credit { color: var(--danger); font-weight: 700; }
 
-        .producto-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); display: flex; gap: 12px; align-items: flex-start; transition: all 0.2s; }
+        .producto-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); display: flex; gap: 10px; align-items: flex-start; transition: all 0.2s; }
         .producto-card.stock-bajo { border-left: 4px solid var(--warning); }
         .producto-card.sin-stock { border-left: 4px solid var(--danger); opacity: 0.85; }
+        .reorder-col { display: flex; flex-direction: column; gap: 3px; align-self: center; flex-shrink: 0; }
+        .reorder-btn { width: 24px; height: 22px; border: 1px solid var(--border); background: var(--surface-subtle); color: var(--text-muted); border-radius: 6px; cursor: pointer; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .reorder-btn:active { background: var(--primary-light); color: var(--primary); }
+        .reorder-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .producto-avatar { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--primary-light), #bae6fd); color: var(--primary-dark); font-size: 1.3rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .producto-avatar.cat-bebida { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #b45309; }
         .producto-avatar.cat-snack { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
@@ -264,7 +268,7 @@
                 </div>
                 <div class="kpi-value" id="kpi-unidades">0</div>
                 <div class="kpi-trend" style="color: var(--primary); background: var(--primary-light);">
-                    <i class="fa-solid fa-glass-water"></i> Botellones agua
+                    <i class="fa-solid fa-boxes-stacked"></i> <span id="kpi-unidades-sub">Unidades en camiones</span>
                 </div>
             </div>
         </div>
@@ -364,6 +368,7 @@
                 <div class="input-group">
                     <input type="text" id="buscar-producto" placeholder="🔍 Buscar..." oninput="renderProductos()">
                 </div>
+                <div class="info-block" style="margin-top: 0;"><i class="fa-solid fa-circle-info"></i> Usa las flechas ↑↓ a la izquierda de cada producto para cambiar el orden en que aparecen aquí y en los selectores de despacho.</div>
                 <div id="lista-productos" style="display: flex; flex-direction: column; gap: 10px;">
                     <div class="loading-text">Cargando productos...</div>
                 </div>
@@ -583,7 +588,7 @@
                         <label>Nombre de la Ruta / Zona *</label>
                         <input type="text" id="flota-ruta" placeholder="Ej: Ruta Norte" required>
                     </div>
-                    <div class="form-title" style="font-size: 0.8rem; margin-top: 15px; margin-bottom: 10px;"><i class="fa-solid fa-boxes-stacked"></i> Productos a cargar</div>
+                    <div class="form-title" style="font-size: 0.8rem; margin-top: 15px; margin-bottom: 10px;"><i class="fa-solid fa-boxes-stacked"></i> Productos a cargar (todos los productos)</div>
                     <div class="input-group">
                         <label>Agregar producto</label>
                         <div style="display: flex; gap: 6px;">
@@ -699,11 +704,12 @@
             </div>
 
             <div class="form-card">
-                <div class="form-title"><i class="fa-solid fa-bottle-water"></i> Botellones por Vehículo</div>
+                <div class="form-title"><i class="fa-solid fa-boxes-stacked"></i> Productos por Vehículo</div>
+                <div class="info-block" style="margin-bottom:10px;"><i class="fa-solid fa-circle-info"></i> Incluye todos los productos cargados (agua, bebidas, snacks, etc.). "Vacíos" cuenta solo botellones retornables.</div>
                 <div class="table-container">
                     <table class="data-table">
-                        <thead><tr><th>Ruta</th><th>Carg.</th><th>Entr.</th><th>Ret.</th><th>Dif.</th></tr></thead>
-                        <tbody id="reporte-botellones-tbody"><tr><td colspan="5" class="loading-text">Cargando...</td></tr></tbody>
+                        <thead><tr><th>Ruta</th><th>Carg.</th><th>Entr.</th><th>Stock</th><th>Dif.</th><th>Vacíos</th></tr></thead>
+                        <tbody id="reporte-botellones-tbody"><tr><td colspan="6" class="loading-text">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -906,10 +912,11 @@
         <div class="modal-header"><h3 id="modal-fleet-name"><i class="fa-solid fa-truck"></i> Camión</h3><button class="modal-close" onclick="cerrarModal('fleetModal')"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="modal-stat">
             <p>Ingresos (Hoy): <span id="modal-fleet-income">Bs. 0.00</span></p>
-            <p>Total Botellones Agua: <span id="modal-fleet-units">0</span></p>
+            <p>Unidades Entregadas: <span id="modal-fleet-units">0</span></p>
+            <p style="margin-top:-6px; padding-left:0;"><small style="color:var(--text-muted); font-weight:600; font-size:0.72rem;" id="modal-fleet-units-sub">— agua / — otros</small></p>
             <p>Comisión Chofer: <span id="modal-fleet-comision">Bs. 0.00</span></p>
         </div>
-        <h4 style="font-size: 0.85rem; margin-bottom: 8px;">📦 Stock actual en camión</h4>
+        <h4 style="font-size: 0.85rem; margin-bottom: 8px;">📦 Stock actual en camión (todos los productos)</h4>
         <div id="modal-fleet-stock" style="margin-bottom: 15px;"></div>
         <button class="btn-solid btn-solid-green" style="margin-bottom: 10px;" onclick="abrirRecargarModal()"><i class="fa-solid fa-plus-circle"></i> Recargar Unidad</button>
         <button class="btn-solid btn-solid-warning" style="margin-bottom: 10px;" onclick="abrirCerrarRutaModal()"><i class="fa-solid fa-lock"></i> Cerrar Ruta y Liquidar</button>
@@ -986,7 +993,6 @@ const fmtBs = (v) => `Bs. ${Number(v).toLocaleString('es-BO',{minimumFractionDig
 const formatTime = (s) => new Date(s).toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'});
 const formatDate = (s) => new Date(s).toLocaleDateString('es-BO',{day:'2-digit',month:'2-digit',year:'numeric'});
 
-// Fecha local (hora boliviana), no UTC
 function hoyISO() {
     const d = new Date();
     const y = d.getFullYear();
@@ -1011,7 +1017,7 @@ let flotaGlobalTodas = [];
 let productosGlobal = [];
 let clientesGlobal = [];
 let pedidosGlobal = [];
-let reporteComisionesGlobal = {};  // ahora por flota_id
+let reporteComisionesGlobal = {};
 let clienteAbonoActual = null;
 let clienteEditActual = null;
 let liveMap = null;
@@ -1022,6 +1028,8 @@ let currentFleetChoferId = null;
 let carritoDespacho = [];
 let carritoRecarga = [];
 let cerrarRutaItems = [];
+let stockFabricaLlenos = 0;
+let stockFabricaVacios = 0;
 
 document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
 document.getElementById('entregas-desde').value = hoyISO();
@@ -1036,7 +1044,6 @@ async function switchScreen(name, el) {
     document.getElementById('screen-' + name).classList.add('active');
     if (el) el.classList.add('active');
 
-    // Pantallas que siempre muestran "hoy" → resetear filtro
     if (['inicio','finanzas','reportes'].includes(name)) {
         const desde = document.getElementById('entregas-desde');
         const hasta = document.getElementById('entregas-hasta');
@@ -1068,7 +1075,11 @@ function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
 // ============================================
 async function cargarProductos() {
     try {
-        const { data, error } = await supabaseClient.from('productos').select('*').order('categoria').order('nombre');
+        // Orden manual por "orden", fallback alfabético
+        const { data, error } = await supabaseClient.from('productos')
+            .select('*')
+            .order('orden', { ascending: true })
+            .order('nombre');
         if (error) throw error;
         productosGlobal = data || [];
         document.getElementById('productos-count').innerText = `${productosGlobal.length} productos`;
@@ -1082,13 +1093,14 @@ function renderProductos() {
     const q = (document.getElementById('buscar-producto')?.value || '').toLowerCase();
     const cont = document.getElementById('lista-productos');
     const filtrados = productosGlobal.filter(p => !q || p.nombre.toLowerCase().includes(q) || p.categoria.toLowerCase().includes(q));
+    const hayFiltro = !!q;
 
     if (!filtrados.length) {
         cont.innerHTML = '<div class="loading-text">Sin productos.</div>';
         return;
     }
 
-    cont.innerHTML = filtrados.map(p => {
+    cont.innerHTML = filtrados.map((p, idx) => {
         const stock = p.stock_actual || 0;
         const stockMin = p.stock_minimo || 5;
         const stockClass = stock === 0 ? 'out' : (stock <= stockMin ? 'low' : '');
@@ -1096,8 +1108,20 @@ function renderProductos() {
         const margen = Number(p.precio_venta) - Number(p.costo || 0);
         const margenPct = p.costo > 0 ? ((margen / p.costo) * 100).toFixed(0) : '--';
 
+        // Índice real en productosGlobal para saber si puede subir/bajar
+        const realIdx = productosGlobal.findIndex(x => String(x.id) === String(p.id));
+        const puedeSubir = realIdx > 0;
+        const puedeBajar = realIdx >= 0 && realIdx < productosGlobal.length - 1;
+
+        const reorderUI = hayFiltro ? '' : `
+            <div class="reorder-col">
+                <button class="reorder-btn" onclick="moverProducto('${p.id}', -1)" ${!puedeSubir ? 'disabled' : ''} title="Subir"><i class="fa-solid fa-chevron-up"></i></button>
+                <button class="reorder-btn" onclick="moverProducto('${p.id}', 1)" ${!puedeBajar ? 'disabled' : ''} title="Bajar"><i class="fa-solid fa-chevron-down"></i></button>
+            </div>`;
+
         return `
             <div class="producto-card ${cardClass}">
+                ${reorderUI}
                 <div class="producto-avatar ${catClass(p.categoria)}">
                     <i class="fa-solid ${catIcon(p.categoria)}"></i>
                 </div>
@@ -1127,6 +1151,18 @@ function renderProductos() {
                 </div>
             </div>`;
     }).join('');
+}
+
+async function moverProducto(id, direccion) {
+    try {
+        const { data, error } = await supabaseClient.rpc('rpc_mover_producto', {
+            p_producto_id: id, p_direccion: direccion
+        });
+        if (error) throw error;
+        if (!data.success) throw new Error(data.error);
+        if (!data.moved) return;
+        await cargarProductos();
+    } catch (e) { alert('Error: ' + e.message); }
 }
 
 document.getElementById('form-producto').addEventListener('submit', async (e) => {
@@ -1197,7 +1233,6 @@ async function guardarEdicionProducto() {
     } catch (e) { alert('Error: ' + e.message); }
 }
 
-// Desactivar (soft delete) — el producto queda oculto en el catálogo
 async function desactivarProducto(id) {
     const p = productosGlobal.find(x => String(x.id) === String(id));
     if (!p) return;
@@ -1209,15 +1244,12 @@ async function desactivarProducto(id) {
     } catch (e) { alert('Error: ' + e.message); }
 }
 
-// Borrado físico (hard delete) — sólo si no tiene dependencias
 async function borrarProductoFisico(id) {
     const p = productosGlobal.find(x => String(x.id) === String(id));
     if (!p) return;
-
     if (!confirm(`⚠️ ¿BORRAR PERMANENTEMENTE "${p.nombre}"?\n\nEsta acción NO se puede deshacer.`)) return;
 
     try {
-        // Verificar dependencias
         const [entregas, movimientos, flotaStock, pedidos] = await Promise.all([
             supabaseClient.from('entregas_detalles').select('id', { count: 'exact', head: true }).eq('producto_id', id),
             supabaseClient.from('movimientos_producto').select('id', { count: 'exact', head: true }).eq('producto_id', id),
@@ -1250,7 +1282,6 @@ async function borrarProductoFisico(id) {
             return;
         }
 
-        // Sin dependencias: borrar físicamente
         const { error } = await supabaseClient.from('productos').delete().eq('id', id);
         if (error) throw error;
         alert(`✅ Producto "${p.nombre}" eliminado permanentemente`);
@@ -1365,7 +1396,7 @@ async function cargarInventarioFabrica() {
     const tbody = document.getElementById('fabrica-inventario-tbody');
     tbody.innerHTML = '<tr><td colspan="4" class="loading-text">Cargando...</td></tr>';
     try {
-        const { data } = await supabaseClient.from('productos').select('*').order('nombre');
+        const { data } = await supabaseClient.from('productos').select('*').order('orden');
         if (!data || !data.length) {
             tbody.innerHTML = '<tr><td colspan="4" class="loading-text">Sin productos.</td></tr>';
             return;
@@ -1394,10 +1425,8 @@ document.getElementById('form-produccion').addEventListener('submit', async (e) 
     const cantidad = parseInt(document.getElementById('prod-produccion-cantidad').value);
     const costo = parseFloat(document.getElementById('prod-produccion-costo').value) || null;
     const motivo = document.getElementById('prod-produccion-motivo').value || 'Producción';
-
     if (!productoId) return alert('Selecciona un producto');
     if (!cantidad || cantidad <= 0) return alert('Cantidad inválida');
-
     btn.disabled = true;
     try {
         const { data, error } = await supabaseClient.rpc('rpc_registrar_produccion_producto', {
@@ -1446,8 +1475,6 @@ async function fetchEnvases() {
         document.getElementById('fab-vacios').innerText = stockFabricaVacios;
     } catch (e) { console.error(e); }
 }
-let stockFabricaLlenos = 0;
-let stockFabricaVacios = 0;
 
 document.getElementById('btn-guardar-arqueo').addEventListener('click', async () => {
     const fl = prompt('Stock físico LLENOS:', stockFabricaLlenos);
@@ -1537,14 +1564,13 @@ document.getElementById('form-flota').addEventListener('submit', async (e) => {
     if (!chofer_id) return alert('Seleccione un chofer');
     if (!nombre) return alert('Nombre de ruta requerido');
     if (!carritoDespacho.length) return alert('Agrega al menos un producto');
-
     btn.disabled = true;
     try {
         const items = carritoDespacho.map(i => ({ producto_id: i.producto_id, cantidad: i.cantidad }));
         const { data, error } = await supabaseClient.rpc('rpc_despachar_flota', { p_nombre: nombre, p_chofer_id: chofer_id, p_items: items });
         if (error) throw error;
         if (!data.success) throw new Error(data.error || 'Error desconocido');
-        alert(`✅ Ruta "${nombre}" despachada`);
+        alert(`✅ Ruta "${nombre}" despachada con ${data.total_unidades} unidades (${data.total_agua} de agua)`);
         carritoDespacho = [];
         renderCarrito('despacho');
         e.target.reset();
@@ -1567,18 +1593,24 @@ async function fetchFlota() {
         const activas = flotaGlobalTodas.filter(f => f.estado === 'ruta');
         flotaGlobalActiva = activas;
 
-        // KPI "En Ruta": sumar unidades reales de flota_stock de productos con envase
+        // KPI "En Ruta": sumar TODAS las unidades (todos los productos)
         let totalUnidades = 0;
+        let totalAgua = 0;
         if (activas.length) {
             const flotaIds = activas.map(f => f.id);
             const { data: stocks } = await supabaseClient.from('flota_stock')
                 .select('flota_id, cantidad_actual, productos(requiere_envase)')
                 .in('flota_id', flotaIds);
             (stocks || []).forEach(s => {
-                if (s.productos?.requiere_envase) totalUnidades += Number(s.cantidad_actual || 0);
+                totalUnidades += Number(s.cantidad_actual || 0);
+                if (s.productos?.requiere_envase) totalAgua += Number(s.cantidad_actual || 0);
             });
         }
         document.getElementById('kpi-unidades').innerText = totalUnidades;
+        const sub = document.getElementById('kpi-unidades-sub');
+        if (sub) sub.innerText = totalAgua > 0
+            ? `${totalAgua} agua + ${totalUnidades - totalAgua} otros`
+            : 'Unidades en camiones';
 
         const cont = document.getElementById('fleet-list');
         if (!activas.length) { cont.innerHTML = '<div class="loading-text">No hay unidades en ruta.</div>'; return; }
@@ -1597,8 +1629,9 @@ async function fetchFlota() {
                 const low = p.cantidad_actual < 10;
                 return `<span class="fleet-producto-chip ${low ? 'low' : ''}">${esc(p.productos?.nombre || 'Producto')}: ${p.cantidad_actual}</span>`;
             }).join('');
+            const totalUnid = productosFlota.reduce((a,s) => a + Number(s.cantidad_actual || 0), 0);
             return `<div class="fleet-card">
-                <div class="fleet-header"><div class="fleet-name"><i class="fa-solid fa-truck"></i> ${esc(f.nombre)}</div><div class="fleet-trip">En curso</div></div>
+                <div class="fleet-header"><div class="fleet-name"><i class="fa-solid fa-truck"></i> ${esc(f.nombre)}</div><div class="fleet-trip">En curso • ${totalUnid} unid.</div></div>
                 <div class="fleet-chofer"><i class="fa-solid fa-id-card"></i> <strong>${esc(f.choferes?.nombre || 'N/A')}</strong> • ${esc(f.choferes?.placa || 'S/P')}</div>
                 <div class="fleet-productos">${chips || '<span style="color:var(--text-muted);font-size:0.75rem;">Sin productos cargados</span>'}</div>
                 <button class="btn-sm btn-sm-primary" style="width: 100%; padding: 10px;" onclick="openFleetModal('${f.id}')">
@@ -1616,7 +1649,6 @@ async function openFleetModal(id) {
     currentFleetName = f.nombre;
     currentFleetChoferId = f.chofer_id;
 
-    // Asegurar que entregasDelDia sea de HOY
     const hoy = hoyISO();
     const desde = document.getElementById('entregas-desde');
     const hasta = document.getElementById('entregas-hasta');
@@ -1627,15 +1659,22 @@ async function openFleetModal(id) {
 
     document.getElementById('modal-fleet-name').innerHTML = `<i class="fa-solid fa-truck"></i> ${esc(f.nombre)}`;
 
-    let income = 0, units = 0;
+    let income = 0, totalUnidades = 0, totalAgua = 0;
     entregasDelDia.forEach(e => {
-        if (e.flota_id === id && e.estado === 'Entregado') {
-            income += Number(e.total);
-            units += Number(e.unidades);
-        }
+        if (e.flota_id !== id || e.estado !== 'Entregado') return;
+        income += Number(e.total);
+        (e.entregas_detalles || []).forEach(d => {
+            totalUnidades += Number(d.cantidad || 0);
+            // Necesitamos saber si el producto requiere envase; lo consultamos en productosGlobal
+            const prod = productosGlobal.find(p => String(p.id) === String(d.producto_id));
+            if (prod?.requiere_envase) totalAgua += Number(d.cantidad || 0);
+        });
     });
     document.getElementById('modal-fleet-income').innerText = fmtBs(income);
-    document.getElementById('modal-fleet-units').innerText = units;
+    document.getElementById('modal-fleet-units').innerText = totalUnidades;
+    document.getElementById('modal-fleet-units-sub').innerText = totalUnidades > 0
+        ? `${totalAgua} agua / ${totalUnidades - totalAgua} otros`
+        : '— agua / — otros';
     document.getElementById('modal-fleet-comision').innerText = fmtBs(reporteComisionesGlobal[id] || 0);
 
     const { data: stock } = await supabaseClient.from('flota_stock').select('cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)').eq('flota_id', id);
@@ -1669,7 +1708,7 @@ async function confirmarRecarga() {
         const { data, error } = await supabaseClient.rpc('rpc_recargar_flota', { p_flota_id: currentFleetId, p_items: items });
         if (error) throw error;
         if (!data.success) throw new Error(data.error || 'Error');
-        alert(`✅ Recarga aplicada`);
+        alert(`✅ Recarga aplicada (+${data.total_extra} unidades)`);
         cerrarModal('recargarModal');
         carritoRecarga = [];
         cargarProductos();
@@ -1877,7 +1916,6 @@ function renderClientesDirectorio() {
 async function verHistorialCliente(clienteId) {
     const c = clientesGlobal.find(x => String(x.id) === String(clienteId));
     const nombre = c?.nombre || 'Cliente';
-
     const modal = document.getElementById('historialModal');
     const body = document.getElementById('historial-body');
     document.getElementById('historial-title').innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${esc(nombre)}`;
@@ -1911,7 +1949,6 @@ async function verHistorialCliente(clienteId) {
 }
 
 async function abrirModalAbono(clienteId) {
-    // Re-leer cliente para evitar saldo desactualizado
     const { data: c } = await supabaseClient.from('clientes').select('*').eq('id', clienteId).single();
     if (!c) return alert('Cliente no encontrado');
     clienteAbonoActual = c;
@@ -2098,12 +2135,11 @@ async function fetchEntregas() {
         const hasta = document.getElementById('entregas-hasta').value || hoyISO();
         document.getElementById('entregas-fecha-label').innerText = desde === hasta ? formatDate(desde + 'T12:00:00') : `${formatDate(desde + 'T12:00:00')} – ${formatDate(hasta + 'T12:00:00')}`;
 
-        // Rango en hora LOCAL
         const desdeUTC = new Date(`${desde}T00:00:00`).toISOString();
         const hastaUTC = new Date(`${hasta}T23:59:59.999`).toISOString();
 
         const { data, error } = await supabaseClient.from('entregas')
-            .select(`id, cliente, cliente_id, flota_id, unidades, metodo_pago, total, created_at, vacios_devueltos, estado, flota ( id, nombre ), entregas_detalles ( producto_id, cantidad, comision_unitaria, productos(nombre, costo) )`)
+            .select(`id, cliente, cliente_id, flota_id, unidades, metodo_pago, total, created_at, vacios_devueltos, estado, flota ( id, nombre ), entregas_detalles ( producto_id, cantidad, comision_unitaria, productos(nombre, costo, requiere_envase) )`)
             .gte('created_at', desdeUTC).lte('created_at', hastaUTC)
             .order('created_at', { ascending: false });
         if (error) throw error;
@@ -2222,7 +2258,6 @@ document.getElementById('form-configuracion').addEventListener('submit', async (
     alert('✅ Configuración guardada');
 });
 
-// Ganancia real: ingresos - costo real por producto - comisiones
 function calcularGanancia() {
     let ingresos = 0, costo = 0, comisiones = 0;
     entregasDelDia.forEach(e => {
@@ -2281,6 +2316,7 @@ async function fetchCaja() {
 // ============================================
 async function cargarReportes() {
     try {
+        // Top productos: agrupar por nombre y sumar cantidad
         const productosVendidos = {};
         entregasDelDia.filter(e => e.estado === 'Entregado').forEach(e => {
             (e.entregas_detalles || []).forEach(d => {
@@ -2293,16 +2329,20 @@ async function cargarReportes() {
         document.getElementById('reporte-top-productos-tbody').innerHTML = top.length ? top.map(n => `
             <tr><td>${esc(n)}</td><td>${productosVendidos[n].cantidad}</td><td>—</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin ventas.</td></tr>';
 
-        // Solo flotas activas + usar flota_id
+        // Productos por vehículo: TODOS los productos, no solo agua
         const rows = flotaGlobalTodas.filter(f => f.estado === 'ruta').map(f => {
             const ef = entregasDelDia.filter(e => e.flota_id === f.id && e.estado === 'Entregado');
-            const vend = ef.reduce((a,e) => a + Number(e.unidades), 0);
-            const ret = ef.reduce((a,e) => a + (e.vacios_devueltos||0), 0);
-            return { ruta: f.nombre, carg: f.capacidad_maxima, vend, ret, dif: f.capacidad_maxima - vend - (f.stock_actual || 0) };
+            const entregados = ef.reduce((a,e) => {
+                return a + (e.entregas_detalles || []).reduce((s,d) => s + Number(d.cantidad || 0), 0);
+            }, 0);
+            const vacios = ef.reduce((a,e) => a + Number(e.vacios_devueltos || 0), 0);
+            const stockActual = Number(f.stock_actual || 0);
+            const cargado = Number(f.capacidad_maxima || 0);
+            return { ruta: f.nombre, cargado, entregados, stockActual, dif: cargado - entregados - stockActual, vacios };
         });
         document.getElementById('reporte-botellones-tbody').innerHTML = rows.length ? rows.map(r => `
-            <tr><td>${esc(r.ruta)}</td><td>${r.carg}</td><td>${r.vend}</td><td>${r.ret}</td>
-            <td class="${r.dif !== 0 ? 'acc-credit' : ''}">${r.dif}</td></tr>`).join('') : '<tr><td colspan="5" class="loading-text">Sin datos.</td></tr>';
+            <tr><td>${esc(r.ruta)}</td><td>${r.cargado}</td><td>${r.entregados}</td><td>${r.stockActual}</td>
+            <td class="${r.dif !== 0 ? 'acc-credit' : ''}">${r.dif}</td><td>${r.vacios}</td></tr>`).join('') : '<tr><td colspan="6" class="loading-text">Sin datos.</td></tr>';
 
         const mets = {};
         entregasDelDia.filter(e => e.estado === 'Entregado').forEach(e => {
@@ -2366,7 +2406,7 @@ function exportarEntregasExcel() {
     const data = entregasDelDia.map(e => ({
         Fecha: formatDate(e.created_at), Hora: formatTime(e.created_at),
         Cliente: e.cliente, Ruta: e.flota?.nombre || 'S/R',
-        Botellones: e.unidades, Estado: e.estado || 'Entregado',
+        Unidades: e.unidades, Estado: e.estado || 'Entregado',
         Metodo: e.metodo_pago, Total_Bs: e.total, Vacios: e.vacios_devueltos || 0
     }));
     exportToExcel(data, `Entregas_${hoyISO()}.xlsx`, 'Entregas');
@@ -2378,7 +2418,7 @@ function exportarEntregasPDF() {
     doc.setFontSize(16);
     doc.text('Entregas - Aqua Vita', 14, 18);
     doc.autoTable({
-        startY: 25, head: [['Hora','Cliente','Ruta','Bot.','Estado','Pago','Total']],
+        startY: 25, head: [['Hora','Cliente','Ruta','Unid.','Estado','Pago','Total']],
         body: entregasDelDia.map(e => [formatTime(e.created_at), e.cliente, e.flota?.nombre || 'S/R', e.unidades, e.estado || 'Entregado', e.metodo_pago, fmtBs(e.total)]),
         theme: 'striped', headStyles: { fillColor: [2,132,199] }, styles: { fontSize: 8 }
     });
@@ -2443,7 +2483,7 @@ async function renderMapaCamiones() {
                 mapMarkers[f.id] = marker;
             }
             html += `<div style="padding: 10px; background: var(--surface-subtle); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <div><div style="font-weight: 700; font-size: 0.85rem;">${esc(f.nombre)}</div><div style="font-size: 0.72rem; color: var(--text-muted);">${esc(f.choferes?.nombre || 'N/A')} • ${f.stock_actual} bot.</div></div>
+                <div><div style="font-weight: 700; font-size: 0.85rem;">${esc(f.nombre)}</div><div style="font-size: 0.72rem; color: var(--text-muted);">${esc(f.choferes?.nombre || 'N/A')} • ${f.stock_actual} unid.</div></div>
                 <span style="font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: ${color}20; color: ${color};">${estadoTexto}</span>
             </div>`;
         });
@@ -2462,15 +2502,15 @@ let tutorialIndex = 0, tutorialSoundEnabled = true;
 const TUTORIAL_STEPS = [
     { target: 'header .logo', screen: null, title: '👋 ¡Bienvenido!', text: 'Te guío por el panel de Aqua Vita.' },
     { target: '[onclick*="\'inicio\'"]', screen: 'inicio', title: '📊 Inicio', text: 'Balance del día, alertas de stock bajo y ventas por hora.' },
-    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Crea, edita, desactiva o borra productos permanentemente.' },
+    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Crea, edita, desactiva o borra. Usa las flechas ↑↓ para ordenarlos a tu gusto.' },
     { target: '[onclick*="\'clientes\'"]', screen: 'clientes', title: '👥 Clientes', text: 'Registra clientes con GPS e historial completo.' },
     { target: '[onclick*="\'pedidos\'"]', screen: 'pedidos', title: '📋 Pedidos', text: 'Sistema de preventa.' },
     { target: '[onclick*="\'rutas\'"]', screen: 'rutas', title: '🗺️ Rutas', text: 'Clientes por ruta con navegación.' },
     { target: '[onclick*="\'fabrica\'"]', screen: 'fabrica', title: '🏭 Fábrica', text: 'Inventario y producción.' },
-    { target: '[onclick*="\'flota\'"]', screen: 'flota', title: '🚚 Flota', text: 'Despacho multi-producto.' },
+    { target: '[onclick*="\'flota\'"]', screen: 'flota', title: '🚚 Flota', text: 'Despacho multi-producto: agua, bebidas, snacks y más.' },
     { target: '[onclick*="\'mapa\'"]', screen: 'mapa', title: '📡 Mapa', text: 'Ubicación en tiempo real.' },
     { target: '[onclick*="\'entregas\'"]', screen: 'entregas', title: '📦 Entregas', text: 'Historial completo.' },
-    { target: '[onclick*="\'reportes\'"]', screen: 'reportes', title: '📈 Reportes', text: 'Top productos y cobranza.' },
+    { target: '[onclick*="\'reportes\'"]', screen: 'reportes', title: '📈 Reportes', text: 'Top productos, productos por vehículo y cobranza.' },
     { target: '[onclick*="\'finanzas\'"]', screen: 'finanzas', title: '💰 Finanzas', text: 'Saldo y ganancia neta.' },
     { target: '.tutorial-btn', screen: 'inicio', title: '✅ ¡Listo!', text: 'Toca el ícono 🎓 para repetir el tutorial.' }
 ];
