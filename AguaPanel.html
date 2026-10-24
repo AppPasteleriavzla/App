@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aqua Vita - Panel Gerencial v2.5</title>
+    <title>Aqua Vita - Panel Gerencial v2.6</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -81,6 +81,7 @@
         .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.9rem; outline: none; background: var(--bg-body); color: var(--text-main); }
         .input-group textarea { resize: vertical; min-height: 60px; }
         .input-group input:focus, .input-group select:focus, .input-group textarea:focus { border-color: var(--primary); background: var(--surface); }
+        .input-group small { display: block; font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
 
         .btn-primary { width: 100%; background: linear-gradient(135deg,#0284c7,#0369a1); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-family: inherit; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
@@ -118,11 +119,12 @@
         .producto-info { flex: 1; min-width: 0; }
         .producto-nombre { font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .producto-categoria-pill { font-size: 0.6rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: var(--surface-subtle); color: var(--text-muted); text-transform: uppercase; }
-        .producto-precios { display: flex; gap: 12px; margin-top: 4px; font-size: 0.75rem; }
+        .producto-precios { display: flex; gap: 12px; margin-top: 4px; font-size: 0.75rem; flex-wrap: wrap; }
         .producto-precio { display: flex; flex-direction: column; }
         .producto-precio-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
         .producto-precio-valor { font-weight: 800; font-size: 0.85rem; }
         .producto-precio-valor.margen { color: var(--success); }
+        .producto-precio-valor.mayorista { color: var(--purple); }
         .producto-stock { display: flex; align-items: center; gap: 6px; background: var(--surface-subtle); border-radius: 8px; padding: 6px 10px; margin-top: 6px; font-size: 0.75rem; font-weight: 700; }
         .producto-stock.low { background: var(--warning-light); color: #b45309; }
         .producto-stock.out { background: var(--danger-light); color: #991b1b; }
@@ -194,12 +196,18 @@
         .client-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px; }
         .client-number { width: 40px; height: 40px; background: var(--primary-light); color: var(--primary-dark); font-weight: 800; font-size: 1.1rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .client-info { flex: 1; text-align: left; min-width: 0; }
-        .client-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+        .client-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .client-detail { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .client-route-info { font-size: 0.7rem; color: var(--primary-dark); background: var(--primary-light); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; }
         .client-debt { font-size: 0.7rem; color: var(--danger); background: var(--danger-light); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; margin-left: 4px; }
         .client-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
         .btn-location { background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; justify-content: center; }
+
+        /* BADGES TIPO CLIENTE */
+        .tipo-cliente-badge { font-size: 0.6rem; font-weight: 800; padding: 2px 7px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .tipo-minorista { background: var(--surface-subtle); color: var(--text-muted); }
+        .tipo-mayorista { background: var(--success-light); color: #15803d; }
+        .tipo-especial { background: var(--purple-light); color: #6d28d9; }
 
         .factory-kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .factory-kpi-card { background: var(--surface-subtle); padding: 12px; border-radius: 8px; text-align: center; }
@@ -349,6 +357,11 @@
                         <div class="input-group" style="flex: 1;"><label>Costo (Bs) *</label><input type="number" step="0.1" id="prod-costo" placeholder="0.00" required></div>
                         <div class="input-group" style="flex: 1;"><label>Precio Venta (Bs) *</label><input type="number" step="0.1" id="prod-precio" placeholder="0.00" required></div>
                     </div>
+                    <div class="input-group">
+                        <label>Precio Mayorista (Bs) <span style="color: var(--purple); font-weight: 800;">⭐ OPCIONAL</span></label>
+                        <input type="number" step="0.1" id="prod-precio-mayorista" placeholder="Dejar vacío si no aplica">
+                        <small>Si lo dejas vacío, este producto se vende al precio de tienda a TODOS los clientes. Si lo llenas, los clientes marcados como "Mayorista" pagan este precio.</small>
+                    </div>
                     <div style="display: flex; gap: 8px;">
                         <div class="input-group" style="flex: 1;"><label>Comisión Chofer (Bs)</label><input type="number" step="0.1" id="prod-comision" placeholder="0.00" value="0"></div>
                         <div class="input-group" style="flex: 1;"><label>Stock Inicial</label><input type="number" id="prod-stock" placeholder="0" value="0"></div>
@@ -387,6 +400,15 @@
                 <div class="form-title"><i class="fa-solid fa-user-plus"></i> Registrar Nuevo Cliente</div>
                 <form id="form-cliente">
                     <div class="input-group"><label>Nombre / Razón Social *</label><input type="text" id="cli-nombre" placeholder="Ej: Tienda Doña Rosa" required></div>
+                    <div class="input-group">
+                        <label>Tipo de Cliente *</label>
+                        <select id="cli-tipo-cliente" required>
+                            <option value="Minorista" selected>Minorista (tienda / precio normal)</option>
+                            <option value="Mayorista">Mayorista (precio al por mayor)</option>
+                            <option value="Especial">Especial (precio personalizado)</option>
+                        </select>
+                        <small>Los "Mayoristas" pagan <code>precio_mayorista</code> cuando el producto lo tiene cargado.</small>
+                    </div>
                     <div class="input-group"><label>Teléfono</label><input type="tel" id="cli-telefono" placeholder="Ej: 70012345"></div>
                     <div class="input-group"><label>Dirección</label><textarea id="cli-direccion" placeholder="Av. Monseñor Rivero #123..."></textarea></div>
                     <div style="display: flex; gap: 8px;">
@@ -847,6 +869,14 @@
     <div class="modal-container">
         <div class="modal-header"><h3><i class="fa-solid fa-pen-to-square"></i> Editar Cliente</h3><button class="modal-close" onclick="cerrarModal('editClienteModal')"><i class="fa-solid fa-xmark"></i></button></div>
         <div class="input-group"><label>Nombre</label><input type="text" id="edit-cli-nombre"></div>
+        <div class="input-group">
+            <label>Tipo de Cliente</label>
+            <select id="edit-cli-tipo-cliente">
+                <option value="Minorista">Minorista (tienda / precio normal)</option>
+                <option value="Mayorista">Mayorista (precio al por mayor)</option>
+                <option value="Especial">Especial (precio personalizado)</option>
+            </select>
+        </div>
         <div class="input-group"><label>Teléfono</label><input type="tel" id="edit-cli-telefono"></div>
         <div class="input-group"><label>Dirección</label><textarea id="edit-cli-direccion"></textarea></div>
         <div style="display: flex; gap: 8px;">
@@ -882,6 +912,11 @@
         <div style="display: flex; gap: 8px;">
             <div class="input-group" style="flex: 1;"><label>Costo (Bs)</label><input type="number" step="0.1" id="edit-prod-costo"></div>
             <div class="input-group" style="flex: 1;"><label>Precio (Bs)</label><input type="number" step="0.1" id="edit-prod-precio"></div>
+        </div>
+        <div class="input-group">
+            <label>Precio Mayorista (Bs) <span style="color: var(--purple); font-weight: 800;">⭐ OPCIONAL</span></label>
+            <input type="number" step="0.1" id="edit-prod-precio-mayorista" placeholder="Dejar vacío si no aplica">
+            <small>Dejar vacío = este producto se vende igual a todos.</small>
         </div>
         <div style="display: flex; gap: 8px;">
             <div class="input-group" style="flex: 1;"><label>Comisión (Bs)</label><input type="number" step="0.1" id="edit-prod-comision"></div>
@@ -1004,6 +1039,12 @@ function hoyISO() {
 const catIcon = (c) => ({Agua:'fa-droplet',Bebida:'fa-bottle-water',Hielo:'fa-snowflake',Snack:'fa-cookie-bite',General:'fa-box'}[c]||'fa-box');
 const catClass = (c) => ({Agua:'',Bebida:'cat-bebida',Hielo:'cat-hielo',Snack:'cat-snack',General:'cat-otro'}[c]||'cat-otro');
 
+function tipoClienteBadge(tipo) {
+    const t = tipo || 'Minorista';
+    const cls = t === 'Mayorista' ? 'tipo-mayorista' : (t === 'Especial' ? 'tipo-especial' : 'tipo-minorista');
+    return `<span class="tipo-cliente-badge ${cls}">${esc(t)}</span>`;
+}
+
 // ============================================
 // VARIABLES GLOBALES
 // ============================================
@@ -1075,7 +1116,6 @@ function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
 // ============================================
 async function cargarProductos() {
     try {
-        // Orden manual por "orden", fallback alfabético
         const { data, error } = await supabaseClient.from('productos')
             .select('*')
             .order('orden', { ascending: true })
@@ -1107,8 +1147,8 @@ function renderProductos() {
         const cardClass = stock === 0 ? 'sin-stock' : (stock <= stockMin ? 'stock-bajo' : '');
         const margen = Number(p.precio_venta) - Number(p.costo || 0);
         const margenPct = p.costo > 0 ? ((margen / p.costo) * 100).toFixed(0) : '--';
+        const tieneMayorista = p.precio_mayorista != null && p.precio_mayorista !== '';
 
-        // Índice real en productosGlobal para saber si puede subir/bajar
         const realIdx = productosGlobal.findIndex(x => String(x.id) === String(p.id));
         const puedeSubir = realIdx > 0;
         const puedeBajar = realIdx >= 0 && realIdx < productosGlobal.length - 1;
@@ -1135,6 +1175,7 @@ function renderProductos() {
                     <div class="producto-precios">
                         <div class="producto-precio"><span class="producto-precio-label">Costo</span><span class="producto-precio-valor">${fmtBs(p.costo || 0)}</span></div>
                         <div class="producto-precio"><span class="producto-precio-label">Venta</span><span class="producto-precio-valor">${fmtBs(p.precio_venta)}</span></div>
+                        ${tieneMayorista ? `<div class="producto-precio"><span class="producto-precio-label">Mayorista</span><span class="producto-precio-valor mayorista">${fmtBs(p.precio_mayorista)}</span></div>` : ''}
                         <div class="producto-precio"><span class="producto-precio-label">Margen</span><span class="producto-precio-valor margen">${fmtBs(margen)} (${margenPct}%)</span></div>
                     </div>
                     <div class="producto-stock ${stockClass}">
@@ -1170,12 +1211,14 @@ document.getElementById('form-producto').addEventListener('submit', async (e) =>
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
     try {
+        const precioMayoristaRaw = document.getElementById('prod-precio-mayorista').value.trim();
         const payload = {
             nombre: document.getElementById('prod-nombre').value.trim(),
             categoria: document.getElementById('prod-categoria').value,
             unidad_medida: document.getElementById('prod-unidad').value,
             costo: parseFloat(document.getElementById('prod-costo').value) || 0,
             precio_venta: parseFloat(document.getElementById('prod-precio').value) || 0,
+            precio_mayorista: precioMayoristaRaw === '' ? null : parseFloat(precioMayoristaRaw),
             comision_chofer: parseFloat(document.getElementById('prod-comision').value) || 0,
             stock_actual: parseInt(document.getElementById('prod-stock').value) || 0,
             stock_minimo: parseInt(document.getElementById('prod-stock-min').value) || 5,
@@ -1202,6 +1245,7 @@ function abrirEditarProducto(id) {
     document.getElementById('edit-prod-unidad').value = p.unidad_medida || 'unidad';
     document.getElementById('edit-prod-costo').value = p.costo || 0;
     document.getElementById('edit-prod-precio').value = p.precio_venta;
+    document.getElementById('edit-prod-precio-mayorista').value = (p.precio_mayorista != null && p.precio_mayorista !== '') ? p.precio_mayorista : '';
     document.getElementById('edit-prod-comision').value = p.comision_chofer;
     document.getElementById('edit-prod-stock-min').value = p.stock_minimo || 5;
     document.getElementById('edit-prod-envase').checked = p.requiere_envase;
@@ -1213,12 +1257,14 @@ function abrirEditarProducto(id) {
 async function guardarEdicionProducto() {
     const id = document.getElementById('edit-prod-id').value;
     try {
+        const precioMayoristaRaw = document.getElementById('edit-prod-precio-mayorista').value.trim();
         const { error } = await supabaseClient.from('productos').update({
             nombre: document.getElementById('edit-prod-nombre').value.trim(),
             categoria: document.getElementById('edit-prod-categoria').value,
             unidad_medida: document.getElementById('edit-prod-unidad').value,
             costo: parseFloat(document.getElementById('edit-prod-costo').value) || 0,
             precio_venta: parseFloat(document.getElementById('edit-prod-precio').value) || 0,
+            precio_mayorista: precioMayoristaRaw === '' ? null : parseFloat(precioMayoristaRaw),
             comision_chofer: parseFloat(document.getElementById('edit-prod-comision').value) || 0,
             stock_minimo: parseInt(document.getElementById('edit-prod-stock-min').value) || 5,
             requiere_envase: document.getElementById('edit-prod-envase').checked,
@@ -1593,7 +1639,6 @@ async function fetchFlota() {
         const activas = flotaGlobalTodas.filter(f => f.estado === 'ruta');
         flotaGlobalActiva = activas;
 
-        // KPI "En Ruta": sumar TODAS las unidades (todos los productos)
         let totalUnidades = 0;
         let totalAgua = 0;
         if (activas.length) {
@@ -1665,7 +1710,6 @@ async function openFleetModal(id) {
         income += Number(e.total);
         (e.entregas_detalles || []).forEach(d => {
             totalUnidades += Number(d.cantidad || 0);
-            // Necesitamos saber si el producto requiere envase; lo consultamos en productosGlobal
             const prod = productosGlobal.find(p => String(p.id) === String(d.producto_id));
             if (prod?.requiere_envase) totalAgua += Number(d.cantidad || 0);
         });
@@ -1848,6 +1892,7 @@ document.getElementById('form-cliente').addEventListener('submit', async (e) => 
         }
         const payload = {
             nombre: document.getElementById('cli-nombre').value.trim(),
+            tipo_cliente: document.getElementById('cli-tipo-cliente').value,
             telefono: document.getElementById('cli-telefono').value.trim() || null,
             direccion: document.getElementById('cli-direccion').value.trim() || null,
             dia_visita: document.getElementById('cli-dia').value || null,
@@ -1894,7 +1939,7 @@ function renderClientesDirectorio() {
             <div class="client-card">
                 <div class="client-number"><i class="fa-solid fa-user"></i></div>
                 <div class="client-info">
-                    <div class="client-name">${esc(c.nombre)}</div>
+                    <div class="client-name">${esc(c.nombre)} ${tipoClienteBadge(c.tipo_cliente)}</div>
                     <div class="client-detail">
                         <span><i class="fa-solid fa-phone"></i> ${esc(c.telefono || '—')}</span>
                         ${c.dia_visita ? `<span><i class="fa-solid fa-calendar"></i> ${esc(c.dia_visita)}</span>` : ''}
@@ -1983,6 +2028,7 @@ function abrirEditarCliente(clienteId) {
     if (!c) return;
     clienteEditActual = c;
     document.getElementById('edit-cli-nombre').value = c.nombre || '';
+    document.getElementById('edit-cli-tipo-cliente').value = c.tipo_cliente || 'Minorista';
     document.getElementById('edit-cli-telefono').value = c.telefono || '';
     document.getElementById('edit-cli-direccion').value = c.direccion || '';
     document.getElementById('edit-cli-dia').value = c.dia_visita || '';
@@ -2002,6 +2048,7 @@ async function guardarEdicionCliente() {
     try {
         const { error } = await supabaseClient.from('clientes').update({
             nombre: document.getElementById('edit-cli-nombre').value.trim(),
+            tipo_cliente: document.getElementById('edit-cli-tipo-cliente').value,
             telefono: document.getElementById('edit-cli-telefono').value.trim() || null,
             direccion: document.getElementById('edit-cli-direccion').value.trim() || null,
             dia_visita: document.getElementById('edit-cli-dia').value || null,
@@ -2045,7 +2092,7 @@ async function cargarClientesZona() {
             return `<div class="client-card">
                 <div class="client-number">${i+1}</div>
                 <div class="client-info">
-                    <div class="client-name">${esc(c.nombre)}</div>
+                    <div class="client-name">${esc(c.nombre)} ${tipoClienteBadge(c.tipo_cliente)}</div>
                     <div class="client-detail"><span><i class="fa-solid fa-phone"></i> ${esc(c.telefono || '—')}</span></div>
                     ${c.zona ? `<div class="client-route-info"><i class="fa-solid fa-truck"></i> ${esc(c.zona)}</div>` : ''}
                 </div>
@@ -2316,7 +2363,6 @@ async function fetchCaja() {
 // ============================================
 async function cargarReportes() {
     try {
-        // Top productos: agrupar por nombre y sumar cantidad
         const productosVendidos = {};
         entregasDelDia.filter(e => e.estado === 'Entregado').forEach(e => {
             (e.entregas_detalles || []).forEach(d => {
@@ -2329,7 +2375,6 @@ async function cargarReportes() {
         document.getElementById('reporte-top-productos-tbody').innerHTML = top.length ? top.map(n => `
             <tr><td>${esc(n)}</td><td>${productosVendidos[n].cantidad}</td><td>—</td></tr>`).join('') : '<tr><td colspan="3" class="loading-text">Sin ventas.</td></tr>';
 
-        // Productos por vehículo: TODOS los productos, no solo agua
         const rows = flotaGlobalTodas.filter(f => f.estado === 'ruta').map(f => {
             const ef = entregasDelDia.filter(e => e.flota_id === f.id && e.estado === 'Entregado');
             const entregados = ef.reduce((a,e) => {
@@ -2502,8 +2547,8 @@ let tutorialIndex = 0, tutorialSoundEnabled = true;
 const TUTORIAL_STEPS = [
     { target: 'header .logo', screen: null, title: '👋 ¡Bienvenido!', text: 'Te guío por el panel de Aqua Vita.' },
     { target: '[onclick*="\'inicio\'"]', screen: 'inicio', title: '📊 Inicio', text: 'Balance del día, alertas de stock bajo y ventas por hora.' },
-    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Crea, edita, desactiva o borra. Usa las flechas ↑↓ para ordenarlos a tu gusto.' },
-    { target: '[onclick*="\'clientes\'"]', screen: 'clientes', title: '👥 Clientes', text: 'Registra clientes con GPS e historial completo.' },
+    { target: '[onclick*="\'productos\'"]', screen: 'productos', title: '📦 Productos', text: 'Ahora puedes cargar Precio Mayorista y ordenarlos. Los productos sin precio mayorista se venden al precio de tienda a todos.' },
+    { target: '[onclick*="\'clientes\'"]', screen: 'clientes', title: '👥 Clientes', text: 'Marca clientes como Mayoristas, Minoristas o Especiales para que el chofer vea el precio correcto automáticamente.' },
     { target: '[onclick*="\'pedidos\'"]', screen: 'pedidos', title: '📋 Pedidos', text: 'Sistema de preventa.' },
     { target: '[onclick*="\'rutas\'"]', screen: 'rutas', title: '🗺️ Rutas', text: 'Clientes por ruta con navegación.' },
     { target: '[onclick*="\'fabrica\'"]', screen: 'fabrica', title: '🏭 Fábrica', text: 'Inventario y producción.' },
