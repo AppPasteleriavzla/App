@@ -116,12 +116,13 @@
         .producto-selector-icon.cat-snack { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
         .producto-selector-icon.cat-hielo { background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0369a1; }
         .producto-selector-info { flex: 1; min-width: 0; }
-        .producto-selector-nombre { font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; }
+        .producto-selector-nombre { font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
         .producto-selector-detalle { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
         .producto-selector-stock { font-size: 0.7rem; font-weight: 700; }
         .producto-selector-stock.ok { color: var(--success); }
         .producto-selector-stock.low { color: var(--warning); }
         .producto-selector-stock.out { color: var(--danger); }
+        .badge-mayorista { font-size: 0.6rem; color: var(--success); font-weight: 800; margin-left: 4px; }
         .qty-control {
             display: flex; align-items: center; gap: 6px;
         }
@@ -269,6 +270,14 @@
             El cliente <strong id="flujo-nuevo-nombre" style="color: var(--text-main);"></strong> no está registrado. ¿Guardar sus datos?
         </p>
         <div class="input-group"><label>Teléfono</label><input type="tel" id="flujo-nuevo-telefono" placeholder="Ej: 70012345"></div>
+        <div class="input-group">
+            <label>Tipo de Cliente</label>
+            <select id="flujo-nuevo-tipo">
+                <option value="Minorista" selected>Minorista (tienda)</option>
+                <option value="Mayorista">Mayorista</option>
+                <option value="Especial">Precio especial</option>
+            </select>
+        </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: var(--surface-subtle); border-radius: 10px;">
             <div style="text-align: left;">
                 <label style="margin: 0; font-size: 0.85rem; font-weight: 800; display: block;">¿Guardar GPS?</label>
@@ -366,6 +375,7 @@
                         <label>Cliente / Local *</label>
                         <input type="text" id="venta-cliente" list="clientes-datalist" placeholder="Escribe el nombre..." autocomplete="off" required>
                         <datalist id="clientes-datalist"></datalist>
+                        <small id="venta-cliente-tipo" style="display:none;"></small>
                     </div>
 
                     <!-- ESTADO -->
@@ -522,6 +532,22 @@ const fmtBs = (val) => `Bs. ${Number(val).toLocaleString('es-BO', { minimumFract
 const formatTime = (s) => new Date(s).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
 const catIcon = (c) => ({Agua:'fa-droplet',Bebida:'fa-bottle-water',Hielo:'fa-snowflake',Snack:'fa-cookie-bite',General:'fa-box'}[c]||'fa-box');
 const catClass = (c) => ({Agua:'',Bebida:'cat-bebida',Hielo:'cat-hielo',Snack:'cat-snack',General:'cat-otro'}[c]||'cat-otro');
+
+// ============================================
+// HELPERS DE PRECIO POR TIPO DE CLIENTE
+// ============================================
+function getTipoClienteActual() {
+    return clienteSeleccionadoActual?.tipo_cliente || 'Minorista';
+}
+
+function getPrecioProducto(p) {
+    const tipo = getTipoClienteActual();
+    if (tipo === 'Mayorista' && p.precio_mayorista != null) {
+        return Number(p.precio_mayorista);
+    }
+    return Number(p.precio_venta);
+}
+
 document.getElementById('ruta-fecha').innerText = new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'}).toUpperCase();
 
 // ============================================
@@ -761,11 +787,15 @@ function renderCatalogoProductos() {
         return 0;
     });
 
+    const esMayorista = getTipoClienteActual() === 'Mayorista';
+
     cont.innerHTML = ordenados.map(p => {
         const stockInfo = stockCamion[p.id];
         const stock = stockInfo?.cantidad_actual ?? 0;
         const stockCls = stock === 0 ? 'out' : (stock < 10 ? 'low' : 'ok');
         const cantidad = carritoVenta[p.id] || 0;
+        const precio = getPrecioProducto(p);
+        const mostrarBadge = esMayorista && p.precio_mayorista != null;
 
         return `
             <div class="producto-selector">
@@ -776,9 +806,10 @@ function renderCatalogoProductos() {
                     <div class="producto-selector-nombre">
                         ${p.nombre}
                         ${p.requiere_envase ? '<span style="font-size:0.6rem;color:var(--primary);">🔄</span>' : ''}
+                        ${mostrarBadge ? '<span class="badge-mayorista">MAYORISTA</span>' : ''}
                     </div>
                     <div class="producto-selector-detalle">
-                        Bs. ${p.precio_venta} / ${p.unidad_medida || 'unidad'}
+                        Bs. ${precio.toFixed(2)} / ${p.unidad_medida || 'unidad'}
                     </div>
                     <div class="producto-selector-stock ${stockCls}">
                         Stock: ${stock} ${stock === 0 ? '(AGOTADO)' : ''}
@@ -835,7 +866,7 @@ function renderCarritoResumen() {
         const p = productosGlobal.find(x => String(x.id) === String(pid));
         if (!p) return '';
         const cant = carritoVenta[pid];
-        const sub = cant * p.precio_venta;
+        const sub = cant * getPrecioProducto(p);
         total += sub;
         return `<div class="cart-summary-item">
             <span>${cant}x ${p.nombre}</span>
@@ -976,13 +1007,28 @@ document.getElementById('venta-cliente').addEventListener('input', (e) => {
     const nombre = e.target.value.trim().toLowerCase();
     const c = clientesGlobal.find(x => x.nombre.toLowerCase() === nombre);
     clienteSeleccionadoActual = c || null;
+
+    // Indicador visual del tipo de cliente detectado
+    const tipoLabel = document.getElementById('venta-cliente-tipo');
+    if (c) {
+        const tipo = c.tipo_cliente || 'Minorista';
+        const color = tipo === 'Mayorista' ? 'var(--success)' : (tipo === 'Especial' ? '#7e22ce' : 'var(--text-muted)');
+        tipoLabel.innerText = `Tipo: ${tipo}`;
+        tipoLabel.style.color = color;
+        tipoLabel.style.fontWeight = '700';
+        tipoLabel.style.display = 'block';
+    } else {
+        tipoLabel.style.display = 'none';
+    }
+
     actualizarPreviewEnvases();
+    renderCatalogoProductos();   // Refresca precios según tipo de cliente
 });
 
 async function cargarClientesGlobales() {
     try {
         const { data } = await supabaseClient.from('clientes')
-            .select('id, nombre, telefono, saldo_envases_prestados, saldo_pendiente, latitud, longitud')
+            .select('id, nombre, telefono, saldo_envases_prestados, saldo_pendiente, latitud, longitud, tipo_cliente')
             .eq('activo', true).order('nombre');
         clientesGlobal = data || [];
     } catch (e) { console.error(e); }
@@ -1015,6 +1061,7 @@ document.getElementById('form-venta-chofer').addEventListener('submit', (e) => {
     } else {
         document.getElementById('flujo-nuevo-nombre').innerText = clienteInput;
         document.getElementById('flujo-nuevo-telefono').value = '';
+        document.getElementById('flujo-nuevo-tipo').value = 'Minorista';
         document.getElementById('flujo-toggle-gps').checked = true;
         document.getElementById('modal-flujo-cliente').style.display = 'flex';
     }
@@ -1025,6 +1072,7 @@ function cerrarModalFlujo() { document.getElementById('modal-flujo-cliente').sty
 async function ejecutarVentaConClienteNuevo() {
     const clienteNombre = document.getElementById('flujo-nuevo-nombre').innerText;
     const telefono = document.getElementById('flujo-nuevo-telefono').value.trim();
+    const tipoCliente = document.getElementById('flujo-nuevo-tipo').value;
     const guardarGps = document.getElementById('flujo-toggle-gps').checked;
     const btnModal = document.getElementById('btn-guardar-flujo');
     btnModal.disabled = true;
@@ -1040,12 +1088,34 @@ async function ejecutarVentaConClienteNuevo() {
                 dirExacta = await obtenerDireccionExacta(lat, lng);
             } catch (err) { console.warn("GPS no disponible"); }
         }
+
+        // 1) Crear cliente primero (con su tipo) para que la venta tome el precio correcto
+        const { data: nuevoCli, error: errCli } = await supabaseClient
+            .from('clientes')
+            .insert({
+                nombre: clienteNombre,
+                telefono: telefono || null,
+                tipo_cliente: tipoCliente,
+                latitud: lat,
+                longitud: lng,
+                direccion: dirExacta || null,
+                activo: true
+            })
+            .select()
+            .single();
+        if (errCli) throw errCli;
+
+        // 2) Setear como cliente seleccionado y refrescar precios
+        clienteSeleccionadoActual = nuevoCli;
+        clientesGlobal.push(nuevoCli);
+        renderCatalogoProductos();
+
         cerrarModalFlujo();
         let referencia = telefono ? `Tel: ${telefono}` : 'Sin teléfono';
         if (dirExacta) referencia += ` - ${dirExacta}`;
         await registrarVentaFinal(clienteNombre, lat, lng, referencia);
     } catch (error) {
-        alert("Error al procesar");
+        alert("Error al procesar: " + error.message);
         console.error(error);
     } finally {
         btnModal.disabled = false;
@@ -1060,13 +1130,13 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
     const metodoPago = document.getElementById('venta-metodo').value;
     const vacios = parseInt(document.getElementById('venta-vacios-recogidos').value) || 0;
 
-    // Construir items JSONB
+    // Construir items JSONB con el precio correcto según tipo de cliente
     const items = Object.keys(carritoVenta).map(pid => {
         const p = productosGlobal.find(x => String(x.id) === String(pid));
         return {
             producto_id: pid,
             cantidad: carritoVenta[pid],
-            precio_unitario: p?.precio_venta || 0
+            precio_unitario: p ? getPrecioProducto(p) : 0
         };
     });
 
@@ -1099,8 +1169,10 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
         setModoAuto();
         document.getElementById('venta-vacios-recogidos').value = 0;
         document.getElementById('venta-estado').value = 'Entregado';
+        document.getElementById('venta-cliente-tipo').style.display = 'none';
         seleccionarEstado('Entregado');
         actualizarEnvasesWrapper();
+        renderCatalogoProductos();
 
         await buscarRutaActiva();
         await fetchHistorialVentasChofer();
@@ -1167,12 +1239,14 @@ async function cargarClientesDeRuta() {
                 : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.nombre + ' ' + (c.direccion||'') + ' Santa Cruz Bolivia')}`;
             const envases = c.saldo_envases_prestados || 0;
             const saldo = c.saldo_pendiente || 0;
+            const tipo = c.tipo_cliente || 'Minorista';
+            const tipoBadge = tipo !== 'Minorista' ? `<span style="font-size:0.6rem;color:${tipo === 'Mayorista' ? 'var(--success)' : '#7e22ce'};font-weight:800;background:${tipo === 'Mayorista' ? 'var(--success-light)' : '#ede9fe'};padding:2px 6px;border-radius:4px;">${tipo}</span>` : '';
 
             return `
                 <div class="ruta-cliente-card ${visitado ? 'visitado' : 'pendiente'}">
                     <div class="client-number">${visitado ? '<i class="fa-solid fa-check"></i>' : (i + 1)}</div>
                     <div class="client-info">
-                        <div class="client-name">${c.nombre}</div>
+                        <div class="client-name">${c.nombre} ${tipoBadge}</div>
                         <div class="client-detail">
                             ${c.telefono ? `<span><i class="fa-solid fa-phone"></i> ${c.telefono}</span>` : ''}
                             ${visitado ? '<span style="color: var(--success); font-weight: 800;"><i class="fa-solid fa-check-circle"></i> Visitado</span>' : ''}
@@ -1200,7 +1274,18 @@ function venderAClienteDeRuta(clienteId) {
     switchScreen('vender', document.querySelectorAll('.nav-item')[1]);
     document.getElementById('venta-cliente').value = c.nombre;
     clienteSeleccionadoActual = c;
+
+    // Actualizar indicador de tipo
+    const tipoLabel = document.getElementById('venta-cliente-tipo');
+    const tipo = c.tipo_cliente || 'Minorista';
+    const color = tipo === 'Mayorista' ? 'var(--success)' : (tipo === 'Especial' ? '#7e22ce' : 'var(--text-muted)');
+    tipoLabel.innerText = `Tipo: ${tipo}`;
+    tipoLabel.style.color = color;
+    tipoLabel.style.fontWeight = '700';
+    tipoLabel.style.display = 'block';
+
     actualizarPreviewEnvases();
+    renderCatalogoProductos();
     setTimeout(() => document.getElementById('catalogo-productos').scrollIntoView({behavior:'smooth'}), 300);
 }
 
