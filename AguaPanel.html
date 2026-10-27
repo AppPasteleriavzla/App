@@ -2065,16 +2065,59 @@ async function openFleetModal(id) {
         : '— agua / — otros';
     document.getElementById('modal-fleet-comision').innerText = fmtBs(reporteComisionesGlobal[id] || 0);
 
-    const { data: stock } = await supabaseClient.from('flota_stock').select('cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)').eq('flota_id', id);
+    const { data: stock } = await supabaseClient.from('flota_stock').select('id, producto_id, cantidad_actual, cantidad_inicial, productos(nombre, requiere_envase)').eq('flota_id', id);
     const stockDiv = document.getElementById('modal-fleet-stock');
     if (!stock || !stock.length) stockDiv.innerHTML = '<div class="loading-text">Sin productos cargados</div>';
     else stockDiv.innerHTML = stock.map(s => `
-        <div class="hist-row">
-            <div><strong>${esc(s.productos?.nombre || 'Producto')}</strong> ${s.productos?.requiere_envase ? '<span style="font-size:0.65rem;color:var(--primary);">🔄</span>' : ''}</div>
-            <div style="text-align:right;"><strong>${s.cantidad_actual}</strong><small style="color:var(--text-muted)"> / ${s.cantidad_inicial}</small></div>
+        <div class="hist-row" style="gap:12px;align-items:center;">
+            <div style="flex:1;min-width:0;"><strong>${esc(s.productos?.nombre || 'Producto')}</strong> ${s.productos?.requiere_envase ? '<span style="font-size:0.65rem;color:var(--primary);">🔄</span>' : ''}<br><small style="color:var(--text-muted)">Cargado: ${Number(s.cantidad_inicial || 0)} · Disponible: ${Number(s.cantidad_actual || 0)}</small></div>
+            <div style="text-align:right;display:flex;align-items:center;gap:8px;"><strong>${Number(s.cantidad_actual || 0)}</strong><button type="button" class="btn-sm" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;white-space:nowrap;" onclick="anularProductoFlota('${String(s.id)}','${String(s.producto_id)}','${String(id)}')"><i class="fa-solid fa-ban"></i> Anular</button></div>
         </div>`).join('');
 
     document.getElementById('fleetModal').style.display = 'flex';
+}
+
+// Anula la carga de un producto antes de que la flota lo haya vendido o recargado.
+// Devuelve al inventario central las unidades originalmente despachadas.
+async function anularProductoFlota(stockId, productoId, flotaId) {
+    if (!confirm('¿Anular este producto de la flota? Solo se puede anular si conserva toda la cantidad despachada. Las unidades volverán al inventario central.')) return;
+    try {
+        const { data: fila, error: errFila } = await supabaseClient
+            .from('flota_stock').select('id, flota_id, producto_id, cantidad_actual, cantidad_inicial')
+            .eq('id', stockId).eq('flota_id', flotaId).eq('producto_id', productoId).maybeSingle();
+        if (errFila) throw errFila;
+        if (!fila) throw new Error('No se encontró el producto en esta flota. Actualiza la pantalla e inténtalo de nuevo.');
+        const inicial = Number(fila.cantidad_inicial || 0);
+        const actual = Number(fila.cantidad_actual || 0);
+        if (inicial <= 0) throw new Error('La cantidad original no es válida; no se realizó ningún cambio.');
+        if (actual !== inicial) throw new Error(`No se puede anular porque ya hubo movimientos: se cargaron ${inicial} y quedan ${actual}. Para evitar alterar ventas o recargas, no se modificó el inventario.`);
+
+        const { data: producto, error: errProd } = await supabaseClient.from('productos')
+            .select('id, stock_actual').eq('id', productoId).maybeSingle();
+        if (errProd) throw errProd;
+        if (!producto) throw new Error('No se encontró el producto en el inventario central.');
+        const stockAnterior = Number(producto.stock_actual || 0);
+        const { error: errUpdate } = await supabaseClient.from('productos')
+            .update({ stock_actual: stockAnterior + inicial }).eq('id', productoId).eq('stock_actual', stockAnterior);
+        if (errUpdate) throw errUpdate;
+
+        const { error: errDelete } = await supabaseClient.from('flota_stock')
+            .delete().eq('id', stockId).eq('flota_id', flotaId).eq('producto_id', productoId);
+        if (errDelete) {
+            // Intento de compensación si no se pudo retirar la carga de la flota.
+            await supabaseClient.from('productos').update({ stock_actual: stockAnterior }).eq('id', productoId).eq('stock_actual', stockAnterior + inicial);
+            throw errDelete;
+        }
+
+        alert(`Producto anulado. Se devolvieron ${inicial} unidades al inventario central.`);
+        await cargarProductos();
+        await cargarStockBajo();
+        await cargarInventarioFabrica();
+        await fetchFlota();
+        await openFleetModal(flotaId);
+    } catch (err) {
+        alert('No se pudo anular el producto: ' + (err.message || err));
+    }
 }
 
 // ============================================
