@@ -158,6 +158,26 @@
 
         .loading-text { text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; padding: 20px; }
         .info-block { background: var(--primary-light); border-left: 3px solid var(--primary); padding: 10px 12px; border-radius: 6px; font-size: 0.78rem; color: var(--primary-dark); margin-bottom: 12px; text-align: left; }
+        .ajuste-rapido-launch { background: var(--primary-light); color: var(--primary-dark); border: 1px solid #bae6fd; padding: 7px 11px; border-radius: 8px; font-family: inherit; font-size: 0.75rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .ajuste-rapido-launch:disabled { opacity: .65; cursor: wait; }
+        .ajuste-rapido-overlay { z-index: 11000; }
+        .ajuste-rapido-confirm-overlay { z-index: 11010; }
+        .ajuste-rapido-modal { max-width: 460px; padding: 20px; }
+        .ajuste-rapido-kicker { font-size: .7rem; color: var(--text-muted); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+        .ajuste-rapido-product-name { font-size: 1.25rem; line-height: 1.25; font-weight: 900; color: var(--text-main); margin: 6px 0 4px; overflow-wrap: anywhere; }
+        .ajuste-rapido-progress-track { width: 100%; height: 7px; background: var(--surface-subtle); border-radius: 99px; overflow: hidden; margin: 11px 0 17px; }
+        .ajuste-rapido-progress-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width .2s ease; }
+        .ajuste-rapido-stock-actual { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px; margin: 12px 0 16px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-subtle); }
+        .ajuste-rapido-stock-actual small { color: var(--text-muted); font-size: .72rem; font-weight: 700; }
+        .ajuste-rapido-stock-actual strong { font-size: 1.3rem; font-weight: 900; color: var(--primary-dark); }
+        .ajuste-rapido-quantity { font-size: 1.5rem !important; font-weight: 900 !important; padding: 14px !important; text-align: center; }
+        .ajuste-rapido-actions { display: flex; gap: 9px; margin-top: 16px; }
+        .ajuste-rapido-actions button { flex: 1; min-width: 0; }
+        .ajuste-rapido-cancel { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 12px; border-radius: 9px; font-family: inherit; font-weight: 800; cursor: pointer; }
+        .ajuste-rapido-danger { background: var(--danger-light); color: #991b1b; border: 1px solid #fecaca; padding: 12px; border-radius: 9px; font-family: inherit; font-weight: 800; cursor: pointer; width: 100%; }
+        .ajuste-rapido-confirm-copy { font-size: .86rem; color: var(--text-muted); line-height: 1.55; margin: 8px 0 16px; }
+        .ajuste-rapido-modal button:disabled, .ajuste-rapido-confirm-overlay button:disabled { opacity: .55; cursor: not-allowed; }
+        @media (max-width: 420px) { .ajuste-rapido-modal { padding: 16px; } .ajuste-rapido-actions { flex-direction: column-reverse; } }
         .hist-row { padding: 8px 10px; background: var(--surface-subtle); border-radius: 8px; margin-bottom: 6px; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: center; }
 
         #live-map { width: 100%; height: 400px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 15px; }
@@ -377,7 +397,10 @@
             </div>
 
             <div class="form-card">
-                <div class="form-title"><i class="fa-solid fa-list"></i> Catálogo de Productos</div>
+                <div class="form-title" style="justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <span><i class="fa-solid fa-list"></i> Catálogo de Productos</span>
+                    <button type="button" class="ajuste-rapido-launch btn-iniciar-ajuste-rapido" onclick="iniciarAjusteRapido()"><i class="fa-solid fa-sliders"></i> Ajustar rápido</button>
+                </div>
                 <div class="input-group">
                     <input type="text" id="buscar-producto" placeholder="🔍 Buscar..." oninput="renderProductos()">
                 </div>
@@ -516,7 +539,10 @@
         </div>
         <div class="admin-section">
             <div class="form-card">
-                <div class="form-title"><i class="fa-solid fa-warehouse"></i> Inventario General</div>
+                <div class="form-title" style="justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <span><i class="fa-solid fa-warehouse"></i> Inventario General</span>
+                    <button type="button" class="ajuste-rapido-launch btn-iniciar-ajuste-rapido" onclick="iniciarAjusteRapido()"><i class="fa-solid fa-sliders"></i> Ajustar rápido</button>
+                </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead><tr><th>Producto</th><th>Stock</th><th>Costo</th><th>Valor</th></tr></thead>
@@ -994,6 +1020,53 @@
     </div>
 </div>
 
+<!-- AJUSTE RÁPIDO SECUENCIAL DE INVENTARIO -->
+<div id="ajusteRapidoModal" class="modal-overlay ajuste-rapido-overlay" role="dialog" aria-modal="true" aria-labelledby="ajuste-rapido-titulo">
+    <div class="modal-container ajuste-rapido-modal">
+        <div class="modal-header">
+            <h3 id="ajuste-rapido-titulo"><i class="fa-solid fa-sliders"></i> Ajuste rápido</h3>
+            <button type="button" class="modal-close" aria-label="Cancelar ajuste" onclick="solicitarCancelarAjusteRapido()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="ajuste-rapido-kicker" id="ajuste-rapido-contador">Producto 1 de 1</div>
+        <div class="ajuste-rapido-progress-track" aria-hidden="true"><div id="ajuste-rapido-progreso" class="ajuste-rapido-progress-fill" style="width:0%"></div></div>
+        <div id="ajuste-rapido-producto-nombre" class="ajuste-rapido-product-name">Producto</div>
+        <div id="ajuste-rapido-producto-meta" style="font-size:.76rem;color:var(--text-muted);font-weight:700;">Categoría · Unidad</div>
+        <div class="ajuste-rapido-stock-actual">
+            <div><small>Stock registrado actualmente</small><div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">Antes del ajuste</div></div>
+            <strong id="ajuste-rapido-stock-actual">0</strong>
+        </div>
+        <div class="input-group">
+            <label for="ajuste-rapido-cantidad">Cantidad física real *</label>
+            <input class="ajuste-rapido-quantity" type="number" id="ajuste-rapido-cantidad" min="0" step="1" inputmode="numeric" required placeholder="Escribe la cantidad">
+            <small>Introduce el total que contaste físicamente. No es cuánto sumar o restar; será el stock final del producto.</small>
+        </div>
+        <div class="input-group" style="margin-top:12px;">
+            <label for="ajuste-rapido-motivo">Motivo del ajuste (opcional)</label>
+            <input type="text" id="ajuste-rapido-motivo" maxlength="180" value="Ajuste rápido por conteo físico" placeholder="Ej. Conteo de inventario">
+        </div>
+        <div id="ajuste-rapido-cambios-resumen" class="info-block" aria-live="polite" style="margin-top:8px;margin-bottom:0;">
+            <i class="fa-solid fa-circle-info"></i> Los cambios quedan pendientes hasta que los guardes.
+        </div>
+        <div class="ajuste-rapido-actions">
+            <button type="button" class="ajuste-rapido-cancel" onclick="solicitarCancelarAjusteRapido()">Cancelar</button>
+            <button type="button" class="btn-primary" id="ajuste-rapido-avanzar" onclick="avanzarAjusteRapido()"><i class="fa-solid fa-arrow-right"></i> Continuar</button>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRMACIÓN AL CANCELAR: GUARDAR O DESCARTAR BORRADORES -->
+<div id="ajusteRapidoCancelarModal" class="modal-overlay ajuste-rapido-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="ajuste-rapido-cancelar-titulo">
+    <div class="modal-container ajuste-rapido-modal">
+        <div class="modal-header">
+            <h3 id="ajuste-rapido-cancelar-titulo"><i class="fa-solid fa-circle-question"></i> ¿Qué hacemos con los cambios?</h3>
+        </div>
+        <p id="ajuste-rapido-cancelar-texto" class="ajuste-rapido-confirm-copy">Tienes cantidades modificadas pendientes.</p>
+        <button type="button" class="btn-solid btn-solid-green" id="ajuste-rapido-guardar-cancelacion" onclick="guardarAjustesRapidos()"><i class="fa-solid fa-floppy-disk"></i> Guardar los ya editados</button>
+        <button type="button" class="ajuste-rapido-danger" style="margin-top:9px;" onclick="descartarAjustesRapidos()"><i class="fa-solid fa-trash-can"></i> Cancelar todo y descartar</button>
+        <button type="button" class="ajuste-rapido-cancel" style="width:100%;margin-top:9px;" onclick="seguirEditandoAjusteRapido()">Seguir editando</button>
+    </div>
+</div>
+
 <div id="tutorial-overlay">
     <div id="tutorial-highlight"></div>
     <div id="tutorial-card">
@@ -1071,6 +1144,10 @@ let carritoRecarga = [];
 let cerrarRutaItems = [];
 let stockFabricaLlenos = 0;
 let stockFabricaVacios = 0;
+let ajusteRapidoProductos = [];
+let ajusteRapidoIndice = 0;
+let ajusteRapidoBorradores = new Map();
+let ajusteRapidoGuardando = false;
 
 document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
 document.getElementById('entregas-desde').value = hoyISO();
@@ -1511,6 +1588,273 @@ document.getElementById('form-ajuste').addEventListener('submit', async (e) => {
         cargarInventarioFabrica();
         cargarStockBajo();
     } catch (err) { alert('Error: ' + err.message); }
+});
+
+// ============================================
+// AJUSTE RÁPIDO SECUENCIAL DE STOCK
+// Los borradores no se escriben en Supabase hasta confirmar el guardado.
+// Cada cantidad introducida representa el stock físico FINAL, no un delta.
+// ============================================
+async function iniciarAjusteRapido() {
+    if (ajusteRapidoGuardando) return;
+    const launchButtons = Array.from(document.querySelectorAll('.btn-iniciar-ajuste-rapido'));
+    launchButtons.forEach(btn => btn.disabled = true);
+    try {
+        const { data, error } = await supabaseClient.from('productos')
+            .select('*')
+            .order('orden', { ascending: true })
+            .order('nombre');
+        if (error) throw error;
+
+        ajusteRapidoProductos = data || [];
+        if (!ajusteRapidoProductos.length) {
+            alert('No hay productos para ajustar en el inventario.');
+            return;
+        }
+
+        ajusteRapidoIndice = 0;
+        ajusteRapidoBorradores = new Map();
+        document.getElementById('ajuste-rapido-motivo').value = 'Ajuste rápido por conteo físico';
+        document.getElementById('ajusteRapidoCancelarModal').style.display = 'none';
+        document.getElementById('ajusteRapidoModal').style.display = 'flex';
+        renderProductoAjusteRapido();
+        setTimeout(() => {
+            const input = document.getElementById('ajuste-rapido-cantidad');
+            input.focus();
+            input.select();
+        }, 60);
+    } catch (err) {
+        console.error('Error al iniciar ajuste rápido:', err);
+        alert('No se pudo cargar el inventario para el ajuste rápido: ' + (err.message || err));
+    } finally {
+        launchButtons.forEach(btn => btn.disabled = false);
+    }
+}
+
+function renderProductoAjusteRapido() {
+    const producto = ajusteRapidoProductos[ajusteRapidoIndice];
+    if (!producto) return;
+
+    const total = ajusteRapidoProductos.length;
+    const actual = Number(producto.stock_actual || 0);
+    const borrador = ajusteRapidoBorradores.get(String(producto.id));
+    const cantidadInput = document.getElementById('ajuste-rapido-cantidad');
+
+    document.getElementById('ajuste-rapido-contador').textContent = `PRODUCTO ${ajusteRapidoIndice + 1} DE ${total}`;
+    document.getElementById('ajuste-rapido-progreso').style.width = `${((ajusteRapidoIndice + 1) / total) * 100}%`;
+    document.getElementById('ajuste-rapido-producto-nombre').textContent = producto.nombre || 'Producto sin nombre';
+    document.getElementById('ajuste-rapido-producto-meta').textContent = `${producto.categoria || 'Sin categoría'} · ${producto.unidad_medida || 'unidad'}${producto.activo === false ? ' · Inactivo' : ''}`;
+    document.getElementById('ajuste-rapido-stock-actual').textContent = actual.toLocaleString('es-BO');
+    cantidadInput.value = borrador ? borrador.cantidadFinal : actual;
+    cantidadInput.setAttribute('aria-label', `Cantidad física real de ${producto.nombre || 'producto'}`);
+
+    const btn = document.getElementById('ajuste-rapido-avanzar');
+    if (ajusteRapidoIndice === total - 1) {
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar ajustes';
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Continuar';
+    }
+
+    const cambios = ajusteRapidoBorradores.size;
+    document.getElementById('ajuste-rapido-cambios-resumen').innerHTML = cambios
+        ? `<i class="fa-solid fa-circle-info"></i> ${cambios} producto(s) con cambios pendientes. Todavía no se han guardado.`
+        : '<i class="fa-solid fa-circle-info"></i> Los cambios quedan pendientes hasta que los guardes.';
+}
+
+function registrarBorradorAjusteRapidoActual() {
+    const producto = ajusteRapidoProductos[ajusteRapidoIndice];
+    const input = document.getElementById('ajuste-rapido-cantidad');
+    if (!producto || !input) return false;
+
+    const raw = String(input.value ?? '').trim();
+    if (raw === '') {
+        alert('Escribe la cantidad física del producto antes de continuar.');
+        input.focus();
+        return false;
+    }
+
+    const cantidadFinal = Number(raw);
+    if (!Number.isSafeInteger(cantidadFinal) || cantidadFinal < 0) {
+        alert('La cantidad debe ser un número entero igual o mayor que cero.');
+        input.focus();
+        input.select();
+        return false;
+    }
+
+    const stockOriginal = Number(producto.stock_actual || 0);
+    const key = String(producto.id);
+    if (cantidadFinal === stockOriginal) {
+        ajusteRapidoBorradores.delete(key);
+    } else {
+        ajusteRapidoBorradores.set(key, {
+            productoId: producto.id,
+            nombre: producto.nombre || 'Producto',
+            stockOriginal,
+            cantidadFinal
+        });
+    }
+    return true;
+}
+
+function avanzarAjusteRapido() {
+    if (ajusteRapidoGuardando) return;
+    if (!registrarBorradorAjusteRapidoActual()) return;
+
+    if (ajusteRapidoIndice < ajusteRapidoProductos.length - 1) {
+        ajusteRapidoIndice++;
+        renderProductoAjusteRapido();
+        const input = document.getElementById('ajuste-rapido-cantidad');
+        input.focus();
+        input.select();
+        return;
+    }
+
+    guardarAjustesRapidos();
+}
+
+function solicitarCancelarAjusteRapido() {
+    if (ajusteRapidoGuardando || !ajusteRapidoProductos.length) return;
+
+    // Si la cantidad actual es válida, también la guardamos como borrador. Si está vacía
+    // o es inválida, permitimos cancelar igualmente y no guardamos ese valor incompleto.
+    const productoActual = ajusteRapidoProductos[ajusteRapidoIndice];
+    const inputActual = document.getElementById('ajuste-rapido-cantidad');
+    const rawActual = String(inputActual?.value ?? '').trim();
+    const cantidadActual = Number(rawActual);
+    const cantidadValida = rawActual !== '' && Number.isSafeInteger(cantidadActual) && cantidadActual >= 0;
+    if (cantidadValida) {
+        registrarBorradorAjusteRapidoActual();
+    } else if (productoActual) {
+        ajusteRapidoBorradores.delete(String(productoActual.id));
+    }
+
+    const cantidadCambios = ajusteRapidoBorradores.size;
+    let texto = cantidadCambios
+        ? `Tienes ${cantidadCambios} producto(s) con cantidades cambiadas. Puedes guardar esos ajustes antes de salir o descartar todo. Los cambios aún no se han aplicado al inventario.`
+        : 'No hay cantidades diferentes pendientes. Puedes salir descartando la sesión o continuar editando.';
+    if (!cantidadValida) texto += ' La cantidad incompleta del producto actual no se guardará.';
+
+    document.getElementById('ajuste-rapido-cancelar-texto').textContent = texto;
+    document.getElementById('ajuste-rapido-guardar-cancelacion').disabled = cantidadCambios === 0;
+    document.getElementById('ajusteRapidoCancelarModal').style.display = 'flex';
+}
+
+function seguirEditandoAjusteRapido() {
+    document.getElementById('ajusteRapidoCancelarModal').style.display = 'none';
+    const input = document.getElementById('ajuste-rapido-cantidad');
+    if (input) input.focus();
+}
+
+function descartarAjustesRapidos() {
+    if (ajusteRapidoGuardando) return;
+    ajusteRapidoBorradores.clear();
+    document.getElementById('ajusteRapidoCancelarModal').style.display = 'none';
+    document.getElementById('ajusteRapidoModal').style.display = 'none';
+    ajusteRapidoProductos = [];
+    ajusteRapidoIndice = 0;
+}
+
+async function guardarAjustesRapidos() {
+    if (ajusteRapidoGuardando) return;
+
+    const pendientes = ajusteRapidoProductos
+        .map(producto => ajusteRapidoBorradores.get(String(producto.id)))
+        .filter(Boolean);
+
+    if (!pendientes.length) {
+        document.getElementById('ajusteRapidoCancelarModal').style.display = 'none';
+        document.getElementById('ajusteRapidoModal').style.display = 'none';
+        ajusteRapidoProductos = [];
+        ajusteRapidoIndice = 0;
+        ajusteRapidoBorradores.clear();
+        alert('No había cantidades diferentes que guardar.');
+        return;
+    }
+
+    ajusteRapidoGuardando = true;
+    const btnAvanzar = document.getElementById('ajuste-rapido-avanzar');
+    const btnGuardarCancelar = document.getElementById('ajuste-rapido-guardar-cancelacion');
+    const btnSalir = document.querySelector('#ajusteRapidoModal .modal-close');
+    const btnCancelar = document.querySelector('#ajusteRapidoModal .ajuste-rapido-cancel');
+    const originalBtn = btnAvanzar.innerHTML;
+    const motivoBase = document.getElementById('ajuste-rapido-motivo').value.trim() || 'Ajuste rápido por conteo físico';
+    let procesados = 0;
+    let actualizados = 0;
+    let errorGuardado = null;
+    let productoError = '';
+
+    [btnAvanzar, btnGuardarCancelar, btnSalir, btnCancelar].forEach(btn => { if (btn) btn.disabled = true; });
+    btnAvanzar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+    try {
+        for (const cambio of pendientes) {
+            try {
+                // Consultamos el stock real antes de calcular la diferencia para no sobrescribir
+                // un movimiento reciente que haya ocurrido mientras se revisaban los productos.
+                const { data: productoActual, error: errorConsulta } = await supabaseClient
+                    .from('productos')
+                    .select('id,nombre,stock_actual')
+                    .eq('id', cambio.productoId)
+                    .single();
+                if (errorConsulta) throw errorConsulta;
+                if (!productoActual) throw new Error('El producto ya no existe en el inventario.');
+
+                const stockActual = Number(productoActual.stock_actual || 0);
+                const diferencia = cambio.cantidadFinal - stockActual;
+
+                if (diferencia !== 0) {
+                    const motivo = `${motivoBase} (conteo físico: ${cambio.cantidadFinal})`;
+                    const { data, error } = await supabaseClient.rpc('rpc_ajustar_stock_producto', {
+                        p_producto_id: cambio.productoId,
+                        p_cantidad: diferencia,
+                        p_tipo: 'ajuste',
+                        p_motivo: motivo
+                    });
+                    if (error) throw error;
+                    if (!data || !data.success) throw new Error((data && data.error) || 'La base de datos no confirmó el ajuste.');
+                    actualizados++;
+                }
+
+                // Solo quitamos el borrador después de confirmar su aplicación (o si ya coincide).
+                ajusteRapidoBorradores.delete(String(cambio.productoId));
+                procesados++;
+            } catch (errProducto) {
+                errorGuardado = errProducto;
+                productoError = cambio.nombre;
+                break;
+            }
+        }
+
+        document.getElementById('ajusteRapidoCancelarModal').style.display = 'none';
+
+        if (errorGuardado) {
+            renderProductoAjusteRapido();
+            alert(`Se procesaron ${procesados} de ${pendientes.length} productos antes de encontrar un error en “${productoError}”.\n\nLos productos que ya se guardaron permanecen guardados. Los ${ajusteRapidoBorradores.size} ajuste(s) restante(s) siguen pendientes y puedes volver a intentar guardarlos.\n\nDetalle: ${errorGuardado.message || errorGuardado}`);
+            return;
+        }
+
+        document.getElementById('ajusteRapidoModal').style.display = 'none';
+        ajusteRapidoProductos = [];
+        ajusteRapidoIndice = 0;
+        ajusteRapidoBorradores.clear();
+
+        await Promise.all([cargarProductos(), cargarInventarioFabrica(), cargarStockBajo()]);
+        alert(`Ajuste rápido completado. ${procesados} producto(s) revisado(s); ${actualizados} stock(s) actualizado(s).`);
+    } finally {
+        ajusteRapidoGuardando = false;
+        [btnAvanzar, btnGuardarCancelar, btnSalir, btnCancelar].forEach(btn => { if (btn) btn.disabled = false; });
+        if (document.getElementById('ajusteRapidoModal').style.display === 'flex') {
+            btnAvanzar.innerHTML = originalBtn;
+            renderProductoAjusteRapido();
+        }
+    }
+}
+
+document.getElementById('ajuste-rapido-cantidad').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        avanzarAjusteRapido();
+    }
 });
 
 async function fetchEnvases() {
