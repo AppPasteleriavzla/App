@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aqua Vita - Chofer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -226,6 +226,18 @@
         .btn-ruta-nav { background: var(--success); color: white; border: none; padding: 10px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; white-space: nowrap; }
         .btn-ruta-nav.sin-gps { background: var(--warning); }
         .btn-ruta-nav.vender { background: var(--primary); }
+        .btn-ruta-nav.cobrar { background: var(--warning); }
+
+        /* PEDIDOS PENDIENTES */
+        .pedido-card { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--purple); border-radius: var(--radius-md); padding: 0.85rem 1rem; box-shadow: var(--shadow-sm); }
+        .pedido-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+        .pedido-cliente { font-weight: 800; font-size: 0.88rem; }
+        .pedido-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
+        .pedido-notas { font-size: 0.72rem; color: #92400e; background: var(--warning-light); border-radius: 6px; padding: 6px 8px; margin-top: 6px; }
+        .pedido-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .pedido-actions button { flex: 1; padding: 8px; border-radius: 8px; border: none; font-family: inherit; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .pedido-btn-vender { background: var(--primary); color: white; }
+        .pedido-btn-no { background: var(--danger-light); color: #991b1b; }
 
         /* DIRECTORIO GPS */
         .client-gps-card { display: flex; flex-direction: column; gap: 8px; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--success); border-radius: var(--radius-md); }
@@ -236,6 +248,29 @@
         .chip-prod { display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--primary-light); color: var(--primary-dark); margin: 2px; }
         .chip-prod.low { background: var(--warning-light); color: #b45309; }
         .chip-prod.out { background: var(--danger-light); color: #991b1b; }
+
+        /* NOTAS DEL CLIENTE */
+        .cliente-notas { background: var(--warning-light); border: 1px solid #fcd34d; color: #92400e; padding: 10px 12px; border-radius: 10px; font-size: 0.78rem; line-height: 1.35; margin-top: 8px; display: none; text-align: left; }
+        .cliente-notas strong { display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px; }
+        .cliente-direccion { background: var(--surface-subtle); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 10px; border-radius: 8px; font-size: 0.75rem; margin-top: 6px; display: none; text-align: left; }
+
+        /* CALCULADORA EFECTIVO */
+        .efectivo-calculadora { background: var(--success-light); border: 1px solid #6ee7b7; border-radius: 12px; padding: 12px; margin-top: 12px; display: none; }
+        .efectivo-calculadora .input-group { margin-bottom: 8px; }
+        .efectivo-calculadora input { background: white; font-weight: 800; }
+        .efectivo-vuelto { display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 1rem; color: #047857; padding-top: 8px; border-top: 1px dashed #6ee7b7; }
+        .efectivo-vuelto.negativo { color: var(--danger); }
+
+        /* TOASTS */
+        #toast-container { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 10050; display: flex; flex-direction: column; gap: 8px; width: calc(100% - 40px); max-width: 420px; pointer-events: none; }
+        .toast { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px; background: #0f172a; color: white; font-size: 0.82rem; font-weight: 600; box-shadow: 0 10px 25px rgba(15,23,42,0.25); animation: toastIn 0.25s ease-out; line-height: 1.35; }
+        .toast i { margin-top: 2px; font-size: 0.95rem; flex-shrink: 0; }
+        .toast.success { background: #065f46; }
+        .toast.error { background: #991b1b; }
+        .toast.warning { background: #92400e; }
+        .toast.hide { animation: toastOut 0.25s ease-in forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(12px); } }
     </style>
 </head>
 <body>
@@ -294,6 +329,39 @@
     </div>
 </div>
 
+<!-- MODAL ABONO / COBRANZA -->
+<div id="modal-abono-chofer" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 style="color: var(--primary-dark); font-size: 1.1rem; margin: 0;"><i class="fa-solid fa-hand-holding-dollar"></i> Cobrar abono</h3>
+            <button class="modal-close" onclick="cerrarModalAbonoChofer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p style="font-size: 0.85rem; margin-bottom: 8px;">Cliente: <strong id="abono-chofer-nombre"></strong></p>
+        <div class="info-box" style="margin-bottom: 14px;">
+            Saldo pendiente: <strong id="abono-chofer-saldo">Bs. 0.00</strong>
+        </div>
+        <div class="input-group">
+            <label>Monto a cobrar (Bs.) *</label>
+            <input type="number" id="abono-chofer-monto" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00">
+        </div>
+        <div class="input-group">
+            <label>Método de pago</label>
+            <select id="abono-chofer-metodo">
+                <option value="Efectivo">Efectivo</option>
+                <option value="QR">Pago Móvil / QR</option>
+                <option value="Transferencia">Transferencia</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Notas (opcional)</label>
+            <input type="text" id="abono-chofer-notas" placeholder="Ej: abono parcial">
+        </div>
+        <button class="btn-primary btn-success" id="btn-abono-chofer" onclick="registrarAbonoChofer()">
+            <i class="fa-solid fa-check-circle"></i> Registrar abono
+        </button>
+    </div>
+</div>
+
 <!-- HEADER -->
 <header>
     <div class="logo"><div class="logo-icon"><i class="fa-solid fa-truck-fast"></i></div>CHOFER</div>
@@ -327,6 +395,14 @@
             <div id="gps-status-indicator" class="gps-indicator" style="display: none;">
                 <i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS transmitiendo
             </div>
+        </div>
+
+        <div id="pedidos-ruta-wrapper" style="display: none; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="font-size: 0.9rem; font-weight: 800;"><i class="fa-solid fa-clipboard-list" style="color: var(--purple);"></i> Pedidos pendientes</h3>
+                <span class="section-badge" id="pedidos-ruta-count">0</span>
+            </div>
+            <div id="lista-pedidos-ruta" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
 
         <div id="ruta-stats-container" style="display: none;">
@@ -376,6 +452,8 @@
                         <input type="text" id="venta-cliente" list="clientes-datalist" placeholder="Escribe el nombre..." autocomplete="off" required>
                         <datalist id="clientes-datalist"></datalist>
                         <small id="venta-cliente-tipo" style="display:none;"></small>
+                        <div class="cliente-direccion" id="venta-cliente-direccion"></div>
+                        <div class="cliente-notas" id="venta-cliente-notas"></div>
                     </div>
 
                     <!-- ESTADO -->
@@ -443,12 +521,21 @@
                     <!-- MÉTODO PAGO -->
                     <div class="input-group" style="margin-top: 15px;">
                         <label>Método de Pago</label>
-                        <select id="venta-metodo" required>
+                        <select id="venta-metodo" onchange="actualizarCalculadoraEfectivo()" required>
                             <option value="Efectivo">Efectivo</option>
                             <option value="QR">Pago Móvil / QR</option>
                             <option value="Transferencia">Transferencia</option>
                             <option value="Crédito">Crédito</option>
                         </select>
+                    </div>
+
+                    <!-- CALCULADORA DE VUELTO -->
+                    <div class="efectivo-calculadora" id="efectivo-calculadora">
+                        <div class="input-group" style="margin-bottom: 8px;">
+                            <label style="color: #047857;">Efectivo recibido (Bs.)</label>
+                            <input type="number" id="venta-efectivo-recibido" min="0" step="0.01" inputmode="decimal" placeholder="0.00" oninput="actualizarCalculadoraEfectivo()">
+                        </div>
+                        <div class="efectivo-vuelto" id="venta-vuelto">Vuelto: Bs. 0.00</div>
                     </div>
 
                     <button type="submit" class="btn-primary btn-success" id="btn-submit-venta" style="margin-top: 15px;">
@@ -477,6 +564,19 @@
             </div>
         </div>
 
+        <div class="cart-summary" style="margin-bottom: 15px; padding: 12px 14px;">
+            <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Cobranza de hoy</div>
+            <div class="cart-summary-item"><span>Efectivo</span><span id="resumen-efectivo">Bs. 0.00</span></div>
+            <div class="cart-summary-item"><span>QR / Pago Móvil</span><span id="resumen-qr">Bs. 0.00</span></div>
+            <div class="cart-summary-item"><span>Transferencia</span><span id="resumen-transferencia">Bs. 0.00</span></div>
+            <div class="cart-summary-item"><span>Crédito</span><span id="resumen-credito">Bs. 0.00</span></div>
+            <div class="cart-summary-item" style="color: var(--success);"><span>+ Abonos en efectivo</span><span id="resumen-abonos-efectivo">Bs. 0.00</span></div>
+            <div class="cart-summary-total" style="font-size: 0.95rem;">
+                <span>EFECTIVO A RENDIR</span>
+                <span id="resumen-efectivo-rendir">Bs. 0.00</span>
+            </div>
+        </div>
+
         <div class="delivery-list-wrapper" id="driver-delivery-list">
             <div class="loading-text">Cargando ventas...</div>
         </div>
@@ -501,6 +601,8 @@
     <div class="nav-item" onclick="switchScreen('historial', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Historial</span></div>
     <div class="nav-item" onclick="switchScreen('clientes', this)"><i class="fa-solid fa-map-location-dot"></i><span>Directorio</span></div>
 </nav>
+
+<div id="toast-container" aria-live="polite"></div>
 
 <script>
 // ============================================
@@ -527,11 +629,98 @@ let stockCamion = {}; // {producto_id: cantidad_actual}
 let clienteSeleccionadoActual = null;
 let carritoVenta = {}; // {producto_id: cantidad}
 let vaciosModoManual = false;
+let ultimoEnvioGps = 0;
+let ventaEnProceso = false;
+let ultimoClienteDetectadoId = null;
+let pedidosGlobal = [];
+let clienteAbonoActual = null;
+let pedidoVentaActual = null;
+const timersRealtime = {};
+
+const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
 const fmtBs = (val) => `Bs. ${Number(val).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const formatTime = (s) => new Date(s).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
 const catIcon = (c) => ({Agua:'fa-droplet',Bebida:'fa-bottle-water',Hielo:'fa-snowflake',Snack:'fa-cookie-bite',General:'fa-box'}[c]||'fa-box');
 const catClass = (c) => ({Agua:'',Bebida:'cat-bebida',Hielo:'cat-hielo',Snack:'cat-snack',General:'cat-otro'}[c]||'cat-otro');
+
+function esc(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+}
+
+function normalizar(texto) {
+    return String(texto ?? '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function diaSemanaHoy() {
+    return DIAS_SEMANA[new Date().getDay()];
+}
+
+function hoyISO() {
+    const d = new Date();
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const dia = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mes}-${dia}`;
+}
+
+// Registro local de abonos cobrados desde este equipo.
+// Sirve para incluirlos en el efectivo a rendir mientras no exista
+// una tabla formal de rendiciones en Supabase.
+const ABONOS_LOCALES_KEY = 'aqua_abonos_chofer_v1';
+
+function leerAbonosLocales() {
+    try {
+        const raw = localStorage.getItem(ABONOS_LOCALES_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function guardarAbonoLocal(abono) {
+    try {
+        const arr = leerAbonosLocales().filter(a => String(a.id) !== String(abono.id));
+        arr.push(abono);
+        localStorage.setItem(ABONOS_LOCALES_KEY, JSON.stringify(arr.slice(-300)));
+    } catch (e) {
+        console.warn('No se pudo guardar el abono local:', e?.message || e);
+    }
+}
+
+function abonosLocalesDeHoy() {
+    const hoy = hoyISO();
+    const flotaId = unidadActual?.id || unidadSeleccionadaId;
+    return leerAbonosLocales().filter(a =>
+        a.fecha === hoy && (!flotaId || String(a.flota_id) === String(flotaId))
+    );
+}
+
+function toast(mensaje, tipo = 'info', duracion = 3500) {
+    const cont = document.getElementById('toast-container');
+    if (!cont) return;
+    const iconos = { success: 'fa-circle-check', error: 'fa-circle-exclamation', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+    const el = document.createElement('div');
+    el.className = `toast ${tipo}`;
+    el.innerHTML = `<i class="fa-solid ${iconos[tipo] || iconos.info}"></i><span>${esc(mensaje)}</span>`;
+    cont.appendChild(el);
+    setTimeout(() => {
+        el.classList.add('hide');
+        setTimeout(() => el.remove(), 250);
+    }, duracion);
+}
+
+function calcularTotalCarrito() {
+    return Object.keys(carritoVenta).reduce((total, pid) => {
+        const p = productosGlobal.find(x => String(x.id) === String(pid));
+        return total + (p ? carritoVenta[pid] * getPrecioProducto(p) : 0);
+    }, 0);
+}
+
 
 // ============================================
 // HELPERS DE PRECIO POR TIPO DE CLIENTE
@@ -544,6 +733,9 @@ function getPrecioProducto(p) {
     const tipo = getTipoClienteActual();
     if (tipo === 'Mayorista' && p.precio_mayorista != null) {
         return Number(p.precio_mayorista);
+    }
+    if (tipo === 'Especial' && p.precio_especial != null) {
+        return Number(p.precio_especial);
     }
     return Number(p.precio_venta);
 }
@@ -558,7 +750,7 @@ function switchScreen(name, navEl) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     if (navEl) navEl.classList.add('active');
-    if (name === 'ruta') { buscarRutaActiva(); cargarClientesDeRuta(); }
+    if (name === 'ruta') { buscarRutaActiva(); cargarClientesDeRuta().then(() => cargarPedidosDeRuta()); }
     if (name === 'historial') fetchHistorialVentasChofer();
     if (name === 'clientes') renderDirectorioGPS();
     if (name === 'vender') { renderCatalogoProductos(); }
@@ -580,35 +772,56 @@ async function procesarLogin(codigo, esAutomatico = false) {
     const btnSubmit = document.getElementById('btn-login-submit');
     const debugErrorLogin = document.getElementById('debug-error-login');
     debugErrorLogin.style.display = 'none';
+    if (!codigo) {
+        if (!esAutomatico) toast('Ingresa tu código de chofer.', 'warning');
+        return;
+    }
+    btnSubmit.disabled = true;
     if (!esAutomatico) btnSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verificando...';
 
     try {
         const { data, error } = await supabaseClient.rpc('rpc_login_chofer', { p_codigo: codigo.toUpperCase() });
         if (error) throw error;
         if (!data.success) {
-            if (esAutomatico) cerrarSesion(false);
-            else alert(data.error || 'Código incorrecto');
+            if (esAutomatico) {
+                localStorage.removeItem('chofer_codigo');
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('driver-status-label').innerHTML = `<i class="fa-solid fa-user-xmark"></i> Sin Sesión`;
+            } else {
+                toast(data.error || 'Código incorrecto', 'error');
+            }
             return;
         }
 
         datosChoferLogueado = data.chofer;
         localStorage.setItem('chofer_codigo', datosChoferLogueado.codigo);
         document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('driver-status-label').innerHTML = `<i class="fa-solid fa-user-check"></i> ${datosChoferLogueado.nombre}`;
+        document.getElementById('driver-status-label').innerHTML = `<i class="fa-solid fa-user-check"></i> ${esc(datosChoferLogueado.nombre)}`;
         document.getElementById('btn-logout').style.display = 'block';
 
-        await cargarProductosGlobales();
-        await buscarRutaActiva();
+        // Las cargas que no dependen entre sí van en paralelo
+        await Promise.all([
+            cargarProductosGlobales(),
+            cargarClientesGlobales(),
+            buscarRutaActiva()
+        ]);
+        // Historial primero: de ahí sale el estado "visitado" de la ruta
         await fetchHistorialVentasChofer();
-        await cargarClientesGlobales();
         await cargarClientesDeRuta();
+        await cargarPedidosDeRuta();
     } catch (err) {
         console.error('Login error:', err);
-        if (!esAutomatico) {
-            debugErrorLogin.innerHTML = `<strong>Error:</strong><br>${err.message}`;
+        if (esAutomatico) {
+            document.getElementById('login-overlay').style.display = 'flex';
+            document.getElementById('driver-status-label').innerHTML = `<i class="fa-solid fa-user-xmark"></i> Sin Sesión`;
+            toast('No se pudo restaurar la sesión. Ingresa tu código.', 'warning');
+        } else {
+            debugErrorLogin.innerHTML = `<strong>Error:</strong><br>${esc(err.message || 'No se pudo conectar')}`;
             debugErrorLogin.style.display = 'block';
+            toast('No se pudo iniciar sesión. Revisa tu conexión.', 'error');
         }
     } finally {
+        btnSubmit.disabled = false;
         if (!esAutomatico) btnSubmit.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión';
     }
 }
@@ -632,7 +845,9 @@ function encenderMotorGPS() {
         indicador.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> GPS no soportado';
         return;
     }
-    if (watchPositionId) navigator.geolocation.clearWatch(watchPositionId);
+    // No reiniciar el watch si ya está activo (evita fugas y parpadeos)
+    if (watchPositionId) return;
+
     watchPositionId = navigator.geolocation.watchPosition(
         async (position) => {
             latitudActual = position.coords.latitude;
@@ -640,8 +855,26 @@ function encenderMotorGPS() {
             indicador.style.display = 'flex';
             indicador.className = 'gps-indicator';
             indicador.innerHTML = '<i class="fa-solid fa-location-crosshairs fa-beat"></i> GPS transmitiendo';
-            if (unidadSeleccionadaId) {
-                await supabaseClient.from('flota').update({ latitud: latitudActual, longitud: longitudActual }).eq('id', unidadSeleccionadaId);
+
+            // Limitar escrituras a una cada 15 s
+            const ahora = Date.now();
+            if (!unidadSeleccionadaId || (ahora - ultimoEnvioGps) < 15000) return;
+            ultimoEnvioGps = ahora;
+
+            try {
+                await supabaseClient.from('flota').update({
+                    latitud: latitudActual,
+                    longitud: longitudActual,
+                    updated_at: new Date().toISOString()
+                }).eq('id', unidadSeleccionadaId);
+
+                await supabaseClient.from('tracking_flota').insert({
+                    flota_id: unidadSeleccionadaId,
+                    latitud: latitudActual,
+                    longitud: longitudActual
+                });
+            } catch (e) {
+                console.warn('No se pudo enviar GPS:', e?.message || e);
             }
         },
         () => {
@@ -649,13 +882,16 @@ function encenderMotorGPS() {
             indicador.className = 'gps-indicator error';
             indicador.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Activa el GPS';
         },
-        { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
 }
 
 async function obtenerDireccionExacta(lat, lng) {
     try {
-        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 6000);
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, { signal: controller.signal });
+        clearTimeout(timeout);
         const data = await r.json();
         if (data?.address) {
             const calle = data.address.road || 'Calle sin nombre';
@@ -673,8 +909,11 @@ async function obtenerDireccionExacta(lat, lng) {
 
 function getUbicacionPromise() {
     return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) reject(new Error("No soportado"));
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true });
+        if (!navigator.geolocation) {
+            reject(new Error("GPS no soportado"));
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });
 }
 
@@ -698,13 +937,14 @@ async function buscarRutaActiva() {
         const alerta = document.getElementById('alerta-sin-ruta');
 
         if (data) {
+            if (unidadSeleccionadaId !== data.id) ultimoEnvioGps = 0;
             unidadSeleccionadaId = data.id;
             unidadActual = data;
 
             // Cargar stock de todos los productos en este camión
             const { data: stock } = await supabaseClient
                 .from('flota_stock')
-                .select('producto_id, cantidad_actual, cantidad_inicial, productos(nombre, categoria, requiere_envase)')
+                .select('producto_id, cantidad_actual, cantidad_inicial, productos(nombre, categoria, requiere_envase, stock_minimo)')
                 .eq('flota_id', data.id);
 
             stockCamion = {};
@@ -714,39 +954,45 @@ async function buscarRutaActiva() {
                     cantidad_inicial: s.cantidad_inicial,
                     nombre: s.productos?.nombre || 'Producto',
                     categoria: s.productos?.categoria || 'General',
-                    requiere_envase: s.productos?.requiere_envase || false
+                    requiere_envase: s.productos?.requiere_envase || false,
+                    stock_minimo: s.productos?.stock_minimo ?? 0
                 };
             });
 
             alerta.style.display = 'none';
             cardCamion.style.display = 'block';
 
-            document.getElementById('card-route-name').innerHTML = `<i class="fa-solid fa-route"></i> ${data.nombre}`;
+            document.getElementById('card-route-name').innerHTML = `<i class="fa-solid fa-route"></i> ${esc(data.nombre || 'Ruta')}`;
             document.getElementById('card-placa').innerText = `Placa: ${data.choferes?.placa || 'N/A'}`;
 
-            // Chips de productos
+            // Chips de productos (actual / cargado inicialmente)
             document.getElementById('card-productos-chips').innerHTML = (stock || []).map(s => {
                 const p = s.productos;
                 const stockAct = s.cantidad_actual || 0;
-                const low = stockAct < 10 && stockAct > 0;
+                const inicial = s.cantidad_inicial ?? stockAct;
+                const minimo = p?.stock_minimo ?? 0;
+                const low = stockAct <= minimo && stockAct > 0;
                 const out = stockAct === 0;
                 return `<span class="chip-prod ${out ? 'out' : (low ? 'low' : '')}">
                     <i class="fa-solid ${catIcon(p?.categoria)}"></i>
-                    ${p?.nombre}: ${stockAct}
+                    ${esc(p?.nombre || 'Producto')}: ${stockAct}${inicial !== stockAct ? ` / ${inicial}` : ''}
                 </span>`;
             }).join('') || '<span style="color:#94a3b8;font-size:0.75rem;">Sin productos cargados</span>';
 
-            // Stats
+            // Stats: productos, botellones restantes y capacidad
             const totalItems = (stock || []).length;
             const totalBotellones = (stock || []).filter(s => s.productos?.requiere_envase).reduce((a,s) => a + (s.cantidad_actual || 0), 0);
+            const totalInicial = (stock || []).filter(s => s.productos?.requiere_envase).reduce((a,s) => a + (s.cantidad_inicial || 0), 0);
+            const capacidad = data.capacidad_maxima || totalInicial || 0;
+            const porcentaje = capacidad > 0 ? Math.round((totalBotellones / capacidad) * 100) : 0;
             document.getElementById('card-truck-stats').innerHTML = `
+                <div class="truck-stat">
+                    <div class="truck-stat-value">${totalBotellones}<span style="font-size:0.8rem;color:#94a3b8;">/${capacidad}</span></div>
+                    <div class="truck-stat-label">Botellones (${porcentaje}%)</div>
+                </div>
                 <div class="truck-stat">
                     <div class="truck-stat-value">${totalItems}</div>
                     <div class="truck-stat-label">Productos</div>
-                </div>
-                <div class="truck-stat">
-                    <div class="truck-stat-value">${totalBotellones}</div>
-                    <div class="truck-stat-label">Botellones agua</div>
                 </div>`;
 
             encenderMotorGPS();
@@ -755,7 +1001,9 @@ async function buscarRutaActiva() {
             unidadSeleccionadaId = null;
             unidadActual = null;
             stockCamion = {};
+            ultimoEnvioGps = 0;
             if (watchPositionId) navigator.geolocation.clearWatch(watchPositionId);
+            watchPositionId = null;
             document.getElementById('gps-status-indicator').style.display = 'none';
             alerta.style.display = 'block';
             cardCamion.style.display = 'none';
@@ -768,7 +1016,7 @@ async function buscarRutaActiva() {
 // ============================================
 async function cargarProductosGlobales() {
     try {
-        const { data } = await supabaseClient.from('productos').select('*').eq('activo', true).order('categoria').order('nombre');
+        const { data } = await supabaseClient.from('productos').select('*').eq('activo', true).order('orden', { ascending: true, nullsFirst: false }).order('nombre');
         productosGlobal = data || [];
     } catch (e) { console.error(e); }
 }
@@ -780,19 +1028,17 @@ function renderCatalogoProductos() {
         return;
     }
 
-    // Ordenar: primero Agua, luego el resto
-    const ordenados = [...productosGlobal].sort((a,b) => {
-        if (a.categoria === 'Agua' && b.categoria !== 'Agua') return -1;
-        if (b.categoria === 'Agua' && a.categoria !== 'Agua') return 1;
-        return 0;
-    });
+    // Se respeta el orden configurado en productos.orden
+    const ordenados = [...productosGlobal];
 
     const esMayorista = getTipoClienteActual() === 'Mayorista';
+    const bloqueado = document.getElementById('venta-estado').value !== 'Entregado';
 
     cont.innerHTML = ordenados.map(p => {
         const stockInfo = stockCamion[p.id];
         const stock = stockInfo?.cantidad_actual ?? 0;
-        const stockCls = stock === 0 ? 'out' : (stock < 10 ? 'low' : 'ok');
+        const minimo = p.stock_minimo ?? 0;
+        const stockCls = stock === 0 ? 'out' : (stock <= minimo ? 'low' : 'ok');
         const cantidad = carritoVenta[p.id] || 0;
         const precio = getPrecioProducto(p);
         const mostrarBadge = esMayorista && p.precio_mayorista != null;
@@ -804,7 +1050,7 @@ function renderCatalogoProductos() {
                 </div>
                 <div class="producto-selector-info">
                     <div class="producto-selector-nombre">
-                        ${p.nombre}
+                        ${esc(p.nombre)}
                         ${p.requiere_envase ? '<span style="font-size:0.6rem;color:var(--primary);">🔄</span>' : ''}
                         ${mostrarBadge ? '<span class="badge-mayorista">MAYORISTA</span>' : ''}
                     </div>
@@ -817,10 +1063,10 @@ function renderCatalogoProductos() {
                 </div>
                 <div class="qty-control">
                     ${cantidad > 0 ? `
-                        <button type="button" class="qty-btn minus" onclick="cambiarCantidad('${p.id}', -1)"><i class="fa-solid fa-minus"></i></button>
-                        <input class="qty-input" type="number" value="${cantidad}" min="0" max="${stock}" onchange="setCantidad('${p.id}', this.value)">
+                        <button type="button" class="qty-btn minus" onclick="cambiarCantidad('${p.id}', -1)" ${bloqueado ? 'disabled' : ''}><i class="fa-solid fa-minus"></i></button>
+                        <input class="qty-input" type="number" value="${cantidad}" min="0" max="${stock}" onchange="setCantidad('${p.id}', this.value)" ${bloqueado ? 'disabled' : ''}>
                     ` : ''}
-                    <button type="button" class="qty-btn plus" onclick="cambiarCantidad('${p.id}', 1)" ${stock === 0 ? 'disabled' : ''}><i class="fa-solid fa-plus"></i></button>
+                    <button type="button" class="qty-btn plus" onclick="cambiarCantidad('${p.id}', 1)" ${(stock === 0 || bloqueado) ? 'disabled' : ''}><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>`;
     }).join('');
@@ -829,6 +1075,7 @@ function renderCatalogoProductos() {
 }
 
 function cambiarCantidad(productoId, delta) {
+    if (document.getElementById('venta-estado').value !== 'Entregado') return;
     const p = productosGlobal.find(x => String(x.id) === String(productoId));
     if (!p) return;
     const stock = stockCamion[p.id]?.cantidad_actual ?? 0;
@@ -841,6 +1088,7 @@ function cambiarCantidad(productoId, delta) {
 }
 
 function setCantidad(productoId, valor) {
+    if (document.getElementById('venta-estado').value !== 'Entregado') return;
     const p = productosGlobal.find(x => String(x.id) === String(productoId));
     if (!p) return;
     const stock = stockCamion[p.id]?.cantidad_actual ?? 0;
@@ -858,6 +1106,7 @@ function renderCarritoResumen() {
 
     if (!items.length) {
         resumen.style.display = 'none';
+        actualizarCalculadoraEfectivo();
         return;
     }
 
@@ -869,13 +1118,14 @@ function renderCarritoResumen() {
         const sub = cant * getPrecioProducto(p);
         total += sub;
         return `<div class="cart-summary-item">
-            <span>${cant}x ${p.nombre}</span>
+            <span>${cant}x ${esc(p.nombre)}</span>
             <span>${fmtBs(sub)}</span>
         </div>`;
     }).join('');
 
     document.getElementById('cart-total').innerText = fmtBs(total);
     resumen.style.display = 'block';
+    actualizarCalculadoraEfectivo();
 }
 
 // Mostrar/ocultar control de vacíos solo si hay agua en el carrito
@@ -899,7 +1149,11 @@ function actualizarEnvasesWrapper() {
         actualizarPreviewEnvases();
     } else {
         wrapper.style.display = 'none';
+        // Sin agua en el carrito no se recogen vacíos
+        document.getElementById('venta-vacios-recogidos').value = 0;
+        setModoAuto();
     }
+    actualizarCalculadoraEfectivo();
 }
 
 // ============================================
@@ -980,6 +1234,29 @@ function actualizarPreviewEnvases() {
     texto.innerHTML = mensaje;
 }
 
+function actualizarCalculadoraEfectivo() {
+    const cont = document.getElementById('efectivo-calculadora');
+    if (!cont) return;
+    const metodo = document.getElementById('venta-metodo').value;
+    const estado = document.getElementById('venta-estado').value;
+    const visible = metodo === 'Efectivo' && estado === 'Entregado';
+    cont.style.display = visible ? 'block' : 'none';
+    if (!visible) {
+        document.getElementById('venta-efectivo-recibido').value = '';
+        document.getElementById('venta-vuelto').className = 'efectivo-vuelto';
+        document.getElementById('venta-vuelto').innerText = 'Vuelto: Bs. 0.00';
+        return;
+    }
+    const total = calcularTotalCarrito();
+    const recibido = parseFloat(document.getElementById('venta-efectivo-recibido').value) || 0;
+    const vuelto = recibido - total;
+    const el = document.getElementById('venta-vuelto');
+    el.className = 'efectivo-vuelto' + (vuelto < 0 ? ' negativo' : '');
+    el.innerText = vuelto < 0
+        ? `Falta: ${fmtBs(Math.abs(vuelto))}`
+        : `Vuelto: ${fmtBs(vuelto)}`;
+}
+
 // ============================================
 // ESTADO DE ENTREGA
 // ============================================
@@ -995,21 +1272,33 @@ function seleccionarEstado(estado) {
 
     if (!esEntregado) {
         carritoVenta = {};
+        document.getElementById('venta-vacios-recogidos').value = 0;
+        setModoAuto();
         renderCatalogoProductos();
         actualizarEnvasesWrapper();
     }
+    actualizarCalculadoraEfectivo();
 }
 
 // ============================================
 // DETECTAR CLIENTE
 // ============================================
-document.getElementById('venta-cliente').addEventListener('input', (e) => {
-    const nombre = e.target.value.trim().toLowerCase();
-    const c = clientesGlobal.find(x => x.nombre.toLowerCase() === nombre);
+function buscarClientePorNombre(nombre) {
+    const n = normalizar(nombre);
+    if (!n) return null;
+    return clientesGlobal.find(x => normalizar(x.nombre) === n) || null;
+}
+
+function actualizarInfoCliente() {
+    const input = document.getElementById('venta-cliente');
+    const c = clienteSeleccionadoActual || buscarClientePorNombre(input.value);
     clienteSeleccionadoActual = c || null;
 
     // Indicador visual del tipo de cliente detectado
     const tipoLabel = document.getElementById('venta-cliente-tipo');
+    const dirBox = document.getElementById('venta-cliente-direccion');
+    const notasBox = document.getElementById('venta-cliente-notas');
+
     if (c) {
         const tipo = c.tipo_cliente || 'Minorista';
         const color = tipo === 'Mayorista' ? 'var(--success)' : (tipo === 'Especial' ? '#7e22ce' : 'var(--text-muted)');
@@ -1017,20 +1306,61 @@ document.getElementById('venta-cliente').addEventListener('input', (e) => {
         tipoLabel.style.color = color;
         tipoLabel.style.fontWeight = '700';
         tipoLabel.style.display = 'block';
+
+        if (c.direccion) {
+            dirBox.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${esc(c.direccion)}`;
+            dirBox.style.display = 'block';
+        } else {
+            dirBox.style.display = 'none';
+        }
+
+        if (c.notas) {
+            notasBox.innerHTML = `<strong><i class="fa-solid fa-note-sticky"></i> Nota del cliente</strong>${esc(c.notas)}`;
+            notasBox.style.display = 'block';
+        } else {
+            notasBox.style.display = 'none';
+        }
     } else {
         tipoLabel.style.display = 'none';
+        dirBox.style.display = 'none';
+        notasBox.style.display = 'none';
     }
 
     actualizarPreviewEnvases();
     renderCatalogoProductos();   // Refresca precios según tipo de cliente
+}
+
+document.getElementById('venta-cliente').addEventListener('input', () => {
+    const nombre = document.getElementById('venta-cliente').value;
+    const c = buscarClientePorNombre(nombre);
+    if (pedidoVentaActual && String(c?.id) !== String(pedidoVentaActual.cliente_id)) pedidoVentaActual = null;
+    if (c?.id !== ultimoClienteDetectadoId) ultimoClienteDetectadoId = c?.id || null;
+    clienteSeleccionadoActual = c || null;
+    actualizarInfoCliente();
 });
+
+function renderDatalistClientes() {
+    const datalist = document.getElementById('clientes-datalist');
+    if (!datalist) return;
+    const unicos = [];
+    const vistos = new Set();
+    clientesGlobal.forEach(c => {
+        const n = normalizar(c.nombre);
+        if (!n || vistos.has(n)) return;
+        vistos.add(n);
+        unicos.push(c);
+    });
+    unicos.sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
+    datalist.innerHTML = unicos.map(c => `<option value="${esc(c.nombre)}">`).join('');
+}
 
 async function cargarClientesGlobales() {
     try {
         const { data } = await supabaseClient.from('clientes')
-            .select('id, nombre, telefono, saldo_envases_prestados, saldo_pendiente, latitud, longitud, tipo_cliente')
+            .select('*')
             .eq('activo', true).order('nombre');
         clientesGlobal = data || [];
+        renderDatalistClientes();
     } catch (e) { console.error(e); }
 }
 
@@ -1042,39 +1372,77 @@ document.getElementById('form-venta-chofer').addEventListener('submit', (e) => {
     const debug = document.getElementById('debug-error-venta');
     debug.style.display = 'none';
 
-    if (!unidadSeleccionadaId) return alert("No tienes una unidad en ruta activa.");
+    if (ventaEnProceso) return;
+    if (!unidadSeleccionadaId) return toast("No tienes una unidad en ruta activa.", 'error');
 
     const clienteInput = document.getElementById('venta-cliente').value.trim();
     const estado = document.getElementById('venta-estado').value;
     const items = Object.keys(carritoVenta);
 
-    if (!clienteInput) return alert("Ingresa el nombre del cliente.");
+    if (!clienteInput) return toast("Ingresa el nombre del cliente.", 'warning');
 
-    if (estado === 'Entregado') {
-        if (!items.length) return alert("Agrega al menos un producto.");
+    if (estado === 'Entregado' && !items.length) {
+        return toast("Agrega al menos un producto.", 'warning');
     }
 
-    const existe = clientesGlobal.some(c => c.nombre.toLowerCase() === clienteInput.toLowerCase());
+    // Re-resolver el cliente por si el texto cambió después de seleccionarlo
+    const clienteExistente = buscarClientePorNombre(clienteInput);
+    clienteSeleccionadoActual = clienteExistente || null;
+    actualizarInfoCliente();
 
-    if (existe) {
-        registrarVentaFinal(clienteInput, null, null, null);
-    } else {
-        document.getElementById('flujo-nuevo-nombre').innerText = clienteInput;
-        document.getElementById('flujo-nuevo-telefono').value = '';
-        document.getElementById('flujo-nuevo-tipo').value = 'Minorista';
-        document.getElementById('flujo-toggle-gps').checked = true;
-        document.getElementById('modal-flujo-cliente').style.display = 'flex';
+    if (clienteExistente) {
+        registrarVentaFinal(clienteExistente.nombre, null, null, null, false, pedidoVentaActual?.id || null);
+        return;
     }
+
+    // Aviso de nombres parecidos para evitar clientes duplicados
+    const parecidos = clientesGlobal.filter(c => {
+        const a = normalizar(c.nombre), b = normalizar(clienteInput);
+        return a.includes(b) || b.includes(a);
+    }).slice(0, 3);
+
+    if (parecidos.length) {
+        const lista = parecidos.map(c => `• ${c.nombre}`).join('\n');
+        if (!confirm(`Ya existen clientes con un nombre parecido:\n${lista}\n\n¿Crear "${clienteInput}" como cliente nuevo?`)) return;
+    }
+
+    document.getElementById('flujo-nuevo-nombre').innerText = clienteInput;
+    document.getElementById('flujo-nuevo-telefono').value = '';
+    document.getElementById('flujo-nuevo-tipo').value = 'Minorista';
+    document.getElementById('flujo-toggle-gps').checked = true;
+    document.getElementById('modal-flujo-cliente').style.display = 'flex';
 });
 
 function cerrarModalFlujo() { document.getElementById('modal-flujo-cliente').style.display = 'none'; }
 
 async function ejecutarVentaConClienteNuevo() {
+    if (ventaEnProceso) return;
     const clienteNombre = document.getElementById('flujo-nuevo-nombre').innerText;
     const telefono = document.getElementById('flujo-nuevo-telefono').value.trim();
     const tipoCliente = document.getElementById('flujo-nuevo-tipo').value;
     const guardarGps = document.getElementById('flujo-toggle-gps').checked;
     const btnModal = document.getElementById('btn-guardar-flujo');
+
+    // Confirmar antes de crear el cliente para no dejar registros huérfanos
+    const estado = document.getElementById('venta-estado').value;
+    const esEntregado = estado === 'Entregado';
+    const metodoPago = document.getElementById('venta-metodo').value;
+    const total = calcularTotalCarrito();
+    if (esEntregado && metodoPago === 'Efectivo') {
+        const recibido = parseFloat(document.getElementById('venta-efectivo-recibido').value) || 0;
+        if (recibido > 0 && recibido < total) {
+            return toast(`El efectivo recibido (${fmtBs(recibido)}) es menor al total (${fmtBs(total)}).`, 'error');
+        }
+    }
+    const resumen = [
+        `Cliente nuevo: ${clienteNombre}`,
+        `Teléfono: ${telefono || 'Sin teléfono'}`,
+        `Estado: ${estado}`,
+        esEntregado ? `Total: ${fmtBs(total)}` : 'Sin cobro',
+        esEntregado ? `Pago: ${metodoPago}` : ''
+    ].filter(Boolean).join('\n');
+    if (!confirm(`¿Crear el cliente y confirmar la ${esEntregado ? 'venta' : 'entrega'}?\n\n${resumen}`)) return;
+
     btnModal.disabled = true;
     btnModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
 
@@ -1089,7 +1457,7 @@ async function ejecutarVentaConClienteNuevo() {
             } catch (err) { console.warn("GPS no disponible"); }
         }
 
-        // 1) Crear cliente primero (con su tipo) para que la venta tome el precio correcto
+        // 1) Crear cliente primero (con su tipo y asignado a la ruta/día actual)
         const { data: nuevoCli, error: errCli } = await supabaseClient
             .from('clientes')
             .insert({
@@ -1099,6 +1467,9 @@ async function ejecutarVentaConClienteNuevo() {
                 latitud: lat,
                 longitud: lng,
                 direccion: dirExacta || null,
+                ruta_id: unidadActual?.ruta_id || null,
+                zona: unidadActual?.nombre || null,
+                dia_visita: diaSemanaHoy(),
                 activo: true
             })
             .select()
@@ -1108,27 +1479,74 @@ async function ejecutarVentaConClienteNuevo() {
         // 2) Setear como cliente seleccionado y refrescar precios
         clienteSeleccionadoActual = nuevoCli;
         clientesGlobal.push(nuevoCli);
+        renderDatalistClientes();
         renderCatalogoProductos();
 
         cerrarModalFlujo();
         let referencia = telefono ? `Tel: ${telefono}` : 'Sin teléfono';
         if (dirExacta) referencia += ` - ${dirExacta}`;
-        await registrarVentaFinal(clienteNombre, lat, lng, referencia);
+        await registrarVentaFinal(clienteNombre, lat, lng, referencia, true, pedidoVentaActual?.id || null);
     } catch (error) {
-        alert("Error al procesar: " + error.message);
         console.error(error);
+        toast("Error al procesar: " + (error.message || 'intenta de nuevo'), 'error');
     } finally {
         btnModal.disabled = false;
         btnModal.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Confirmar';
     }
 }
 
-async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
+async function registrarVentaFinal(nombreCliente, lat, lng, referencia, omitirConfirmacion = false, pedidoId = null) {
+    if (ventaEnProceso) return;
     const btn = document.getElementById('btn-submit-venta');
     const debug = document.getElementById('debug-error-venta');
     const estado = document.getElementById('venta-estado').value;
     const metodoPago = document.getElementById('venta-metodo').value;
-    const vacios = parseInt(document.getElementById('venta-vacios-recogidos').value) || 0;
+    const esEntregado = estado === 'Entregado';
+
+    const totalCarrito = calcularTotalCarrito();
+
+    // Los vacíos solo se registran en entregas efectivas con agua
+    const tieneAgua = Object.keys(carritoVenta).some(pid => productosGlobal.find(x => String(x.id) === String(pid))?.requiere_envase);
+    const vacios = (esEntregado && tieneAgua) ? (parseInt(document.getElementById('venta-vacios-recogidos').value) || 0) : 0;
+
+    // Validar efectivo
+    if (esEntregado && metodoPago === 'Efectivo') {
+        const recibido = parseFloat(document.getElementById('venta-efectivo-recibido').value) || 0;
+        if (recibido > 0 && recibido < totalCarrito) {
+            return toast(`El efectivo recibido (${fmtBs(recibido)}) es menor al total (${fmtBs(totalCarrito)}).`, 'error');
+        }
+    }
+
+    // Confirmación con resumen antes de guardar
+    if (!omitirConfirmacion) {
+        const resumen = [
+            `Cliente: ${nombreCliente}`,
+            `Estado: ${estado}`,
+            esEntregado ? `Total: ${fmtBs(totalCarrito)}` : 'Sin cobro',
+            esEntregado ? `Pago: ${metodoPago}` : '',
+            vacios > 0 ? `Vacíos recogidos: ${vacios}` : ''
+        ].filter(Boolean).join('\n');
+        if (!confirm(`¿Confirmar ${esEntregado ? 'venta' : 'registro'}?\n\n${resumen}`)) return;
+    }
+
+    // GPS por entrega: usar el watch activo o pedir una lectura puntual
+    if (lat == null || lng == null) {
+        if (latitudActual != null && longitudActual != null) {
+            lat = latitudActual;
+            lng = longitudActual;
+        } else {
+            try {
+                const pos = await getUbicacionPromise();
+                lat = pos.coords.latitude;
+                lng = pos.coords.longitude;
+            } catch (e) { console.warn('Sin GPS para esta entrega'); }
+        }
+    }
+
+    // Referencia de ubicación: usar la dirección del cliente si no vino una
+    if (!referencia && clienteSeleccionadoActual?.direccion) {
+        referencia = clienteSeleccionadoActual.direccion;
+    }
 
     // Construir items JSONB con el precio correcto según tipo de cliente
     const items = Object.keys(carritoVenta).map(pid => {
@@ -1140,6 +1558,7 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
         };
     });
 
+    ventaEnProceso = true;
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
@@ -1149,7 +1568,7 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
             p_cliente_id: clienteSeleccionadoActual?.id || null,
             p_cliente_nombre: nombreCliente,
             p_items: items,
-            p_metodo_pago: estado === 'Entregado' ? metodoPago : 'N/A',
+            p_metodo_pago: esEntregado ? metodoPago : 'N/A',
             p_vacios_devueltos: vacios,
             p_lat: lat,
             p_lng: lng,
@@ -1159,32 +1578,46 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia) {
         if (error) throw error;
         if (!data.success) throw new Error(data.error || 'Error desconocido');
 
-        alert(`✅ ${estado}\nTotal: ${fmtBs(data.total || 0)}\nVacíos: ${vacios}`);
+        toast(`${estado} • ${fmtBs(data.total || totalCarrito)}${vacios > 0 ? ` • ${vacios} vacíos` : ''}`, 'success');
 
-        // Reset
+        // Cerrar el pedido que originó la venta
+        if (pedidoId) await marcarPedidoEntregado(pedidoId, esEntregado ? 'Entregado' : 'No entregado');
+
+        // Reset del formulario
         document.getElementById('form-venta-chofer').reset();
+        document.getElementById('venta-efectivo-recibido').value = '';
+        document.getElementById('venta-vuelto').className = 'efectivo-vuelto';
+        document.getElementById('venta-vuelto').innerText = 'Vuelto: Bs. 0.00';
         carritoVenta = {};
         clienteSeleccionadoActual = null;
+        ultimoClienteDetectadoId = null;
+        pedidoVentaActual = null;
         vaciosModoManual = false;
         setModoAuto();
         document.getElementById('venta-vacios-recogidos').value = 0;
         document.getElementById('venta-estado').value = 'Entregado';
         document.getElementById('venta-cliente-tipo').style.display = 'none';
+        document.getElementById('venta-cliente-direccion').style.display = 'none';
+        document.getElementById('venta-cliente-notas').style.display = 'none';
         seleccionarEstado('Entregado');
         actualizarEnvasesWrapper();
         renderCatalogoProductos();
 
-        await buscarRutaActiva();
-        await fetchHistorialVentasChofer();
-        await cargarClientesGlobales();
+        await Promise.all([
+            buscarRutaActiva(),
+            fetchHistorialVentasChofer(),
+            cargarClientesGlobales()
+        ]);
         await cargarClientesDeRuta();
+        await cargarPedidosDeRuta();
         switchScreen('ruta', document.querySelectorAll('.nav-item')[0]);
     } catch (err) {
         console.error(err);
-        debug.innerHTML = `<strong>Error:</strong><br>${err.message}`;
+        debug.innerHTML = `<strong>Error:</strong><br>${esc(err.message || 'No se pudo guardar')}`;
         debug.style.display = 'block';
-        alert("No se pudo completar la venta.");
+        toast("No se pudo completar la venta.", 'error');
     } finally {
+        ventaEnProceso = false;
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Procesar Venta';
     }
@@ -1204,27 +1637,45 @@ async function cargarClientesDeRuta() {
     cont.innerHTML = '<div class="loading-text">Cargando...</div>';
 
     try {
-        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        const diaHoy = dias[new Date().getDay()];
+        const diaHoy = diaSemanaHoy();
 
-        let query = supabaseClient.from('clientes').select('*').eq('activo', true);
-        if (unidadActual.ruta_id) query = query.or(`ruta_id.eq.${unidadActual.ruta_id},zona.eq.${unidadActual.nombre}`);
-        else query = query.eq('zona', unidadActual.nombre);
+        // Consultas separadas: ruta_id exacto y, si no hay ruta_id, por zona
+        const consultas = [];
+        if (unidadActual.ruta_id) {
+            consultas.push(supabaseClient.from('clientes').select('*').eq('activo', true).eq('ruta_id', unidadActual.ruta_id));
+        }
+        if (unidadActual.nombre) {
+            consultas.push(supabaseClient.from('clientes').select('*').eq('activo', true).eq('zona', unidadActual.nombre));
+        }
 
-        const { data, error } = await query.order('orden_visita').order('nombre');
-        if (error) throw error;
+        const resultados = await Promise.all(consultas);
+        const mapa = new Map();
+        resultados.forEach(({ data, error }) => {
+            if (error) throw error;
+            (data || []).forEach(c => mapa.set(c.id, c));
+        });
 
-        let filtrados = (data || []).filter(c => !c.dia_visita || c.dia_visita === diaHoy);
+        let filtrados = [...mapa.values()]
+            .filter(c => !c.dia_visita || c.dia_visita === diaHoy)
+            .sort((a, b) => {
+                const oa = a.orden_visita ?? 9999;
+                const ob = b.orden_visita ?? 9999;
+                if (oa !== ob) return oa - ob;
+                return String(a.nombre).localeCompare(String(b.nombre), 'es');
+            });
         clientesDeRuta = filtrados;
 
         if (!filtrados.length) {
-            cont.innerHTML = `<div class="loading-text"><i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.5;"></i>No hay clientes para hoy (${diaHoy}).</div>`;
+            cont.innerHTML = `<div class="loading-text"><i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.5;"></i>No hay clientes para hoy (${esc(diaHoy)}).</div>`;
             stats.style.display = 'none';
             return;
         }
 
+        // Visitado = solo entregas efectivas
         const visitados = new Set();
-        entregasGlobales.forEach(e => { if (e.cliente_id) visitados.add(e.cliente_id); });
+        entregasGlobales.forEach(e => {
+            if (e.cliente_id && (e.estado || 'Entregado') === 'Entregado') visitados.add(e.cliente_id);
+        });
 
         document.getElementById('ruta-stat-total').innerText = filtrados.length;
         document.getElementById('ruta-stat-visitados').innerText = filtrados.filter(c => visitados.has(c.id)).length;
@@ -1240,21 +1691,26 @@ async function cargarClientesDeRuta() {
             const envases = c.saldo_envases_prestados || 0;
             const saldo = c.saldo_pendiente || 0;
             const tipo = c.tipo_cliente || 'Minorista';
-            const tipoBadge = tipo !== 'Minorista' ? `<span style="font-size:0.6rem;color:${tipo === 'Mayorista' ? 'var(--success)' : '#7e22ce'};font-weight:800;background:${tipo === 'Mayorista' ? 'var(--success-light)' : '#ede9fe'};padding:2px 6px;border-radius:4px;">${tipo}</span>` : '';
+            const tipoBadge = tipo !== 'Minorista' ? `<span style="font-size:0.6rem;color:${tipo === 'Mayorista' ? 'var(--success)' : '#7e22ce'};font-weight:800;background:${tipo === 'Mayorista' ? 'var(--success-light)' : '#ede9fe'};padding:2px 6px;border-radius:4px;">${esc(tipo)}</span>` : '';
+            const pedidosCliente = pedidosGlobal.filter(p => String(p.cliente_id) === String(c.id)).length;
 
             return `
                 <div class="ruta-cliente-card ${visitado ? 'visitado' : 'pendiente'}">
                     <div class="client-number">${visitado ? '<i class="fa-solid fa-check"></i>' : (i + 1)}</div>
                     <div class="client-info">
-                        <div class="client-name">${c.nombre} ${tipoBadge}</div>
+                        <div class="client-name">${esc(c.nombre)} ${tipoBadge}</div>
                         <div class="client-detail">
-                            ${c.telefono ? `<span><i class="fa-solid fa-phone"></i> ${c.telefono}</span>` : ''}
+                            ${c.telefono ? `<span><i class="fa-solid fa-phone"></i> ${esc(c.telefono)}</span>` : ''}
                             ${visitado ? '<span style="color: var(--success); font-weight: 800;"><i class="fa-solid fa-check-circle"></i> Visitado</span>' : ''}
+                            ${pedidosCliente > 0 ? `<span style="color: var(--purple); font-weight: 800;"><i class="fa-solid fa-clipboard-list"></i> ${pedidosCliente} pedido${pedidosCliente > 1 ? 's' : ''}</span>` : ''}
                         </div>
+                        ${c.direccion ? `<div class="client-detail"><span><i class="fa-solid fa-location-dot"></i> ${esc(c.direccion)}</span></div>` : ''}
+                        ${c.notas ? `<div class="cliente-notas" style="display:block;margin-bottom:4px;"><strong><i class="fa-solid fa-note-sticky"></i> Nota</strong>${esc(c.notas)}</div>` : ''}
                         ${envases > 0 ? `<div class="client-debt-badge"><i class="fa-solid fa-bottle-water"></i> ${envases} envases</div>` : ''}
                         ${saldo > 0 ? `<div class="client-debt-badge" style="margin-left: 4px;"><i class="fa-solid fa-money-bill"></i> ${fmtBs(saldo)}</div>` : ''}
                     </div>
                     <div class="client-actions-ruta">
+                        ${saldo > 0 ? `<button class="btn-ruta-nav cobrar" onclick="abrirAbonoChofer('${c.id}')" title="Cobrar abono"><i class="fa-solid fa-hand-holding-dollar"></i></button>` : ''}
                         <a href="${mapsUrl}" target="_blank" class="btn-ruta-nav ${tieneGps ? '' : 'sin-gps'}">
                             <i class="fa-solid fa-${tieneGps ? 'diamond-turn-right' : 'magnifying-glass'}"></i>
                         </a>
@@ -1274,19 +1730,211 @@ function venderAClienteDeRuta(clienteId) {
     switchScreen('vender', document.querySelectorAll('.nav-item')[1]);
     document.getElementById('venta-cliente').value = c.nombre;
     clienteSeleccionadoActual = c;
+    ultimoClienteDetectadoId = c.id;
+    pedidoVentaActual = null;
 
-    // Actualizar indicador de tipo
-    const tipoLabel = document.getElementById('venta-cliente-tipo');
-    const tipo = c.tipo_cliente || 'Minorista';
-    const color = tipo === 'Mayorista' ? 'var(--success)' : (tipo === 'Especial' ? '#7e22ce' : 'var(--text-muted)');
-    tipoLabel.innerText = `Tipo: ${tipo}`;
-    tipoLabel.style.color = color;
-    tipoLabel.style.fontWeight = '700';
-    tipoLabel.style.display = 'block';
-
-    actualizarPreviewEnvases();
-    renderCatalogoProductos();
+    actualizarInfoCliente();
     setTimeout(() => document.getElementById('catalogo-productos').scrollIntoView({behavior:'smooth'}), 300);
+}
+
+// ============================================
+// PEDIDOS PENDIENTES
+// ============================================
+async function cargarPedidosDeRuta() {
+    const wrapper = document.getElementById('pedidos-ruta-wrapper');
+    if (!unidadActual || !clientesDeRuta.length) {
+        pedidosGlobal = [];
+        wrapper.style.display = 'none';
+        return;
+    }
+    try {
+        const { data, error } = await supabaseClient.from('pedidos')
+            .select('*, clientes(nombre, telefono, direccion)')
+            .eq('estado', 'Pendiente')
+            .lte('fecha_entrega', hoyISO())
+            .order('fecha_entrega', { ascending: true })
+            .order('created_at', { ascending: true })
+            .limit(100);
+        if (error) throw error;
+
+        const idsRuta = new Set(clientesDeRuta.map(c => String(c.id)));
+        pedidosGlobal = (data || []).filter(p => idsRuta.has(String(p.cliente_id)));
+        renderPedidosDeRuta();
+    } catch (e) {
+        console.warn('No se pudieron cargar los pedidos:', e?.message || e);
+        wrapper.style.display = 'none';
+    }
+}
+
+function renderPedidosDeRuta() {
+    const wrapper = document.getElementById('pedidos-ruta-wrapper');
+    const cont = document.getElementById('lista-pedidos-ruta');
+    const count = document.getElementById('pedidos-ruta-count');
+
+    if (!pedidosGlobal.length) {
+        wrapper.style.display = 'none';
+        cont.innerHTML = '';
+        count.innerText = '0';
+        return;
+    }
+
+    wrapper.style.display = 'block';
+    count.innerText = `${pedidosGlobal.length} pendiente${pedidosGlobal.length > 1 ? 's' : ''}`;
+
+    cont.innerHTML = pedidosGlobal.map(p => {
+        const cliente = p.clientes?.nombre || 'Cliente';
+        const cantidad = Number(p.cantidad || 0);
+        const total = Number(p.total_estimado || 0);
+        return `<div class="pedido-card">
+            <div class="pedido-head">
+                <div>
+                    <div class="pedido-cliente">${esc(cliente)}</div>
+                    <div class="pedido-meta"><i class="fa-solid fa-box"></i> ${cantidad} x ${esc(p.producto_nombre || 'Producto')}${total > 0 ? ` • ${fmtBs(total)}` : ''}</div>
+                    ${p.fecha_entrega ? `<div class="pedido-meta"><i class="fa-regular fa-calendar"></i> ${esc(p.fecha_entrega)}</div>` : ''}
+                </div>
+                <span class="status-pill st-pendiente">Pendiente</span>
+            </div>
+            ${p.notas ? `<div class="pedido-notas"><i class="fa-solid fa-note-sticky"></i> ${esc(p.notas)}</div>` : ''}
+            <div class="pedido-actions">
+                <button class="pedido-btn-vender" onclick="venderPedido('${p.id}')"><i class="fa-solid fa-cart-plus"></i> Vender</button>
+                <button class="pedido-btn-no" onclick="marcarPedidoNoEntregado('${p.id}')"><i class="fa-solid fa-circle-xmark"></i> No entregado</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function venderPedido(pedidoId) {
+    const pedido = pedidosGlobal.find(p => String(p.id) === String(pedidoId));
+    if (!pedido) return;
+
+    const cliente = clientesGlobal.find(c => String(c.id) === String(pedido.cliente_id));
+    if (!cliente) {
+        toast('El cliente de este pedido no está disponible. Actualiza la ruta.', 'warning');
+        return;
+    }
+
+    pedidoVentaActual = pedido;
+    switchScreen('vender', document.querySelectorAll('.nav-item')[1]);
+    document.getElementById('venta-cliente').value = cliente.nombre;
+    clienteSeleccionadoActual = cliente;
+    ultimoClienteDetectadoId = cliente.id;
+    actualizarInfoCliente();
+
+    if (pedido.producto_id) {
+        const p = productosGlobal.find(x => String(x.id) === String(pedido.producto_id));
+        if (p) {
+            const stock = stockCamion[p.id]?.cantidad_actual ?? 0;
+            const cantidad = Math.min(Number(pedido.cantidad || 0), stock);
+            if (cantidad > 0) {
+                carritoVenta[p.id] = cantidad;
+                renderCatalogoProductos();
+                actualizarEnvasesWrapper();
+            } else {
+                toast(`Sin stock de ${p.nombre} en el camión.`, 'warning');
+            }
+        } else {
+            toast('El producto del pedido ya no está disponible.', 'warning');
+        }
+    }
+    setTimeout(() => document.getElementById('catalogo-productos').scrollIntoView({behavior:'smooth'}), 300);
+}
+
+async function marcarPedidoNoEntregado(pedidoId) {
+    const pedido = pedidosGlobal.find(p => String(p.id) === String(pedidoId));
+    if (!pedido) return;
+    const nombre = pedido.clientes?.nombre || 'este cliente';
+    if (!confirm(`¿Marcar el pedido de ${nombre} como "No entregado"?`)) return;
+
+    try {
+        const { error } = await supabaseClient.from('pedidos').update({ estado: 'No entregado' }).eq('id', pedidoId);
+        if (error) throw error;
+        toast('Pedido marcado como no entregado.', 'warning');
+        await cargarPedidosDeRuta();
+    } catch (e) {
+        toast('No se pudo actualizar el pedido: ' + (e.message || ''), 'error');
+    }
+}
+
+async function marcarPedidoEntregado(pedidoId, estado) {
+    if (!pedidoId) return;
+    try {
+        await supabaseClient.from('pedidos').update({ estado }).eq('id', pedidoId);
+    } catch (e) {
+        console.warn('No se pudo actualizar el pedido:', e?.message || e);
+    }
+}
+
+// ============================================
+// COBRANZA / ABONOS
+// ============================================
+function abrirAbonoChofer(clienteId) {
+    const c = clientesGlobal.find(x => String(x.id) === String(clienteId))
+        || clientesDeRuta.find(x => String(x.id) === String(clienteId));
+    if (!c) return toast('Cliente no encontrado.', 'error');
+
+    clienteAbonoActual = c;
+    document.getElementById('abono-chofer-nombre').innerText = c.nombre;
+    document.getElementById('abono-chofer-saldo').innerText = fmtBs(c.saldo_pendiente || 0);
+    document.getElementById('abono-chofer-monto').value = '';
+    document.getElementById('abono-chofer-metodo').value = 'Efectivo';
+    document.getElementById('abono-chofer-notas').value = '';
+    document.getElementById('modal-abono-chofer').style.display = 'flex';
+}
+
+function cerrarModalAbonoChofer() {
+    document.getElementById('modal-abono-chofer').style.display = 'none';
+    clienteAbonoActual = null;
+}
+
+async function registrarAbonoChofer() {
+    if (!clienteAbonoActual) return;
+    const btn = document.getElementById('btn-abono-chofer');
+    const monto = parseFloat(document.getElementById('abono-chofer-monto').value);
+    const saldo = Number(clienteAbonoActual.saldo_pendiente || 0);
+
+    if (!monto || monto <= 0) return toast('Ingresa un monto válido.', 'warning');
+    if (saldo > 0 && monto > saldo + 0.009) {
+        return toast(`El monto supera el saldo pendiente (${fmtBs(saldo)}).`, 'error');
+    }
+
+    const metodo = document.getElementById('abono-chofer-metodo').value;
+    const notas = document.getElementById('abono-chofer-notas').value.trim() || null;
+    if (!confirm(`¿Registrar abono de ${fmtBs(monto)} a ${clienteAbonoActual.nombre}?`)) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+    try {
+        const { data, error } = await supabaseClient.rpc('rpc_registrar_abono', {
+            p_cliente_id: clienteAbonoActual.id,
+            p_monto: monto,
+            p_metodo_pago: metodo,
+            p_notas: notas
+        });
+        if (error) throw error;
+        if (!data.success) throw new Error(data.error || 'Error desconocido');
+
+        // Guardar en el ledger local para que el abono en efectivo cuente en la rendición.
+        guardarAbonoLocal({
+            id: data?.abono_id || data?.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            cliente_id: clienteAbonoActual.id,
+            cliente_nombre: clienteAbonoActual.nombre,
+            monto: monto,
+            metodo_pago: metodo,
+            notas: notas,
+            fecha: hoyISO(),
+            flota_id: unidadActual?.id || unidadSeleccionadaId || null,
+            created_at: new Date().toISOString()
+        });
+
+        toast(`Abono registrado. Nuevo saldo: ${fmtBs(data.nuevo_saldo || 0)}`, 'success');
+        cerrarModalAbonoChofer();
+        await Promise.all([cargarClientesGlobales(), cargarClientesDeRuta(), fetchHistorialVentasChofer()]);
+    } catch (e) {
+        toast('No se pudo registrar el abono: ' + (e.message || ''), 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Registrar abono';
+    }
 }
 
 // ============================================
@@ -1298,25 +1946,46 @@ async function fetchHistorialVentasChofer() {
         return;
     }
     try {
-        const hoy = new Date().toISOString().split('T')[0];
+        // Límites del día local convertidos a UTC (evita el desfase de toISOString)
+        const inicio = new Date();
+        inicio.setHours(0, 0, 0, 0);
+        const fin = new Date();
+        fin.setHours(23, 59, 59, 999);
+
         const { data, error } = await supabaseClient
             .from('entregas')
             .select('*, entregas_detalles(cantidad, productos(nombre))')
             .eq('flota_id', unidadSeleccionadaId)
-            .gte('created_at', `${hoy}T00:00:00`)
+            .gte('created_at', inicio.toISOString())
+            .lte('created_at', fin.toISOString())
             .order('created_at', { ascending: false });
         if (error) throw error;
         entregasGlobales = data || [];
-
-        const datalist = document.getElementById('clientes-datalist');
-        const unicos = [...new Set(entregasGlobales.map(e => e.cliente))];
-        datalist.innerHTML = unicos.map(n => `<option value="${n}">`).join('');
 
         const ventasBs = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado').reduce((a, e) => a + Number(e.total), 0);
         const ventasCount = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado').length;
         document.getElementById('resumen-ventas-bs').innerText = fmtBs(ventasBs);
         document.getElementById('resumen-ventas-count').innerText = ventasCount;
         document.getElementById('historial-total-count').innerText = `${entregasGlobales.length} registros`;
+
+        // Cobranza por método de pago
+        const porMetodo = { Efectivo: 0, QR: 0, Transferencia: 0, Crédito: 0 };
+        entregasGlobales.forEach(e => {
+            if ((e.estado || 'Entregado') !== 'Entregado') return;
+            const m = e.metodo_pago || 'N/A';
+            if (porMetodo[m] != null) porMetodo[m] += Number(e.total || 0);
+        });
+        document.getElementById('resumen-efectivo').innerText = fmtBs(porMetodo.Efectivo);
+        document.getElementById('resumen-qr').innerText = fmtBs(porMetodo.QR);
+        document.getElementById('resumen-transferencia').innerText = fmtBs(porMetodo.Transferencia);
+        document.getElementById('resumen-credito').innerText = fmtBs(porMetodo.Crédito);
+
+        // Abonos cobrados desde este equipo (se guardan localmente)
+        const abonosEfectivo = abonosLocalesDeHoy()
+            .filter(a => a.metodo_pago === 'Efectivo')
+            .reduce((a, b) => a + Number(b.monto || 0), 0);
+        document.getElementById('resumen-abonos-efectivo').innerText = fmtBs(abonosEfectivo);
+        document.getElementById('resumen-efectivo-rendir').innerText = fmtBs(porMetodo.Efectivo + abonosEfectivo);
 
         const cont = document.getElementById('driver-delivery-list');
         if (!entregasGlobales.length) {
@@ -1326,21 +1995,21 @@ async function fetchHistorialVentasChofer() {
                 const estado = e.estado || 'Entregado';
                 const payClass = {Efectivo:'pay-efectivo',QR:'pay-qr',Crédito:'pay-credito',Transferencia:'pay-transferencia'}[e.metodo_pago] || 'pay-efectivo';
                 const stClass = {Entregado:'st-entregado','No entregado':'st-no-entregado',Pendiente:'st-pendiente'}[estado] || 'st-entregado';
-                const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${d.productos?.nombre || ''}`).join(', ');
+                const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${esc(d.productos?.nombre || '')}`).join(', ');
                 const vacios = e.vacios_devueltos || 0;
                 const vaciosBadge = vacios > 0 ? ` • 🔄 ${vacios} vacíos` : '';
 
                 return `<div class="delivery-item">
                     <div class="delivery-header">
-                        <div class="delivery-client">${e.cliente}</div>
+                        <div class="delivery-client">${esc(e.cliente || 'Cliente')}</div>
                         <div class="delivery-time"><i class="fa-regular fa-clock"></i> ${formatTime(e.created_at)}</div>
                     </div>
                     ${detalle ? `<div class="delivery-productos">${detalle}${vaciosBadge}</div>` : ''}
                     <div class="delivery-footer">
                         <span class="delivery-price">${fmtBs(e.total)}</span>
                         <div>
-                            <span class="payment-pill ${payClass}">${e.metodo_pago}</span>
-                            <span class="status-pill ${stClass}">${estado}</span>
+                            <span class="payment-pill ${payClass}">${esc(e.metodo_pago || 'N/A')}</span>
+                            <span class="status-pill ${stClass}">${esc(estado)}</span>
                         </div>
                     </div>
                 </div>`;
@@ -1358,7 +2027,7 @@ async function fetchHistorialVentasChofer() {
 // ============================================
 function renderDirectorioGPS() {
     const cont = document.getElementById('lista-clientes-directorio');
-    const conGps = entregasGlobales.filter(e => e.latitud && e.longitud);
+    const conGps = clientesGlobal.filter(c => c.latitud && c.longitud);
     document.getElementById('clientes-gps-count').innerText = `${conGps.length} ubicaciones`;
 
     if (!conGps.length) {
@@ -1366,14 +2035,16 @@ function renderDirectorioGPS() {
         return;
     }
 
-    cont.innerHTML = conGps.map(e => {
-        const link = `https://www.google.com/maps/dir/?api=1&destination=${e.latitud},${e.longitud}&travelmode=driving`;
+    cont.innerHTML = conGps.map(c => {
+        const link = `https://www.google.com/maps/dir/?api=1&destination=${c.latitud},${c.longitud}&travelmode=driving`;
         return `
             <div class="client-gps-card">
-                <div class="client-gps-title"><i class="fa-solid fa-store" style="color: var(--success);"></i> ${e.cliente}</div>
+                <div class="client-gps-title"><i class="fa-solid fa-store" style="color: var(--success);"></i> ${esc(c.nombre)}</div>
                 <div class="client-gps-info">
-                    <div><strong>Info:</strong> ${e.referencia_ubicacion || 'Sin detalles'}</div>
-                    <div><strong>Registro:</strong> ${formatTime(e.created_at)}</div>
+                    ${c.direccion ? `<div><strong>Dirección:</strong> ${esc(c.direccion)}</div>` : ''}
+                    ${c.telefono ? `<div><strong>Teléfono:</strong> ${esc(c.telefono)}</div>` : ''}
+                    ${c.notas ? `<div><strong>Nota:</strong> ${esc(c.notas)}</div>` : ''}
+                    <div><strong>Saldo envases:</strong> ${c.saldo_envases_prestados || 0}</div>
                 </div>
                 <a href="${link}" target="_blank" class="btn-primary btn-success" style="text-decoration: none; padding: 10px; font-size: 0.85rem;">
                     <i class="fa-solid fa-location-arrow"></i> Navegar
@@ -1385,19 +2056,45 @@ function renderDirectorioGPS() {
 // ============================================
 // REALTIME
 // ============================================
+function programarRecarga(clave, fn, retraso = 400) {
+    clearTimeout(timersRealtime[clave]);
+    timersRealtime[clave] = setTimeout(() => {
+        if (!datosChoferLogueado) return;
+        fn();
+    }, retraso);
+}
+
 function suscribirRealtime() {
     supabaseClient.channel('chofer-live')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'flota' }, () => buscarRutaActiva())
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'entregas' }, () => {
-            fetchHistorialVentasChofer();
-            cargarClientesDeRuta();
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'flota' }, (payload) => {
+            const fila = payload.new || payload.old || {};
+            if (datosChoferLogueado && fila.chofer_id && fila.chofer_id !== datosChoferLogueado.id) return;
+            programarRecarga('flota', () => buscarRutaActiva());
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, (payload) => {
+            const fila = payload.new || payload.old || {};
+            if (unidadSeleccionadaId && fila.flota_id && fila.flota_id !== unidadSeleccionadaId) return;
+            programarRecarga('entregas', () => {
+                fetchHistorialVentasChofer();
+                cargarClientesDeRuta();
+            });
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => {
-            cargarClientesGlobales();
-            cargarClientesDeRuta();
+            programarRecarga('clientes', () => {
+                cargarClientesGlobales();
+                cargarClientesDeRuta().then(() => cargarPedidosDeRuta());
+            });
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'flota_stock' }, () => {
-            buscarRutaActiva();
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'flota_stock' }, (payload) => {
+            const fila = payload.new || payload.old || {};
+            if (unidadSeleccionadaId && fila.flota_id && fila.flota_id !== unidadSeleccionadaId) return;
+            programarRecarga('stock', () => buscarRutaActiva());
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => {
+            programarRecarga('productos', () => cargarProductosGlobales().then(renderCatalogoProductos));
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+            programarRecarga('pedidos', () => cargarPedidosDeRuta());
         })
         .subscribe();
 }
@@ -1414,6 +2111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     suscribirRealtime();
     setModoAuto();
     actualizarPreviewEnvases();
+    actualizarCalculadoraEfectivo();
 });
 </script>
 </body>
