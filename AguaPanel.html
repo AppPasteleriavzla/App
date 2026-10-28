@@ -67,6 +67,68 @@
         .kpi-trend { margin-top: 8px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background-color: var(--success-light); color: var(--success); }
         .kpi-card.featured .kpi-trend { background-color: rgba(16,185,129,0.2); color: #34d399; }
 
+        /* ===== VENTAS DE LA SEMANA ===== */
+        .week-card { position: relative; overflow: hidden; background: linear-gradient(155deg,#ffffff 0%,#f0f9ff 60%,#e0f2fe 100%); border: 1px solid #bae6fd; border-radius: var(--radius-lg); padding: 1.1rem; box-shadow: var(--shadow-md); margin-bottom: 1.5rem; }
+        .week-card::after { content: ''; position: absolute; width: 150px; height: 150px; right: -55px; top: -65px; border-radius: 50%; background: radial-gradient(circle, rgba(56,189,248,.24), rgba(56,189,248,0) 70%); pointer-events: none; }
+        .week-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; position: relative; z-index: 1; }
+        .week-kicker { display: flex; align-items: center; gap: 6px; font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--primary-dark); }
+        .week-range { font-size: .7rem; font-weight: 700; color: var(--text-muted); margin-top: 3px; text-transform: capitalize; }
+        .week-calendar-btn { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid #bae6fd; color: var(--primary-dark); font-family: inherit; font-size: .72rem; font-weight: 800; padding: 8px 10px; border-radius: 9px; cursor: pointer; box-shadow: var(--shadow-sm); }
+        .week-calendar-btn:active { transform: scale(.97); }
+        .week-total-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin: 14px 0 6px; position: relative; z-index: 1; flex-wrap: wrap; }
+        .week-total { font-size: 1.9rem; font-weight: 900; line-height: 1; letter-spacing: -.02em; color: var(--text-main); }
+        .week-compare { display: inline-flex; align-items: center; gap: 4px; font-size: .66rem; font-weight: 800; padding: 4px 8px; border-radius: 99px; background: var(--surface-subtle); color: var(--text-muted); white-space: nowrap; }
+        .week-compare.up { background: var(--success-light); color: #15803d; }
+        .week-compare.down { background: var(--danger-light); color: #b91c1c; }
+        .week-bars { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin-top: 12px; position: relative; z-index: 1; }
+        .week-bar-col { background: none; border: none; font-family: inherit; padding: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 8px; }
+        .week-bar-valor { font-size: .55rem; font-weight: 800; color: var(--primary-dark); height: 12px; line-height: 12px; white-space: nowrap; }
+        .week-bar-track { width: 100%; height: 52px; background: rgba(2,132,199,.07); border-radius: 7px; display: flex; align-items: flex-end; overflow: hidden; }
+        .week-bar-fill { width: 100%; border-radius: 7px; background: linear-gradient(180deg,#38bdf8,#0284c7); transition: height .35s cubic-bezier(.16,1,.3,1); }
+        .week-bar-col.hoy .week-bar-fill { background: linear-gradient(180deg,#34d399,#059669); }
+        .week-bar-col.hoy .week-bar-dia { color: var(--success); }
+        .week-bar-dia { font-size: .6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .week-bar-fecha { font-size: .55rem; font-weight: 700; color: var(--text-muted); opacity: .7; }
+        .week-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 8px; margin-top: 10px; padding-top: 9px; border-top: 1px dashed rgba(2,132,199,.18); font-size: .66rem; font-weight: 700; color: var(--text-muted); position: relative; z-index: 1; }
+        .week-footer span:last-child { text-align: right; }
+
+        /* ===== CALENDARIO DE VENTAS ===== */
+        .calendario-modal { max-width: 460px; }
+        .cal-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+        .cal-nav-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-subtle); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+        .cal-nav-btn:active { background: var(--primary-light); color: var(--primary-dark); }
+        .cal-mes { font-size: .95rem; font-weight: 900; color: var(--primary-dark); text-align: center; flex: 1; }
+        .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 6px; }
+        .cal-weekdays span { text-align: center; font-size: .58rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+        .cal-day { position: relative; min-height: 46px; border: 1px solid transparent; background: var(--surface-subtle); border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-family: inherit; cursor: pointer; padding: 3px 2px; color: var(--text-main); }
+        .cal-day.vacio { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+        .cal-day-num { font-size: .78rem; font-weight: 800; line-height: 1; }
+        .cal-day-monto { font-size: .5rem; font-weight: 800; line-height: 1; opacity: .85; white-space: nowrap; }
+        .cal-day.nivel-1 { background: #e0f2fe; }
+        .cal-day.nivel-2 { background: #bae6fd; }
+        .cal-day.nivel-3 { background: #7dd3fc; }
+        .cal-day.hoy { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+        .cal-day.seleccionado { background: linear-gradient(160deg,#0284c7,#0369a1); color: #fff; border-color: #0369a1; box-shadow: var(--shadow-md); }
+        .cal-day.seleccionado .cal-day-monto { opacity: 1; }
+        .cal-detalle { background: var(--surface-subtle); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-top: 14px; }
+        .cal-detalle-fecha { font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+        .cal-detalle-total { font-size: 1.55rem; font-weight: 900; line-height: 1.1; color: var(--text-main); margin-top: 3px; }
+        .cal-detalle-sub { font-size: .68rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+        .cal-metodos { margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 5px; }
+        .cal-metodo { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: .74rem; font-weight: 700; color: var(--text-muted); }
+        .cal-metodo-nombre { display: flex; align-items: center; gap: 6px; }
+        .cal-metodo i { width: 14px; text-align: center; font-size: .7rem; }
+        .cal-metodo-valor { font-weight: 900; color: var(--text-main); }
+        .cal-metodo.efectivo i { color: var(--success); }
+        .cal-metodo.qr i { color: var(--primary); }
+        .cal-metodo.transferencia i { color: var(--purple); }
+        .cal-metodo.credito i { color: var(--warning); }
+        .cal-ver-btn { margin-top: 12px; width: 100%; background: linear-gradient(135deg,#0284c7,#0369a1); color: #fff; border: none; padding: 11px; border-radius: 9px; font-family: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; }
+        .cal-ver-btn:active { transform: scale(.985); }
+        .cal-vacio-texto { font-size: .76rem; font-weight: 700; color: var(--text-muted); text-align: center; padding: 10px 0 2px; }
+        @media (max-width: 420px) { .week-card { padding: .95rem; } .week-total { font-size: 1.65rem; } .cal-day { min-height: 42px; } }
+
         .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; }
         .chart-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--border); }
         .chart-stat-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
@@ -268,6 +330,27 @@
 
     <!-- INICIO -->
     <div id="screen-inicio" class="screen active">
+        <div class="week-card">
+            <div class="week-card-top">
+                <div>
+                    <div class="week-kicker"><i class="fa-solid fa-chart-column"></i> Ventas de la semana</div>
+                    <div class="week-range" id="semana-rango">Cargando...</div>
+                </div>
+                <button type="button" class="week-calendar-btn" onclick="abrirCalendario()">
+                    <i class="fa-regular fa-calendar-days"></i> Calendario
+                </button>
+            </div>
+            <div class="week-total-row">
+                <div class="week-total" id="semana-total">Bs. 0.00</div>
+                <div class="week-compare" id="semana-compare"><i class="fa-solid fa-minus"></i> Sin datos</div>
+            </div>
+            <div class="week-bars" id="semana-barras"></div>
+            <div class="week-footer">
+                <span id="semana-meta">0 entregas</span>
+                <span id="semana-mejor">Sin ventas esta semana</span>
+            </div>
+        </div>
+
         <div class="section-header">
             <h2 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> Balance de Hoy</h2>
             <span class="section-badge" id="current-date">Hoy</span>
@@ -1069,6 +1152,27 @@
     </div>
 </div>
 
+<div id="calendarioModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="calendario-titulo">
+    <div class="modal-container calendario-modal">
+        <div class="modal-header">
+            <h3 id="calendario-titulo"><i class="fa-regular fa-calendar-days"></i> Calendario de ventas</h3>
+            <button type="button" class="modal-close" aria-label="Cerrar calendario" onclick="cerrarCalendario()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cal-nav">
+            <button type="button" class="cal-nav-btn" aria-label="Mes anterior" onclick="cambiarMesCalendario(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="cal-mes" id="calendario-mes">Mes</div>
+            <button type="button" class="cal-nav-btn" aria-label="Mes siguiente" onclick="cambiarMesCalendario(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="cal-weekdays">
+            <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+        <div class="cal-grid" id="calendario-grid">
+            <div class="loading-text" style="grid-column: span 7;">Cargando...</div>
+        </div>
+        <div class="cal-detalle" id="calendario-detalle"></div>
+    </div>
+</div>
+
 <div id="tutorial-overlay">
     <div id="tutorial-highlight"></div>
     <div id="tutorial-card">
@@ -1152,6 +1256,12 @@ let ajusteRapidoProductos = [];
 let ajusteRapidoIndice = 0;
 let ajusteRapidoBorradores = new Map();
 let ajusteRapidoGuardando = false;
+let semanaResumen = new Map();
+let calendarioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let calendarioSeleccion = hoyISO();
+let calendarioResumen = new Map();
+let calendarioRequestId = 0;
+const DIAS_SEMANA_CORTO = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 
 document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
 document.getElementById('entregas-desde').value = hoyISO();
@@ -1177,7 +1287,7 @@ async function switchScreen(name, el) {
         }
     }
 
-    if (name === 'inicio') { cargarMorososInicio(); cargarStockBajo(); }
+    if (name === 'inicio') { cargarMorososInicio(); cargarStockBajo(); cargarVentasSemana(); }
     if (name === 'productos') cargarProductos();
     if (name === 'mapa') initMapa();
     if (name === 'finanzas') fetchCaja();
@@ -2796,6 +2906,287 @@ function renderChart() {
 }
 
 // ============================================
+// VENTAS DE LA SEMANA Y CALENDARIO
+// ============================================
+function fechaLocalISO(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+}
+
+function inicioDeSemana(fecha = new Date()) {
+    const d = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+    const offset = (d.getDay() + 6) % 7; // lunes = 0
+    d.setDate(d.getDate() - offset);
+    return d;
+}
+
+function sumarDias(fecha, dias) {
+    const d = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+    d.setDate(d.getDate() + dias);
+    return d;
+}
+
+function fmtCompacto(v) {
+    const n = Number(v) || 0;
+    if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'k';
+    return String(Math.round(n));
+}
+
+async function consultarEntregasPorRango(desde, hasta) {
+    const desdeUTC = new Date(`${desde}T00:00:00`).toISOString();
+    const hastaUTC = new Date(`${hasta}T23:59:59.999`).toISOString();
+    const { data, error } = await supabaseClient.from('entregas')
+        .select('id, total, metodo_pago, estado, unidades, created_at')
+        .gte('created_at', desdeUTC).lte('created_at', hastaUTC)
+        .limit(5000);
+    if (error) throw error;
+    return data || [];
+}
+
+function agruparPorDia(rows) {
+    const mapa = new Map();
+    (rows || []).forEach(e => {
+        if (e.estado !== 'Entregado') return;
+        const fecha = fechaLocalISO(new Date(e.created_at));
+        if (!mapa.has(fecha)) {
+            mapa.set(fecha, { fecha, total: 0, entregas: 0, unidades: 0, metodos: {} });
+        }
+        const dia = mapa.get(fecha);
+        const total = Number(e.total) || 0;
+        dia.total += total;
+        dia.entregas += 1;
+        dia.unidades += Number(e.unidades) || 0;
+        const metodo = e.metodo_pago || 'Sin método';
+        dia.metodos[metodo] = (dia.metodos[metodo] || 0) + total;
+    });
+    return mapa;
+}
+
+async function cargarVentasSemana() {
+    try {
+        const inicio = inicioDeSemana(new Date());
+        const fin = sumarDias(inicio, 6);
+        const inicioPrev = sumarDias(inicio, -7);
+
+        const rows = await consultarEntregasPorRango(fechaLocalISO(inicioPrev), fechaLocalISO(fin));
+        const resumen = agruparPorDia(rows);
+        semanaResumen = resumen;
+
+        const dias = [];
+        let total = 0;
+        let totalPrev = 0;
+        let entregas = 0;
+        let unidades = 0;
+
+        for (let i = 0; i < 7; i++) {
+            const fechaObj = sumarDias(inicio, i);
+            const fecha = fechaLocalISO(fechaObj);
+            const dia = resumen.get(fecha) || { fecha, total: 0, entregas: 0, unidades: 0, metodos: {} };
+            dias.push({ ...dia, fechaObj });
+            total += dia.total;
+            entregas += dia.entregas;
+            unidades += dia.unidades;
+
+            const prev = resumen.get(fechaLocalISO(sumarDias(inicioPrev, i)));
+            totalPrev += prev ? prev.total : 0;
+        }
+
+        renderVentasSemana(dias, total, totalPrev, entregas, unidades, inicio, fin);
+    } catch (e) {
+        console.error('No se pudieron cargar las ventas de la semana', e);
+        const rango = document.getElementById('semana-rango');
+        if (rango) rango.innerText = 'No se pudo cargar';
+    }
+}
+
+function renderVentasSemana(dias, total, totalPrev, entregas, unidades, inicio, fin) {
+    const rango = document.getElementById('semana-rango');
+    const totalEl = document.getElementById('semana-total');
+    const compare = document.getElementById('semana-compare');
+    const barras = document.getElementById('semana-barras');
+    const meta = document.getElementById('semana-meta');
+    const mejorEl = document.getElementById('semana-mejor');
+    if (!rango || !totalEl || !compare || !barras || !meta || !mejorEl) return;
+
+    const fmtRango = (d) => d.toLocaleDateString('es-BO', { day: '2-digit', month: 'short' });
+    rango.innerText = `${fmtRango(inicio)} – ${fmtRango(fin)}`;
+    totalEl.innerText = fmtBs(total);
+
+    let cmpTxt = 'Sin ventas esta semana';
+    let cmpCls = '';
+    let cmpIcon = 'fa-minus';
+    if (totalPrev > 0) {
+        const diff = total - totalPrev;
+        const pct = Math.abs(diff / totalPrev * 100);
+        cmpTxt = `${diff >= 0 ? '+' : '−'}${pct.toFixed(0)}% vs semana anterior`;
+        cmpCls = diff >= 0 ? 'up' : 'down';
+        cmpIcon = diff >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+    } else if (total > 0) {
+        cmpTxt = 'Primera semana con ventas';
+        cmpCls = 'up';
+        cmpIcon = 'fa-arrow-trend-up';
+    }
+    compare.className = 'week-compare ' + cmpCls;
+    compare.innerHTML = `<i class="fa-solid ${cmpIcon}"></i> ${cmpTxt}`;
+
+    const max = Math.max(...dias.map(d => d.total), 1);
+    const hoy = hoyISO();
+    barras.innerHTML = dias.map((d, i) => {
+        const pct = d.total > 0 ? Math.max(8, Math.round(d.total / max * 100)) : 4;
+        const esHoy = d.fecha === hoy;
+        const valor = d.total > 0 ? fmtCompacto(d.total) : '';
+        return `<button type="button" class="week-bar-col ${esHoy ? 'hoy' : ''}" onclick="abrirCalendario('${d.fecha}')" title="${esc(`${fmtBs(d.total)} · ${d.entregas} ${d.entregas === 1 ? 'entrega' : 'entregas'}`)}">
+            <span class="week-bar-valor">${valor}</span>
+            <span class="week-bar-track"><span class="week-bar-fill" style="height:${pct}%"></span></span>
+            <span class="week-bar-dia">${DIAS_SEMANA_CORTO[i]}</span>
+            <span class="week-bar-fecha">${d.fechaObj.getDate()}</span>
+        </button>`;
+    }).join('');
+
+    meta.innerText = `${entregas} ${entregas === 1 ? 'entrega' : 'entregas'}${unidades > 0 ? ` · ${unidades} unidades` : ''}`;
+
+    const mejor = dias.reduce((a, b) => (b.total > a.total ? b : a), dias[0]);
+    mejorEl.innerText = mejor && mejor.total > 0
+        ? `Mejor día: ${DIAS_SEMANA_CORTO[dias.indexOf(mejor)]} ${mejor.fechaObj.getDate()} · ${fmtBs(mejor.total)}`
+        : 'Sin ventas esta semana';
+}
+
+function abrirCalendario(fecha) {
+    const base = fecha ? new Date(`${fecha}T12:00:00`) : new Date();
+    calendarioMes = new Date(base.getFullYear(), base.getMonth(), 1);
+    calendarioSeleccion = fecha || hoyISO();
+    calendarioResumen = new Map();
+    const modal = document.getElementById('calendarioModal');
+    if (modal) modal.style.display = 'flex';
+    cargarMesCalendario();
+}
+
+function cerrarCalendario() {
+    const modal = document.getElementById('calendarioModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function cambiarMesCalendario(delta) {
+    calendarioMes = new Date(calendarioMes.getFullYear(), calendarioMes.getMonth() + delta, 1);
+    const hoy = new Date();
+    const esMesActual = calendarioMes.getFullYear() === hoy.getFullYear() && calendarioMes.getMonth() === hoy.getMonth();
+    calendarioSeleccion = esMesActual ? hoyISO() : fechaLocalISO(calendarioMes);
+    calendarioResumen = new Map();
+    cargarMesCalendario();
+}
+
+async function cargarMesCalendario() {
+    const grid = document.getElementById('calendario-grid');
+    const y = calendarioMes.getFullYear();
+    const m = calendarioMes.getMonth();
+    const primero = new Date(y, m, 1);
+    const ultimo = new Date(y, m + 1, 0);
+    const requestId = ++calendarioRequestId;
+
+    if (grid) grid.innerHTML = '<div class="loading-text" style="grid-column: span 7;">Cargando...</div>';
+    try {
+        const rows = await consultarEntregasPorRango(fechaLocalISO(primero), fechaLocalISO(ultimo));
+        if (requestId !== calendarioRequestId) return;
+        calendarioResumen = agruparPorDia(rows);
+        renderCalendario();
+    } catch (e) {
+        if (requestId !== calendarioRequestId) return;
+        console.error('No se pudo cargar el calendario', e);
+        if (grid) grid.innerHTML = '<div class="loading-text" style="grid-column: span 7; color: var(--danger);">No se pudo cargar el calendario.</div>';
+    }
+}
+
+function renderCalendario() {
+    const grid = document.getElementById('calendario-grid');
+    const mesEl = document.getElementById('calendario-mes');
+    if (!grid || !mesEl) return;
+
+    const y = calendarioMes.getFullYear();
+    const m = calendarioMes.getMonth();
+    const mesTxt = calendarioMes.toLocaleDateString('es-BO', { month: 'long', year: 'numeric' });
+    mesEl.innerText = mesTxt.charAt(0).toUpperCase() + mesTxt.slice(1);
+
+    const primerDia = new Date(y, m, 1);
+    const offset = (primerDia.getDay() + 6) % 7;
+    const totalDias = new Date(y, m + 1, 0).getDate();
+    const hoy = hoyISO();
+    const maxMes = Math.max(...[...calendarioResumen.values()].map(d => d.total), 1);
+
+    let html = '';
+    for (let i = 0; i < offset; i++) html += '<div class="cal-day vacio"></div>';
+
+    for (let d = 1; d <= totalDias; d++) {
+        const fecha = fechaLocalISO(new Date(y, m, d));
+        const dia = calendarioResumen.get(fecha);
+        const total = dia ? dia.total : 0;
+        const nivel = total > 0 ? (total / maxMes >= 0.66 ? 3 : total / maxMes >= 0.33 ? 2 : 1) : 0;
+        const clases = ['cal-day', nivel ? `nivel-${nivel}` : '', fecha === hoy ? 'hoy' : '', fecha === calendarioSeleccion ? 'seleccionado' : ''].filter(Boolean).join(' ');
+        const title = total > 0
+            ? `${fmtBs(total)} · ${dia.entregas} ${dia.entregas === 1 ? 'entrega' : 'entregas'}`
+            : 'Sin ventas';
+        html += `<button type="button" class="${clases}" title="${esc(title)}" onclick="seleccionarDiaCalendario('${fecha}')">
+            <span class="cal-day-num">${d}</span>
+            ${total > 0 ? `<span class="cal-day-monto">${fmtCompacto(total)}</span>` : ''}
+        </button>`;
+    }
+
+    const restantes = (7 - ((offset + totalDias) % 7)) % 7;
+    for (let i = 0; i < restantes; i++) html += '<div class="cal-day vacio"></div>';
+
+    grid.innerHTML = html;
+    renderDetalleDiaCalendario();
+}
+
+function renderDetalleDiaCalendario() {
+    const cont = document.getElementById('calendario-detalle');
+    if (!cont) return;
+
+    const fecha = calendarioSeleccion;
+    const dia = calendarioResumen.get(fecha) || { fecha, total: 0, entregas: 0, unidades: 0, metodos: {} };
+    const fechaTxt = new Date(`${fecha}T12:00:00`).toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long' });
+    const metodos = ['Efectivo', 'QR', 'Transferencia', 'Crédito'];
+    const iconos = { Efectivo: 'fa-money-bill-wave', QR: 'fa-qrcode', Transferencia: 'fa-building-columns', Crédito: 'fa-clock' };
+    const clases = { Efectivo: 'efectivo', QR: 'qr', Transferencia: 'transferencia', Crédito: 'credito' };
+
+    const filas = metodos.map(metodo => `<div class="cal-metodo ${clases[metodo]}">
+        <span class="cal-metodo-nombre"><i class="fa-solid ${iconos[metodo]}"></i>${metodo}</span>
+        <span class="cal-metodo-valor">${fmtBs(dia.metodos[metodo] || 0)}</span>
+    </div>`).join('');
+
+    const otros = Object.keys(dia.metodos).filter(metodo => !metodos.includes(metodo));
+    const filasOtros = otros.map(metodo => `<div class="cal-metodo">
+        <span class="cal-metodo-nombre"><i class="fa-solid fa-circle-dot"></i>${esc(metodo)}</span>
+        <span class="cal-metodo-valor">${fmtBs(dia.metodos[metodo])}</span>
+    </div>`).join('');
+
+    cont.innerHTML = `
+        <div class="cal-detalle-fecha">${esc(fechaTxt)}</div>
+        <div class="cal-detalle-total">${fmtBs(dia.total)}</div>
+        <div class="cal-detalle-sub">${dia.entregas} ${dia.entregas === 1 ? 'entrega' : 'entregas'}${dia.unidades > 0 ? ` · ${dia.unidades} unidades` : ''}</div>
+        <div class="cal-metodos">${filas}${filasOtros}</div>
+        ${dia.entregas === 0 ? '<div class="cal-vacio-texto">Sin ventas registradas este día.</div>' : ''}
+        <button type="button" class="cal-ver-btn" onclick="verEntregasDelDia('${fecha}')">
+            <i class="fa-solid fa-list-check"></i> Ver entregas del día
+        </button>`;
+}
+
+function seleccionarDiaCalendario(fecha) {
+    calendarioSeleccion = fecha;
+    renderCalendario();
+}
+
+function verEntregasDelDia(fecha) {
+    document.getElementById('entregas-desde').value = fecha;
+    document.getElementById('entregas-hasta').value = fecha;
+    cerrarCalendario();
+    const nav = [...document.querySelectorAll('.nav-item')].find(n => (n.getAttribute('onclick') || '').includes("'entregas'"));
+    switchScreen('entregas', nav);
+}
+
+// ============================================
 // MOROSOS
 // ============================================
 async function cargarMorososInicio() {
@@ -3218,7 +3609,7 @@ function suscribirRealtime() {
     supabaseClient.channel('admin-live')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'flota' }, () => { fetchFlota(); if (document.getElementById('screen-mapa').classList.contains('active')) renderMapaCamiones(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'flota_stock' }, () => { fetchFlota(); })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, () => fetchEntregas())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, () => { fetchEntregas(); cargarVentasSemana(); if (document.getElementById('calendarioModal').style.display === 'flex') cargarMesCalendario(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'abonos' }, () => { cargarClientesDirectorio(); fetchCaja(); cargarMorososInicio(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => cargarClientesDirectorio())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => { cargarProductos(); cargarStockBajo(); })
@@ -3235,6 +3626,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchEnvases();
     await fetchFlota();
     await fetchEntregas();
+    await cargarVentasSemana();
     await fetchAsientosContables();
     await fetchCaja();
     await cargarClientesDirectorio();
