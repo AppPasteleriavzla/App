@@ -129,6 +129,62 @@
         .cal-vacio-texto { font-size: .76rem; font-weight: 700; color: var(--text-muted); text-align: center; padding: 10px 0 2px; }
         @media (max-width: 420px) { .week-card { padding: .95rem; } .week-total { font-size: 1.65rem; } .cal-day { min-height: 42px; } }
 
+        /* ===== CONTROL DE GASTOS ===== */
+        .gastos-admin-hero { position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 1.15rem; background: linear-gradient(145deg,#1c1917 0%,#3f2a12 58%,#78350f 100%); color: #fff; box-shadow: var(--shadow-md); margin-bottom: 14px; }
+        .gastos-admin-hero::before { content: ''; position: absolute; width: 190px; height: 190px; right: -70px; top: -90px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,.38), rgba(245,158,11,0) 70%); pointer-events: none; }
+        .gastos-admin-hero-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .gastos-admin-kicker { font-size: .64rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: #fcd34d; }
+        .gastos-admin-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.12); border-radius: 99px; padding: 4px 9px; font-size: .6rem; font-weight: 800; color: #fef3c7; }
+        .gastos-admin-total { position: relative; z-index: 1; font-size: 2rem; font-weight: 900; letter-spacing: -.03em; line-height: 1; margin: 10px 0 12px; }
+        .gastos-admin-kpis { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+        .gastos-admin-kpi { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.09); border-radius: 11px; padding: 8px 9px; min-width: 0; }
+        .gastos-admin-kpi span { display: block; font-size: .5rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #d6d3d1; }
+        .gastos-admin-kpi strong { display: block; font-size: .8rem; font-weight: 900; margin-top: 2px; color: #fff; white-space: nowrap; }
+
+        .gastos-rango { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 3px; margin-bottom: 12px; scrollbar-width: none; }
+        .gastos-rango::-webkit-scrollbar { display: none; }
+        .gastos-rango-btn { flex-shrink: 0; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-family: inherit; font-size: .68rem; font-weight: 800; padding: 7px 12px; border-radius: 99px; cursor: pointer; box-shadow: var(--shadow-sm); }
+        .gastos-rango-btn.active { background: #0f172a; border-color: #0f172a; color: #fff; }
+
+        .gastos-cat-grid { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; }
+        .gastos-cat-grid::-webkit-scrollbar { display: none; }
+        .gastos-cat-chip { flex-shrink: 0; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-family: inherit; font-size: .66rem; font-weight: 800; padding: 7px 11px; border-radius: 99px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: var(--shadow-sm); }
+        .gastos-cat-chip small { font-size: .58rem; font-weight: 900; background: var(--surface-subtle); color: var(--text-muted); border-radius: 99px; padding: 1px 5px; }
+        .gastos-cat-chip.active { background: #78350f; border-color: #78350f; color: #fff; }
+        .gastos-cat-chip.active small { background: rgba(255,255,255,.18); color: #fff; }
+
+        .gastos-lista-admin { display: flex; flex-direction: column; gap: 9px; }
+        .gasto-admin-card { display: flex; gap: 11px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; box-shadow: var(--shadow-sm); }
+        .gasto-admin-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: .92rem; flex-shrink: 0; }
+        .gasto-admin-icon.cat-gasolina { background: linear-gradient(135deg,#fef3c7,#fde68a); color: #b45309; }
+        .gasto-admin-icon.cat-mantenimiento { background: linear-gradient(135deg,#e0f2fe,#bae6fd); color: #0369a1; }
+        .gasto-admin-icon.cat-peaje { background: linear-gradient(135deg,#ede9fe,#ddd6fe); color: #6d28d9; }
+        .gasto-admin-icon.cat-comida { background: linear-gradient(135deg,#d1fae5,#a7f3d0); color: #047857; }
+        .gasto-admin-icon.cat-otros { background: linear-gradient(135deg,#f1f5f9,#e2e8f0); color: #475569; }
+        .gasto-admin-info { flex: 1; min-width: 0; }
+        .gasto-admin-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+        .gasto-admin-cat { font-size: .6rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+        .gasto-admin-monto { font-size: .88rem; font-weight: 900; color: #b91c1c; white-space: nowrap; }
+        .gasto-admin-desc { font-size: .82rem; font-weight: 800; margin-top: 2px; overflow-wrap: anywhere; }
+        .gasto-admin-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: .63rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; }
+        .gasto-admin-tag { display: inline-flex; align-items: center; gap: 3px; background: var(--surface-subtle); border-radius: 99px; padding: 2px 6px; }
+        .gasto-admin-tag.efectivo { background: #dcfce7; color: #15803d; }
+        .gasto-admin-tag.digital { background: #e0f2fe; color: #0369a1; }
+        .gastos-admin-empty { text-align: center; padding: 26px 16px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius-md); color: var(--text-muted); }
+        .gastos-admin-empty i { font-size: 1.7rem; color: var(--warning); display: block; margin-bottom: 8px; }
+        .gastos-admin-empty strong { display: block; font-size: .86rem; color: var(--text-main); margin-bottom: 3px; }
+        .gastos-admin-empty span { font-size: .72rem; font-weight: 600; line-height: 1.4; display: block; }
+        .gastos-admin-note { display: flex; gap: 8px; align-items: flex-start; margin-top: 14px; padding: 11px 13px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 11px; font-size: .7rem; font-weight: 600; color: #92400e; line-height: 1.45; }
+        .gastos-admin-note i { margin-top: 2px; }
+
+        .gastos-por-chofer { display: flex; flex-direction: column; gap: 10px; }
+        .gastos-chofer-row { display: flex; flex-direction: column; gap: 4px; }
+        .gastos-chofer-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: .72rem; font-weight: 800; }
+        .gastos-chofer-top span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .gastos-chofer-top span:last-child { color: #b45309; white-space: nowrap; }
+        .gastos-chofer-bar { height: 6px; border-radius: 99px; background: var(--surface-subtle); overflow: hidden; }
+        .gastos-chofer-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,#f59e0b,#d97706); }
+
         .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; }
         .chart-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--border); }
         .chart-stat-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
@@ -937,6 +993,52 @@
             </div>
         </div>
     </div>
+
+    <!-- CONTROL DE GASTOS -->
+    <div id="screen-gastos" class="screen">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-receipt" style="color: var(--warning);"></i> Control de Gastos</h2>
+            <span class="section-badge" id="gastos-admin-count">0 gastos</span>
+        </div>
+
+        <div class="gastos-admin-hero">
+            <div class="gastos-admin-hero-top">
+                <span class="gastos-admin-kicker">Total gastado</span>
+                <span class="gastos-admin-pill" id="gastos-admin-rango-label"><i class="fa-solid fa-calendar-day"></i> Hoy</span>
+            </div>
+            <div class="gastos-admin-total" id="gastos-admin-total">Bs. 0.00</div>
+            <div class="gastos-admin-kpis">
+                <div class="gastos-admin-kpi"><span>Efectivo</span><strong id="gastos-admin-efectivo">Bs. 0.00</strong></div>
+                <div class="gastos-admin-kpi"><span>QR / Transf.</span><strong id="gastos-admin-digital">Bs. 0.00</strong></div>
+                <div class="gastos-admin-kpi"><span>Promedio/día</span><strong id="gastos-admin-promedio">Bs. 0.00</strong></div>
+            </div>
+        </div>
+
+        <div class="gastos-rango" id="gastos-admin-rango">
+            <button type="button" class="gastos-rango-btn active" data-rango="hoy" onclick="cambiarRangoGastosAdmin('hoy', this)">Hoy</button>
+            <button type="button" class="gastos-rango-btn" data-rango="7d" onclick="cambiarRangoGastosAdmin('7d', this)">Últimos 7 días</button>
+            <button type="button" class="gastos-rango-btn" data-rango="30d" onclick="cambiarRangoGastosAdmin('30d', this)">Últimos 30 días</button>
+            <button type="button" class="gastos-rango-btn" data-rango="todo" onclick="cambiarRangoGastosAdmin('todo', this)">Todo</button>
+        </div>
+
+        <div class="gastos-cat-grid" id="gastos-admin-filtros"></div>
+
+        <div class="form-card" style="margin-bottom: 14px;">
+            <div class="form-title" style="font-size: 0.85rem; margin-bottom: 12px;"><i class="fa-solid fa-user-tie"></i> Gasto por chofer</div>
+            <div class="gastos-por-chofer" id="gastos-admin-choferes">
+                <div class="loading-text">Cargando...</div>
+            </div>
+        </div>
+
+        <div class="gastos-lista-admin" id="gastos-admin-lista">
+            <div class="loading-text">Cargando gastos...</div>
+        </div>
+
+        <div class="gastos-admin-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Aquí se suman los gastos registrados por los choferes (gasolina, mantenimiento, peaje, comida u otros) y los egresos manuales de Finanzas. Los gastos en efectivo reducen el efectivo a rendir del chofer.</span>
+        </div>
+    </div>
 </main>
 
 <nav class="bottom-nav">
@@ -951,6 +1053,7 @@
     <div class="nav-item" onclick="switchScreen('entregas', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Entregas</span></div>
     <div class="nav-item" onclick="switchScreen('reportes', this)"><i class="fa-solid fa-chart-bar"></i><span>Reportes</span></div>
     <div class="nav-item" onclick="switchScreen('finanzas', this)"><i class="fa-solid fa-wallet"></i><span>Finanzas</span></div>
+    <div class="nav-item" onclick="switchScreen('gastos', this)"><i class="fa-solid fa-receipt"></i><span>Gastos</span></div>
 </nav>
 
 <div id="historialModal" class="modal-overlay">
@@ -1291,6 +1394,7 @@ async function switchScreen(name, el) {
     if (name === 'productos') cargarProductos();
     if (name === 'mapa') initMapa();
     if (name === 'finanzas') fetchCaja();
+    if (name === 'gastos') fetchGastosAdmin();
     if (name === 'clientes') { cargarClientesDirectorio(); llenarSelectRutas(); }
     if (name === 'pedidos') { llenarSelectClientesPedido(); cargarPedidos(); }
     if (name === 'reportes') cargarReportes();
@@ -3285,6 +3389,293 @@ async function fetchCaja() {
 }
 
 // ============================================
+// CONTROL DE GASTOS
+// ============================================
+const CATEGORIAS_GASTO_ADMIN = ['Gasolina', 'Mantenimiento', 'Peaje', 'Comida', 'Otros'];
+let gastosAdminGlobales = [];
+let rangoGastosAdmin = 'hoy';
+let categoriaGastosAdmin = 'Todos';
+let choferesAdminGastos = [];
+
+function normalizarTextoAdmin(texto) {
+    return String(texto ?? '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function inferirCategoriaGastoAdmin(texto) {
+    const t = normalizarTextoAdmin(texto);
+    if (/gasolina|combustible|diesel|nafta|bencina|surtidor/.test(t)) return 'Gasolina';
+    if (/mantenimiento|aceite|llanta|neumatic|freno|reparacion|repuesto|taller|filtro|bateria|motor/.test(t)) return 'Mantenimiento';
+    if (/peaje|parqueo|estacionamiento|tunel|garaje/.test(t)) return 'Peaje';
+    if (/comida|almuerzo|refrigerio|desayuno|cena|snack/.test(t)) return 'Comida';
+    return 'Otros';
+}
+
+function normalizarCategoriaGastoAdmin(categoria) {
+    const n = normalizarTextoAdmin(categoria);
+    return CATEGORIAS_GASTO_ADMIN.find(c => normalizarTextoAdmin(c) === n) || inferirCategoriaGastoAdmin(categoria);
+}
+
+function iconoGastoAdmin(categoria) {
+    return {
+        Gasolina: 'fa-gas-pump',
+        Mantenimiento: 'fa-screwdriver-wrench',
+        Peaje: 'fa-road',
+        Comida: 'fa-utensils',
+        Otros: 'fa-ellipsis'
+    }[categoria] || 'fa-receipt';
+}
+
+function claseGastoAdmin(categoria) {
+    return {
+        Gasolina: 'cat-gasolina',
+        Mantenimiento: 'cat-mantenimiento',
+        Peaje: 'cat-peaje',
+        Comida: 'cat-comida',
+        Otros: 'cat-otros'
+    }[categoria] || 'cat-otros';
+}
+
+// Formato: Categoría · Flota · Chofer · Método · Detalle
+function parsearDescripcionGastoAdmin(mov) {
+    const crudo = String(mov?.descripcion || '').trim();
+    const partes = crudo.split('·').map(p => p.trim()).filter(Boolean);
+
+    let categoria = '';
+    let flota = '';
+    let chofer = '';
+    let metodo = '';
+    let detalle = '';
+
+    if (partes.length >= 4) {
+        categoria = partes[0];
+        flota = partes[1];
+        chofer = partes[2];
+        metodo = partes[3];
+        detalle = partes.slice(4).join(' · ');
+    } else {
+        detalle = crudo;
+    }
+
+    if (!categoria) categoria = inferirCategoriaGastoAdmin(crudo);
+    if (!metodo) {
+        if (/transferencia/i.test(crudo)) metodo = 'Transferencia';
+        else if (/qr|pago movil|pago móvil/i.test(crudo)) metodo = 'QR';
+        else metodo = 'Efectivo';
+    }
+
+    return {
+        categoria: normalizarCategoriaGastoAdmin(categoria),
+        flota,
+        chofer,
+        metodo: metodo || 'Efectivo',
+        detalle: detalle || crudo || 'Gasto'
+    };
+}
+
+function rangoGastosAdminLabel(rango) {
+    return {
+        hoy: 'Hoy',
+        '7d': 'Últimos 7 días',
+        '30d': 'Últimos 30 días',
+        todo: 'Histórico'
+    }[rango] || 'Hoy';
+}
+
+function desdeGastosAdmin(rango) {
+    const desde = new Date();
+    desde.setHours(0, 0, 0, 0);
+    if (rango === '7d') desde.setDate(desde.getDate() - 6);
+    if (rango === '30d') desde.setDate(desde.getDate() - 29);
+    return rango === 'todo' ? null : desde;
+}
+
+async function fetchGastosAdmin() {
+    const lista = document.getElementById('gastos-admin-lista');
+    try {
+        if (!choferesAdminGastos.length) {
+            const { data: choferes } = await supabaseClient.from('choferes').select('id, nombre, codigo');
+            choferesAdminGastos = choferes || [];
+        }
+
+        let query = supabaseClient
+            .from('movimientos_caja')
+            .select('*')
+            .eq('tipo', 'egreso')
+            .order('created_at', { ascending: false })
+            .limit(500);
+
+        const desde = desdeGastosAdmin(rangoGastosAdmin);
+        if (desde) query = query.gte('created_at', desde.toISOString());
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        gastosAdminGlobales = (data || []).map(m => {
+            const parsed = parsearDescripcionGastoAdmin(m);
+            const chofer = choferesAdminGastos.find(c => c.id === m.chofer_id);
+            const flota = (typeof flotaGlobalTodas !== 'undefined' ? flotaGlobalTodas : []).find(f => f.id === m.flota_id);
+
+            // Atribución para gastos antiguos escritos solo como texto ("Gasolina FOTÓN 3")
+            const descNormalizada = normalizarTextoAdmin(m.descripcion);
+            let choferNombre = chofer ? (chofer.nombre || chofer.codigo) : parsed.chofer;
+            if (!choferNombre) {
+                const matchChofer = choferesAdminGastos.find(c =>
+                    (c.codigo && descNormalizada.includes(normalizarTextoAdmin(c.codigo))) ||
+                    (c.nombre && descNormalizada.includes(normalizarTextoAdmin(c.nombre)))
+                );
+                if (matchChofer) choferNombre = matchChofer.nombre || matchChofer.codigo;
+            }
+
+            let flotaNombre = flota ? flota.nombre : parsed.flota;
+            if (!flotaNombre) {
+                const matchFlota = (typeof flotaGlobalTodas !== 'undefined' ? flotaGlobalTodas : []).find(f =>
+                    f.nombre && descNormalizada.includes(normalizarTextoAdmin(f.nombre))
+                );
+                if (matchFlota) flotaNombre = matchFlota.nombre;
+            }
+
+            return {
+                id: m.id,
+                monto: Number(m.monto || 0),
+                created_at: m.created_at,
+                descripcion: m.descripcion || '',
+                categoria: m.categoria ? normalizarCategoriaGastoAdmin(m.categoria) : parsed.categoria,
+                metodo_pago: m.metodo_pago || parsed.metodo,
+                detalle: parsed.detalle || m.descripcion || 'Gasto',
+                chofer: choferNombre || 'Sin chofer',
+                flota: flotaNombre || ''
+            };
+        });
+
+        renderGastosAdmin();
+    } catch (err) {
+        console.error('Error cargando gastos admin:', err);
+        if (lista) lista.innerHTML = '<div class="gastos-admin-empty"><i class="fa-solid fa-triangle-exclamation"></i><strong>No se pudieron cargar los gastos</strong><span>Revisa la conexión e intenta de nuevo.</span></div>';
+    }
+}
+
+function renderGastosAdmin() {
+    const total = gastosAdminGlobales.reduce((a, g) => a + g.monto, 0);
+    const efectivo = gastosAdminGlobales
+        .filter(g => g.metodo_pago === 'Efectivo')
+        .reduce((a, g) => a + g.monto, 0);
+    const digital = total - efectivo;
+
+    let dias = 1;
+    if (rangoGastosAdmin === '7d') dias = 7;
+    else if (rangoGastosAdmin === '30d') dias = 30;
+    else if (rangoGastosAdmin === 'todo') {
+        const fechas = new Set(gastosAdminGlobales.map(g => new Date(g.created_at).toLocaleDateString('es-BO')));
+        dias = Math.max(1, fechas.size);
+    }
+
+    document.getElementById('gastos-admin-total').innerText = fmtBs(total);
+    document.getElementById('gastos-admin-efectivo').innerText = fmtBs(efectivo);
+    document.getElementById('gastos-admin-digital').innerText = fmtBs(digital);
+    document.getElementById('gastos-admin-promedio').innerText = fmtBs(total / dias);
+    document.getElementById('gastos-admin-count').innerText = `${gastosAdminGlobales.length} ${gastosAdminGlobales.length === 1 ? 'gasto' : 'gastos'}`;
+    document.getElementById('gastos-admin-rango-label').innerHTML = `<i class="fa-solid fa-calendar-day"></i> ${rangoGastosAdminLabel(rangoGastosAdmin)}`;
+
+    renderChipsGastosAdmin();
+    renderChoferesGastosAdmin();
+
+    const cont = document.getElementById('gastos-admin-lista');
+    const filtrados = categoriaGastosAdmin === 'Todos'
+        ? gastosAdminGlobales
+        : gastosAdminGlobales.filter(g => g.categoria === categoriaGastosAdmin);
+
+    if (!filtrados.length) {
+        cont.innerHTML = `<div class="gastos-admin-empty">
+            <i class="fa-solid fa-receipt"></i>
+            <strong>${gastosAdminGlobales.length ? 'Sin gastos en esta categoría' : 'Sin gastos en este período'}</strong>
+            <span>${gastosAdminGlobales.length ? 'Prueba con otra categoría.' : 'Los gastos que registren los choferes aparecerán aquí automáticamente.'}</span>
+        </div>`;
+        return;
+    }
+
+    cont.innerHTML = filtrados.map(g => `
+        <div class="gasto-admin-card">
+            <div class="gasto-admin-icon ${claseGastoAdmin(g.categoria)}"><i class="fa-solid ${iconoGastoAdmin(g.categoria)}"></i></div>
+            <div class="gasto-admin-info">
+                <div class="gasto-admin-top">
+                    <span class="gasto-admin-cat">${esc(g.categoria)}</span>
+                    <span class="gasto-admin-monto">− ${fmtBs(g.monto)}</span>
+                </div>
+                <div class="gasto-admin-desc">${esc(g.detalle)}</div>
+                <div class="gasto-admin-meta">
+                    <span class="gasto-admin-tag ${g.metodo_pago === 'Efectivo' ? 'efectivo' : 'digital'}">
+                        <i class="fa-solid fa-wallet"></i> ${esc(g.metodo_pago)}
+                    </span>
+                    ${g.chofer ? `<span class="gasto-admin-tag"><i class="fa-solid fa-user"></i> ${esc(g.chofer)}</span>` : ''}
+                    ${g.flota ? `<span class="gasto-admin-tag"><i class="fa-solid fa-truck"></i> ${esc(g.flota)}</span>` : ''}
+                    <span>${formatDate(g.created_at)} ${formatTime(g.created_at)}</span>
+                </div>
+            </div>
+        </div>`).join('');
+}
+
+function renderChipsGastosAdmin() {
+    const cont = document.getElementById('gastos-admin-filtros');
+    const conteos = {};
+    gastosAdminGlobales.forEach(g => { conteos[g.categoria] = (conteos[g.categoria] || 0) + 1; });
+
+    const chips = [{ nombre: 'Todos', total: gastosAdminGlobales.length }]
+        .concat(CATEGORIAS_GASTO_ADMIN.map(c => ({ nombre: c, total: conteos[c] || 0 })));
+
+    cont.innerHTML = chips.map(c => `
+        <button type="button" class="gastos-cat-chip ${categoriaGastosAdmin === c.nombre ? 'active' : ''}" onclick="filtrarGastosAdmin('${c.nombre}')">
+            ${esc(c.nombre)} <small>${c.total}</small>
+        </button>`).join('');
+}
+
+function renderChoferesGastosAdmin() {
+    const cont = document.getElementById('gastos-admin-choferes');
+    const grupos = {};
+    gastosAdminGlobales.forEach(g => {
+        const nombre = g.chofer || 'Sin chofer';
+        if (!grupos[nombre]) grupos[nombre] = { total: 0, count: 0 };
+        grupos[nombre].total += g.monto;
+        grupos[nombre].count += 1;
+    });
+
+    const filas = Object.keys(grupos)
+        .map(nombre => ({ nombre, ...grupos[nombre] }))
+        .sort((a, b) => b.total - a.total);
+
+    if (!filas.length) {
+        cont.innerHTML = '<div class="loading-text" style="padding: 10px;">Sin gastos en el período.</div>';
+        return;
+    }
+
+    const maximo = Math.max(...filas.map(f => f.total), 1);
+    cont.innerHTML = filas.slice(0, 6).map(f => `
+        <div class="gastos-chofer-row">
+            <div class="gastos-chofer-top">
+                <span><i class="fa-solid fa-user" style="color: var(--text-muted); font-size: .62rem;"></i> ${esc(f.nombre)} <span style="color: var(--text-muted); font-weight: 700;">(${f.count})</span></span>
+                <span>${fmtBs(f.total)}</span>
+            </div>
+            <div class="gastos-chofer-bar"><div class="gastos-chofer-fill" style="width: ${Math.max(4, (f.total / maximo) * 100)}%"></div></div>
+        </div>`).join('');
+}
+
+function filtrarGastosAdmin(categoria) {
+    categoriaGastosAdmin = categoria;
+    renderGastosAdmin();
+}
+
+function cambiarRangoGastosAdmin(rango, el) {
+    rangoGastosAdmin = rango;
+    categoriaGastosAdmin = 'Todos';
+    document.querySelectorAll('#gastos-admin-rango .gastos-rango-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.rango === rango);
+    });
+    if (el) el.classList.add('active');
+    fetchGastosAdmin();
+}
+
+// ============================================
 // REPORTES
 // ============================================
 async function cargarReportes() {
@@ -3613,6 +4004,10 @@ function suscribirRealtime() {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'abonos' }, () => { cargarClientesDirectorio(); fetchCaja(); cargarMorososInicio(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => cargarClientesDirectorio())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => { cargarProductos(); cargarStockBajo(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'movimientos_caja' }, () => {
+            if (document.getElementById('screen-gastos').classList.contains('active')) fetchGastosAdmin();
+            if (document.getElementById('screen-finanzas').classList.contains('active')) fetchCaja();
+        })
         .subscribe();
 }
 
