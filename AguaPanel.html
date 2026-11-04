@@ -243,6 +243,7 @@
         .producto-precio-valor { font-weight: 800; font-size: 0.85rem; }
         .producto-precio-valor.margen { color: var(--success); }
         .producto-precio-valor.mayorista { color: var(--purple); }
+        .producto-precio-valor.especial { color: #7e22ce; }
         .producto-stock { display: flex; align-items: center; gap: 6px; background: var(--surface-subtle); border-radius: 8px; padding: 6px 10px; margin-top: 6px; font-size: 0.75rem; font-weight: 700; }
         .producto-stock.low { background: var(--warning-light); color: #b45309; }
         .producto-stock.out { background: var(--danger-light); color: #991b1b; }
@@ -697,6 +698,11 @@
                         <small>Si lo dejas vacío, este producto se vende al precio de tienda a TODOS los clientes. Si lo llenas, los clientes marcados como "Mayorista" pagan este precio.</small>
                     </div>
                     <div class="input-group">
+                        <label>Precio Especial (Bs) <span style="color: var(--purple); font-weight: 800;">⭐ OPCIONAL</span></label>
+                        <input type="number" step="0.1" id="prod-precio-especial" placeholder="Dejar vacío si no aplica">
+                        <small>Si lo llenas, los clientes marcados como "Especial" pagan este precio. Si lo dejas vacío, pagan el precio de venta normal. El chofer también puede ajustar el precio unitario al momento de la venta.</small>
+                    </div>
+                    <div class="input-group">
                         <label>Cantidad Mínima para Precio Mayorista (Promo) <span style="color: var(--purple); font-weight: 800;">⭐ OPCIONAL</span></label>
                         <input type="number" min="1" step="1" id="prod-cantidad-minima-mayorista" placeholder="Dejar vacío si no aplica">
                         <small>Si lo llenas, el precio mayorista se aplica solo al comprar esta cantidad o más (promoción por cantidad). Solo para clientes Mayorista. Si lo dejas vacío, el precio mayorista aplica siempre.</small>
@@ -750,7 +756,7 @@
                             <option value="Mayorista">Mayorista (precio al por mayor)</option>
                             <option value="Especial">Especial (precio personalizado)</option>
                         </select>
-                        <small>Los "Mayoristas" pagan <code>precio_mayorista</code> cuando el producto lo tiene cargado.</small>
+                        <small>Los "Mayoristas" pagan <code>precio_mayorista</code> cuando el producto lo tiene cargado. Los "Especiales" pagan <code>precio_especial</code>; si el producto no lo tiene, pagan el precio de tienda.</small>
                     </div>
                     <div class="input-group"><label>Teléfono</label><input type="tel" id="cli-telefono" placeholder="Ej: 70012345"></div>
                     <div class="input-group"><label>Dirección</label><textarea id="cli-direccion" placeholder="Av. Monseñor Rivero #123..."></textarea></div>
@@ -1312,6 +1318,11 @@
             <small>Dejar vacío = este producto se vende igual a todos.</small>
         </div>
         <div class="input-group">
+            <label>Precio Especial (Bs) <span style="color: var(--purple); font-weight: 800;">⭐ OPCIONAL</span></label>
+            <input type="number" step="0.1" id="edit-prod-precio-especial" placeholder="Dejar vacío si no aplica">
+            <small>Precio para clientes marcados como "Especial". Dejar vacío = pagan el precio de venta normal.</small>
+        </div>
+        <div class="input-group">
             <label>Cantidad Mínima para Precio Mayorista (Promo) <span style="color: var(--purple); font-weight: 800;">⭐ OPCIONAL</span></label>
             <input type="number" min="1" step="1" id="edit-prod-cantidad-minima-mayorista" placeholder="Dejar vacío si no aplica">
             <small>Si lo llenas, el precio mayorista se aplica solo al comprar esta cantidad o más. Solo para clientes Mayorista.</small>
@@ -1644,6 +1655,7 @@ function renderProductos() {
         const margen = Number(p.precio_venta) - Number(p.costo || 0);
         const margenPct = p.costo > 0 ? ((margen / p.costo) * 100).toFixed(0) : '--';
         const tieneMayorista = p.precio_mayorista != null && p.precio_mayorista !== '';
+        const tieneEspecial = p.precio_especial != null && p.precio_especial !== '';
 
         const realIdx = productosGlobal.findIndex(x => String(x.id) === String(p.id));
         const puedeSubir = realIdx > 0;
@@ -1672,6 +1684,7 @@ function renderProductos() {
                         <div class="producto-precio"><span class="producto-precio-label">Costo</span><span class="producto-precio-valor">${fmtBs(p.costo || 0)}</span></div>
                         <div class="producto-precio"><span class="producto-precio-label">Venta</span><span class="producto-precio-valor">${fmtBs(p.precio_venta)}</span></div>
                         ${tieneMayorista ? `<div class="producto-precio"><span class="producto-precio-label">Mayorista${p.cantidad_minima_mayorista ? ` (a partir de ${p.cantidad_minima_mayorista})` : ''}</span><span class="producto-precio-valor mayorista">${fmtBs(p.precio_mayorista)}</span></div>` : ''}
+                        ${tieneEspecial ? `<div class="producto-precio"><span class="producto-precio-label">Especial</span><span class="producto-precio-valor especial">${fmtBs(p.precio_especial)}</span></div>` : ''}
                         <div class="producto-precio"><span class="producto-precio-label">Margen</span><span class="producto-precio-valor margen">${fmtBs(margen)} (${margenPct}%)</span></div>
                     </div>
                     <div class="producto-stock ${stockClass}">
@@ -1702,12 +1715,39 @@ async function moverProducto(id, direccion) {
     } catch (e) { alert('Error: ' + e.message); }
 }
 
+function esErrorColumnaPrecioEspecial(error) {
+    if (!error) return false;
+    const msg = String(error.message || '');
+    return /precio_especial/i.test(msg) &&
+        (error.code === 'PGRST204' || error.code === '42703' || /column|schema cache/i.test(msg));
+}
+
+async function guardarProductoConPrecioEspecial(payload, id = null) {
+    const ejecutar = (data) => id
+        ? supabaseClient.from('productos').update(data).eq('id', id)
+        : supabaseClient.from('productos').insert([data]);
+
+    let { error } = await ejecutar(payload);
+    if (error && esErrorColumnaPrecioEspecial(error)) {
+        // Compatibilidad: si aún no se ejecutó la migración, guardar el resto del producto.
+        const sinEspecial = { ...payload };
+        delete sinEspecial.precio_especial;
+        const reintento = await ejecutar(sinEspecial);
+        error = reintento.error;
+        if (!error) {
+            alert('⚠️ El producto se guardó, pero el Precio Especial no se guardó porque falta la columna en Supabase. Ejecuta el archivo migracion_precio_especial.sql en el SQL Editor de Supabase y vuelve a intentarlo.');
+        }
+    }
+    if (error) throw error;
+}
+
 document.getElementById('form-producto').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
     try {
         const precioMayoristaRaw = document.getElementById('prod-precio-mayorista').value.trim();
+        const precioEspecialRaw = document.getElementById('prod-precio-especial').value.trim();
         const payload = {
             nombre: document.getElementById('prod-nombre').value.trim(),
             categoria: document.getElementById('prod-categoria').value,
@@ -1715,6 +1755,7 @@ document.getElementById('form-producto').addEventListener('submit', async (e) =>
             costo: parseFloat(document.getElementById('prod-costo').value) || 0,
             precio_venta: parseFloat(document.getElementById('prod-precio').value) || 0,
             precio_mayorista: precioMayoristaRaw === '' ? null : parseFloat(precioMayoristaRaw),
+            precio_especial: precioEspecialRaw === '' ? null : parseFloat(precioEspecialRaw),
             cantidad_minima_mayorista: (document.getElementById('prod-cantidad-minima-mayorista').value.trim() === '' ? null : parseInt(document.getElementById('prod-cantidad-minima-mayorista').value)),
             comision_chofer: parseFloat(document.getElementById('prod-comision').value) || 0,
             stock_actual: parseInt(document.getElementById('prod-stock').value) || 0,
@@ -1723,8 +1764,7 @@ document.getElementById('form-producto').addEventListener('submit', async (e) =>
             descripcion: document.getElementById('prod-descripcion').value.trim() || null,
             activo: true
         };
-        const { error } = await supabaseClient.from('productos').insert([payload]);
-        if (error) throw error;
+        await guardarProductoConPrecioEspecial(payload);
         alert('✅ Producto registrado');
         e.target.reset();
         cargarProductos();
@@ -1743,6 +1783,7 @@ function abrirEditarProducto(id) {
     document.getElementById('edit-prod-costo').value = p.costo || 0;
     document.getElementById('edit-prod-precio').value = p.precio_venta;
     document.getElementById('edit-prod-precio-mayorista').value = (p.precio_mayorista != null && p.precio_mayorista !== '') ? p.precio_mayorista : '';
+    document.getElementById('edit-prod-precio-especial').value = (p.precio_especial != null && p.precio_especial !== '') ? p.precio_especial : '';
     document.getElementById('edit-prod-cantidad-minima-mayorista').value = (p.cantidad_minima_mayorista != null && p.cantidad_minima_mayorista !== '') ? p.cantidad_minima_mayorista : '';
     document.getElementById('edit-prod-comision').value = p.comision_chofer;
     document.getElementById('edit-prod-stock-min').value = p.stock_minimo || 5;
@@ -1756,21 +1797,22 @@ async function guardarEdicionProducto() {
     const id = document.getElementById('edit-prod-id').value;
     try {
         const precioMayoristaRaw = document.getElementById('edit-prod-precio-mayorista').value.trim();
-        const { error } = await supabaseClient.from('productos').update({
+        const precioEspecialRaw = document.getElementById('edit-prod-precio-especial').value.trim();
+        await guardarProductoConPrecioEspecial({
             nombre: document.getElementById('edit-prod-nombre').value.trim(),
             categoria: document.getElementById('edit-prod-categoria').value,
             unidad_medida: document.getElementById('edit-prod-unidad').value,
             costo: parseFloat(document.getElementById('edit-prod-costo').value) || 0,
             precio_venta: parseFloat(document.getElementById('edit-prod-precio').value) || 0,
             precio_mayorista: precioMayoristaRaw === '' ? null : parseFloat(precioMayoristaRaw),
+            precio_especial: precioEspecialRaw === '' ? null : parseFloat(precioEspecialRaw),
             cantidad_minima_mayorista: (document.getElementById('edit-prod-cantidad-minima-mayorista').value.trim() === '' ? null : parseInt(document.getElementById('edit-prod-cantidad-minima-mayorista').value)),
             comision_chofer: parseFloat(document.getElementById('edit-prod-comision').value) || 0,
             stock_minimo: parseInt(document.getElementById('edit-prod-stock-min').value) || 5,
             requiere_envase: document.getElementById('edit-prod-envase').checked,
             activo: document.getElementById('edit-prod-activo').checked,
             descripcion: document.getElementById('edit-prod-descripcion').value.trim() || null
-        }).eq('id', id);
-        if (error) throw error;
+        }, id);
         alert('✅ Producto actualizado');
         cerrarModal('editProductoModal');
         cargarProductos();
@@ -2947,6 +2989,11 @@ async function abrirModalAbono(clienteId) {
     document.getElementById('abono-saldo-actual').innerText = fmtBs(c.saldo_pendiente || 0);
     document.getElementById('abono-monto').value = '';
     document.getElementById('abonoModal').style.display = 'flex';
+}
+
+function cerrarModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'none';
 }
 
 async function registrarAbono() {
