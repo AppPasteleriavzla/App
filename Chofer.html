@@ -151,6 +151,30 @@
             font-size: 0.82rem; padding: 4px 0;
         }
         .cart-summary-item:not(:last-child) { border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .cart-hint { font-size: 0.65rem; color: #94a3b8; line-height: 1.35; margin-bottom: 8px; }
+        .cart-item-line { padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.12); }
+        .cart-item-line:last-child { border-bottom: none; }
+        .cart-item-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; }
+        .cart-item-price-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+        .cart-item-price-row label { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; }
+        .cart-price-input {
+            width: 78px; padding: 5px 7px; border-radius: 7px;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08);
+            color: white; font-weight: 800; font-size: 0.8rem; font-family: inherit;
+        }
+        .cart-price-input:focus { outline: 2px solid #38bdf8; border-color: transparent; }
+        .cart-price-reset {
+            width: 26px; height: 26px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.08); color: #cbd5e1; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.65rem;
+        }
+        .cart-price-reset:hover { background: rgba(255,255,255,0.16); color: white; }
+        .badge-especial {
+            font-size: 0.55rem; font-weight: 900; letter-spacing: 0.06em;
+            color: #c4b5fd; background: rgba(196,181,253,0.14);
+            border: 1px solid rgba(196,181,253,0.38); padding: 2px 6px; border-radius: 999px;
+        }
+        .cart-price-note { font-size: 0.62rem; color: #94a3b8; margin-top: 3px; }
         .cart-summary-total {
             display: flex; justify-content: space-between; align-items: center;
             font-size: 1.1rem; font-weight: 900; margin-top: 10px; padding-top: 10px;
@@ -1023,6 +1047,7 @@
                     <div id="carrito-resumen" style="display: none;">
                         <div class="cart-summary">
                             <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Resumen de la venta</div>
+                            <div class="cart-hint"><i class="fa-solid fa-tag"></i> Puedes editar el <strong>Precio unitario</strong> de cada producto para aplicar un precio especial en esta venta.</div>
                             <div id="cart-items-resumen"></div>
                             <div class="cart-summary-total">
                                 <span>TOTAL</span>
@@ -1072,6 +1097,7 @@
                         <div class="input-group" style="margin-bottom: 8px;">
                             <label style="color: #047857;">Efectivo recibido (Bs.)</label>
                             <input type="number" id="venta-efectivo-recibido" min="0" step="0.01" inputmode="decimal" placeholder="0.00" oninput="actualizarCalculadoraEfectivo()">
+                            <small style="color:#047857;font-size:0.65rem;line-height:1.35;display:block;margin-top:4px;">Este monto es solo para calcular el vuelto. El total sale de los precios del carrito; si cobras un precio especial, edítalo en <strong>Precio unitario</strong>.</small>
                         </div>
                         <div class="efectivo-vuelto" id="venta-vuelto">Vuelto: Bs. 0.00</div>
                     </div>
@@ -1209,6 +1235,8 @@ let productosGlobal = [];
 let stockCamion = {}; // {producto_id: cantidad_actual}
 let clienteSeleccionadoActual = null;
 let carritoVenta = {}; // {producto_id: cantidad}
+let preciosVenta = {}; // {producto_id: precio_unitario_especial}
+let clientePreciosId = null;
 let vaciosModoManual = false;
 let ultimoEnvioGps = 0;
 let ventaEnProceso = false;
@@ -1301,10 +1329,12 @@ function toast(mensaje, tipo = 'info', duracion = 3500) {
 }
 
 function calcularTotalCarrito() {
-    return Object.keys(carritoVenta).reduce((total, pid) => {
+    const total = Object.keys(carritoVenta).reduce((total, pid) => {
         const p = productosGlobal.find(x => String(x.id) === String(pid));
-        return total + (p ? carritoVenta[pid] * getPrecioProducto(p) : 0);
+        return total + (p ? carritoVenta[pid] * getPrecioProducto(p, carritoVenta[pid]) : 0);
     }, 0);
+    // Redondear a centavos para que la validación de efectivo no falle por decimales flotantes.
+    return Math.round(total * 100) / 100;
 }
 
 
@@ -1315,15 +1345,29 @@ function getTipoClienteActual() {
     return clienteSeleccionadoActual?.tipo_cliente || 'Minorista';
 }
 
-function getPrecioProducto(p) {
+function getPrecioBaseProducto(p, cantidad = 0) {
     const tipo = getTipoClienteActual();
-    if (tipo === 'Mayorista' && p.precio_mayorista != null) {
+    const cant = Number(cantidad) || 0;
+    if (tipo === 'Mayorista' && p.precio_mayorista != null && p.precio_mayorista !== '') {
+        const min = Number(p.cantidad_minima_mayorista);
+        if (min > 0 && cant < min) {
+            return Number(p.precio_venta);
+        }
         return Number(p.precio_mayorista);
     }
-    if (tipo === 'Especial' && p.precio_especial != null) {
+    if (tipo === 'Especial' && p.precio_especial != null && p.precio_especial !== '') {
         return Number(p.precio_especial);
     }
     return Number(p.precio_venta);
+}
+
+function getPrecioProducto(p, cantidad = 0) {
+    // El precio especial manual de esta venta tiene prioridad sobre la lista.
+    if (Object.prototype.hasOwnProperty.call(preciosVenta, p.id)) {
+        const manual = Number(preciosVenta[p.id]);
+        if (Number.isFinite(manual) && manual >= 0) return manual;
+    }
+    return getPrecioBaseProducto(p, cantidad);
 }
 
 document.getElementById('ruta-fecha').innerText = new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'}).toUpperCase();
@@ -1656,6 +1700,7 @@ function renderCatalogoProductos() {
     const ordenados = [...productosGlobal];
 
     const esMayorista = getTipoClienteActual() === 'Mayorista';
+    const esEspecial = getTipoClienteActual() === 'Especial';
     const bloqueado = document.getElementById('venta-estado').value !== 'Entregado';
 
     cont.innerHTML = ordenados.map(p => {
@@ -1664,8 +1709,11 @@ function renderCatalogoProductos() {
         const minimo = p.stock_minimo ?? 0;
         const stockCls = stock === 0 ? 'out' : (stock <= minimo ? 'low' : 'ok');
         const cantidad = carritoVenta[p.id] || 0;
-        const precio = getPrecioProducto(p);
-        const mostrarBadge = esMayorista && p.precio_mayorista != null;
+        const precio = getPrecioProducto(p, cantidad);
+        const mostrarBadge = esMayorista && p.precio_mayorista != null && p.precio_mayorista !== '';
+        const mostrarBadgeEspecial = esEspecial && p.precio_especial != null && p.precio_especial !== '';
+        const minPromo = Number(p.cantidad_minima_mayorista) || 0;
+        const tienePromo = esMayorista && p.precio_mayorista != null && p.precio_mayorista !== '' && minPromo > 0;
 
         return `
             <div class="producto-selector">
@@ -1677,9 +1725,11 @@ function renderCatalogoProductos() {
                         ${esc(p.nombre)}
                         ${p.requiere_envase ? '<span style="font-size:0.6rem;color:var(--primary);">🔄</span>' : ''}
                         ${mostrarBadge ? '<span class="badge-mayorista">MAYORISTA</span>' : ''}
+                        ${mostrarBadgeEspecial ? '<span class="badge-especial">ESPECIAL</span>' : ''}
                     </div>
                     <div class="producto-selector-detalle">
-                        Bs. ${precio.toFixed(2)} / ${p.unidad_medida || 'unidad'}
+                        ${mostrarBadgeEspecial ? `<br><small style="color:#7e22ce;font-weight:700;">Precio especial: Bs. ${Number(p.precio_especial).toFixed(2)}</small>` : ''}
+                        ${tienePromo ? `<br><small style="color:var(--success);font-weight:700;">Promo mayorista a partir de ${minPromo} ud: Bs. ${Number(p.precio_mayorista).toFixed(2)}</small>` : ''}
                     </div>
                     <div class="producto-selector-stock ${stockCls}">
                         Stock: ${stock} ${stock === 0 ? '(AGOTADO)' : ''}
@@ -1705,7 +1755,7 @@ function cambiarCantidad(productoId, delta) {
     const stock = stockCamion[p.id]?.cantidad_actual ?? 0;
     const actual = carritoVenta[p.id] || 0;
     const nuevo = Math.max(0, Math.min(stock, actual + delta));
-    if (nuevo === 0) delete carritoVenta[p.id];
+    if (nuevo === 0) { delete carritoVenta[p.id]; delete preciosVenta[p.id]; }
     else carritoVenta[p.id] = nuevo;
     renderCatalogoProductos();
     actualizarEnvasesWrapper();
@@ -1717,7 +1767,7 @@ function setCantidad(productoId, valor) {
     if (!p) return;
     const stock = stockCamion[p.id]?.cantidad_actual ?? 0;
     const nuevo = Math.max(0, Math.min(stock, parseInt(valor) || 0));
-    if (nuevo === 0) delete carritoVenta[p.id];
+    if (nuevo === 0) { delete carritoVenta[p.id]; delete preciosVenta[p.id]; }
     else carritoVenta[p.id] = nuevo;
     renderCatalogoProductos();
     actualizarEnvasesWrapper();
@@ -1739,17 +1789,53 @@ function renderCarritoResumen() {
         const p = productosGlobal.find(x => String(x.id) === String(pid));
         if (!p) return '';
         const cant = carritoVenta[pid];
-        const sub = cant * getPrecioProducto(p);
+        const precioBase = getPrecioBaseProducto(p, cant);
+        const precio = getPrecioProducto(p, cant);
+        const sub = cant * precio;
+        const esEspecial = Math.abs(precio - precioBase) >= 0.005;
         total += sub;
-        return `<div class="cart-summary-item">
-            <span>${cant}x ${esc(p.nombre)}</span>
-            <span>${fmtBs(sub)}</span>
+        return `<div class="cart-item-line">
+            <div class="cart-item-head">
+                <span>${cant}x ${esc(p.nombre)}</span>
+                <span>${fmtBs(sub)}</span>
+            </div>
+            <div class="cart-item-price-row">
+                <label>Precio unitario</label>
+                <input type="number" class="cart-price-input" value="${precio.toFixed(2)}" min="0" step="0.01" inputmode="decimal"
+                    onchange="setPrecioVenta('${p.id}', this.value)" title="Edita este campo para aplicar un precio especial">
+                <button type="button" class="cart-price-reset" onclick="resetPrecioVenta('${p.id}')" title="Volver al precio normal">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+                ${esEspecial ? '<span class="badge-especial">ESPECIAL</span>' : ''}
+            </div>
+            ${esEspecial ? `<div class="cart-price-note">Precio normal: ${fmtBs(precioBase)}</div>` : ''}
         </div>`;
     }).join('');
 
     document.getElementById('cart-total').innerText = fmtBs(total);
     resumen.style.display = 'block';
     actualizarCalculadoraEfectivo();
+}
+
+function setPrecioVenta(productoId, valor) {
+    const p = productosGlobal.find(x => String(x.id) === String(productoId));
+    if (!p) return;
+    const cant = carritoVenta[p.id] || 0;
+    const precioBase = getPrecioBaseProducto(p, cant);
+    const texto = String(valor).trim();
+    const numero = Number(texto.replace(',', '.'));
+
+    if (texto === '' || !Number.isFinite(numero) || numero < 0 || Math.abs(numero - precioBase) < 0.005) {
+        delete preciosVenta[p.id];
+    } else {
+        preciosVenta[p.id] = numero;
+    }
+    renderCarritoResumen();
+}
+
+function resetPrecioVenta(productoId) {
+    delete preciosVenta[productoId];
+    renderCarritoResumen();
 }
 
 // Mostrar/ocultar control de vacíos solo si hay agua en el carrito
@@ -1896,6 +1982,7 @@ function seleccionarEstado(estado) {
 
     if (!esEntregado) {
         carritoVenta = {};
+        preciosVenta = {};
         document.getElementById('venta-vacios-recogidos').value = 0;
         setModoAuto();
         renderCatalogoProductos();
@@ -1917,6 +2004,13 @@ function actualizarInfoCliente() {
     const input = document.getElementById('venta-cliente');
     const c = clienteSeleccionadoActual || buscarClientePorNombre(input.value);
     clienteSeleccionadoActual = c || null;
+
+    // Si cambia el cliente, no arrastrar precios especiales de la venta anterior
+    const nuevoClienteId = c?.id || null;
+    if (nuevoClienteId !== clientePreciosId) {
+        preciosVenta = {};
+        clientePreciosId = nuevoClienteId;
+    }
 
     // Indicador visual del tipo de cliente detectado
     const tipoLabel = document.getElementById('venta-cliente-tipo');
@@ -2055,7 +2149,7 @@ async function ejecutarVentaConClienteNuevo() {
     if (esEntregado && metodoPago === 'Efectivo') {
         const recibido = parseFloat(document.getElementById('venta-efectivo-recibido').value) || 0;
         if (recibido > 0 && recibido < total) {
-            return toast(`El efectivo recibido (${fmtBs(recibido)}) es menor al total (${fmtBs(total)}).`, 'error');
+            return toast(`El efectivo recibido (${fmtBs(recibido)}) es menor al total (${fmtBs(total)}). Si cobraste un precio especial, edítalo en "Precio unitario" dentro del resumen de la venta.`, 'error');
         }
     }
     const resumen = [
@@ -2102,6 +2196,7 @@ async function ejecutarVentaConClienteNuevo() {
 
         // 2) Setear como cliente seleccionado y refrescar precios
         clienteSeleccionadoActual = nuevoCli;
+        clientePreciosId = nuevoCli.id;
         clientesGlobal.push(nuevoCli);
         renderDatalistClientes();
         renderCatalogoProductos();
@@ -2137,7 +2232,7 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia, omitirCo
     if (esEntregado && metodoPago === 'Efectivo') {
         const recibido = parseFloat(document.getElementById('venta-efectivo-recibido').value) || 0;
         if (recibido > 0 && recibido < totalCarrito) {
-            return toast(`El efectivo recibido (${fmtBs(recibido)}) es menor al total (${fmtBs(totalCarrito)}).`, 'error');
+            return toast(`El efectivo recibido (${fmtBs(recibido)}) es menor al total (${fmtBs(totalCarrito)}). Si cobraste un precio especial, edítalo en "Precio unitario" dentro del resumen de la venta.`, 'error');
         }
     }
 
@@ -2178,7 +2273,7 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia, omitirCo
         return {
             producto_id: pid,
             cantidad: carritoVenta[pid],
-            precio_unitario: p ? getPrecioProducto(p) : 0
+            precio_unitario: p ? getPrecioProducto(p, carritoVenta[pid]) : 0
         };
     });
 
@@ -2213,6 +2308,8 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia, omitirCo
         document.getElementById('venta-vuelto').className = 'efectivo-vuelto';
         document.getElementById('venta-vuelto').innerText = 'Vuelto: Bs. 0.00';
         carritoVenta = {};
+        preciosVenta = {};
+        clientePreciosId = null;
         clienteSeleccionadoActual = null;
         ultimoClienteDetectadoId = null;
         pedidoVentaActual = null;
