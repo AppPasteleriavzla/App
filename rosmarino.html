@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2d6a4f">
+<title>Rosmarino — Gestión de Tienda</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #2d6a4f;
+    --primary-light: #40916c;
+    --primary-dark: #1b4332;
+    --accent: #52b788;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #6c757d;
+    --danger: #e63946;
+    --success: #2d6a4f;
+    --warning: #f4a261;
+    --border: #e6e8eb;
+    --shadow: 0 2px 8px rgba(0,0,0,0.05);
+    --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+    min-height: 100vh; padding-bottom: 24px;
+  }
+  .app-header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: #fff; padding: 12px 16px; box-shadow: var(--shadow-lg);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .header-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-icon { font-size: 28px; }
+  .brand h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .rates { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .rate-card {
+    background: rgba(255,255,255,0.12); backdrop-filter: blur(10px);
+    padding: 6px 10px; border-radius: 10px;
+    display: flex; flex-direction: column; min-width: 82px;
+    cursor: pointer; transition: background 0.2s; border: 1.5px solid transparent;
+  }
+  .rate-card:hover { background: rgba(255,255,255,0.2); }
+  .rate-card.active { border-color: #fff; background: rgba(255,255,255,0.22); }
+  .rate-label { font-size: 9px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .rate-value { font-size: 14px; font-weight: 700; }
+  .btn-icon {
+    background: rgba(255,255,255,0.15); border: none; color: #fff;
+    width: 38px; height: 38px; border-radius: 10px; cursor: pointer;
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .btn-icon:hover { background: rgba(255,255,255,0.25); }
+  .btn-icon.spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .app-nav {
+    background: var(--card); border-bottom: 1px solid var(--border);
+    display: flex; gap: 4px; padding: 8px 16px; overflow-x: auto;
+    scrollbar-width: none; position: sticky; top: 62px; z-index: 40;
+  }
+  .app-nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    padding: 10px 16px; border: none; background: transparent;
+    color: var(--text-muted); font-weight: 600; font-size: 13px;
+    border-radius: 10px; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  }
+  .nav-btn:hover { background: #f0f2f4; }
+  .nav-btn.active { background: var(--primary); color: #fff; }
+
+  .app-main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+  .tab-section { display: none; animation: fadeIn 0.3s ease; }
+  .tab-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+  }
+  .card h2 { font-size: 15px; font-weight: 700; }
+  .text-muted { color: var(--text-muted); font-size: 12px; }
+
+  .period-filter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .period-btn {
+    padding: 8px 16px; border: 1px solid var(--border); background: var(--card);
+    color: var(--text-muted); border-radius: 20px; cursor: pointer;
+    font-weight: 600; font-size: 13px; transition: all 0.2s;
+  }
+  .period-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .period-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px; margin-bottom: 14px;
+  }
+  .kpi-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 14px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 3px;
+    border-left: 4px solid var(--primary);
+  }
+  .kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .kpi-value { font-size: 18px; font-weight: 700; }
+  .kpi-value.positive { color: var(--success); }
+  .kpi-value.negative { color: var(--danger); }
+
+  .chart-card { padding-bottom: 12px; }
+  .chart-legend { display: flex; gap: 12px; align-items: center; font-size: 12px; color: var(--text-muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .dot.ing { background: var(--primary); }
+  .dot.egr { background: var(--danger); }
+  .chart-wrapper { position: relative; height: 280px; margin-top: 8px; }
+
+  .form-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+  .form-group input, .form-group select {
+    padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+    font-size: 14px; background: #fff; color: var(--text); font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+  .form-group input[readonly] { background: #f8f9fa; color: var(--text-muted); }
+  .btn-primary {
+    background: var(--primary); color: #fff; border: none;
+    padding: 11px 20px; border-radius: 10px; font-weight: 600;
+    font-size: 14px; cursor: pointer; transition: background 0.2s; font-family: inherit;
+  }
+  .btn-primary:hover { background: var(--primary-light); }
+  .btn-secondary {
+    background: #fff; color: var(--text); border: 1px solid var(--border);
+    padding: 10px 16px; border-radius: 10px; font-weight: 600;
+    font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit;
+  }
+  .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-danger {
+    background: transparent; color: var(--danger); border: 1px solid transparent;
+    padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 13px;
+    font-weight: 600; transition: all 0.2s; font-family: inherit;
+  }
+  .btn-danger:hover { background: #fde8ea; }
+
+  .mov-list, .prod-list { display: flex; flex-direction: column; gap: 8px; }
+  .mov-item, .prod-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px; border-radius: 10px; background: #f8f9fa;
+    gap: 10px; flex-wrap: wrap;
+  }
+  .mov-item-info { flex: 1; min-width: 0; }
+  .mov-item-title { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .mov-item-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .mov-item-amount { font-weight: 700; font-size: 14px; text-align: right; }
+  .mov-item-amount.positive { color: var(--success); }
+  .mov-item-amount.negative { color: var(--danger); }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge.ingreso { background: #d8f3dc; color: #1b4332; }
+  .badge.egreso { background: #fde8ea; color: #a4161a; }
+  .badge.venta { background: #d8e9f3; color: #1b4a6b; }
+  .badge.compra { background: #fff3cd; color: #856404; }
+  .empty-state { text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 13px; }
+  .empty-state .icon { font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.5; }
+
+  .prod-item-stock {
+    background: #d8f3dc; color: #1b4332; padding: 4px 10px;
+    border-radius: 8px; font-weight: 700; font-size: 12px;
+  }
+  .prod-item-stock.low { background: #fff3cd; color: #856404; }
+  .prod-item-stock.out { background: #fde8ea; color: #a4161a; }
+
+  .shop-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px; border-radius: 10px; background: #f8f9fa; flex-wrap: wrap;
+  }
+  .shop-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+  .shop-item-fields { display: flex; gap: 8px; align-items: center; flex: 1; min-width: 0; flex-wrap: wrap; }
+  .shop-item-name { font-weight: 600; font-size: 13px; flex: 1; min-width: 100px; }
+  .shop-item input[type="number"] {
+    width: 70px; padding: 6px 8px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 13px; font-family: inherit; text-align: center;
+  }
+  .shop-item-subtotal { font-weight: 700; font-size: 13px; color: var(--primary); min-width: 70px; text-align: right; }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(120px);
+    background: var(--primary-dark); color: #fff; padding: 12px 20px;
+    border-radius: 12px; font-size: 13px; font-weight: 600;
+    box-shadow: var(--shadow-lg); transition: transform 0.3s ease; z-index: 999;
+    max-width: 90%; text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 16px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 16px; padding: 20px;
+    max-width: 420px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .modal-header h3 { font-size: 16px; }
+  .modal-close {
+    background: transparent; border: none; font-size: 22px; cursor: pointer;
+    color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px;
+  }
+  .modal-close:hover { background: #f0f2f4; }
+  .modal .form-group { margin-bottom: 12px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-actions .btn-primary { flex: 1; }
+
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-label { font-weight: 600; font-size: 14px; }
+  .settings-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .radio-group { display: flex; gap: 6px; }
+  .radio-group label {
+    padding: 8px 14px; border: 1px solid var(--border); border-radius: 10px;
+    cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .radio-group input { display: none; }
+  .radio-group input:checked + span { color: var(--primary); }
+  .radio-group label:has(input:checked) { border-color: var(--primary); background: #f0f7f4; color: var(--primary); }
+
+  @media (max-width: 600px) {
+    .brand h1 { font-size: 18px; }
+    .brand-icon { font-size: 24px; }
+    .rate-card { min-width: 68px; padding: 5px 8px; }
+    .rate-label { font-size: 8px; }
+    .rate-value { font-size: 12px; }
+    .btn-icon { width: 34px; height: 34px; font-size: 14px; }
+    .app-nav { top: 58px; }
+    .kpi-value { font-size: 16px; }
+    .chart-wrapper { height: 240px; }
+    .app-main { padding: 12px; }
+    .card { padding: 14px; }
+  }
+  @media (min-width: 900px) {
+    .chart-wrapper { height: 340px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-icon">🌿</span>
+      <h1>Rosmarino</h1>
+    </div>
+    <div class="rates">
+      <div class="rate-card" data-rate="bcv" title="Clic para ajustar tasa BCV">
+        <span class="rate-label">BCV</span>
+        <span class="rate-value" id="rate-bcv">—</span>
+      </div>
+      <div class="rate-card" data-rate="paralelo" title="Clic para ajustar tasa Paralelo">
+        <span class="rate-label">Paralelo</span>
+        <span class="rate-value" id="rate-paralelo">—</span>
+      </div>
+      <button class="btn-icon" id="btn-refresh-rates" title="Actualizar tasas desde API">↻</button>
+      <button class="btn-icon" id="btn-currency" title="Cambiar moneda de vista">$</button>
+    </div>
+  </div>
+</header>
+
+<nav class="app-nav">
+  <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+  <button class="nav-btn" data-tab="movimientos">Movimientos</button>
+  <button class="nav-btn" data-tab="inventario">Inventario</button>
+  <button class="nav-btn" data-tab="ventas">Ventas</button>
+  <button class="nav-btn" data-tab="compras">Lista de Compras</button>
+  <button class="nav-btn" data-tab="ajustes">Ajustes</button>
+</nav>
+
+<main class="app-main">
+
+  <!-- DASHBOARD -->
+  <section class="tab-section active" id="tab-dashboard">
+    <div class="period-filter" id="period-filter">
+      <button class="period-btn" data-period="dia">Día</button>
+      <button class="period-btn active" data-period="semana">Semana</button>
+      <button class="period-btn" data-period="mes">Mes</button>
+      <button class="period-btn" data-period="año">Año</button>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><span class="kpi-label">Ingresos</span><span class="kpi-value positive" id="kpi-ingresos">$0.00</span></div>
+      <div class="kpi-card"><span class="kpi-label">Egresos</span><span class="kpi-value negative" id="kpi-egresos">$0.00</span></div>
+      <div class="kpi-card"><span class="kpi-label">Costo total</span><span class="kpi-value" id="kpi-costo">$0.00</span></div>
+      <div class="kpi-card"><span class="kpi-label">Ganancia neta</span><span class="kpi-value" id="kpi-ganancia">$0.00</span></div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="card-header">
+        <h2>Movimientos</h2>
+        <div class="chart-legend">
+          <span><span class="dot ing"></span>Ingresos</span>
+          <span><span class="dot egr"></span>Egresos</span>
+        </div>
+      </div>
+      <div class="chart-wrapper"><canvas id="chart"></canvas></div>
+      <p class="text-muted" style="margin-top:8px; font-size:11px; text-align:center">
+        ℹ️ Los registros se muestran con la tasa congelada al momento de su creación.
+      </p>
+    </div>
+  </section>
+
+  <!-- MOVIMIENTOS -->
+  <section class="tab-section" id="tab-movimientos">
+    <div class="card">
+      <h2 style="margin-bottom:14px">Nuevo movimiento</h2>
+      <form id="form-movimiento" class="form-grid">
+        <div class="form-group">
+          <label>Tipo</label>
+          <select name="tipo" required>
+            <option value="ingreso">Ingreso</option>
+            <option value="egreso">Egreso</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <input type="text" name="descripcion" required placeholder="Ej: Compra de mercancía">
+        </div>
+        <div class="form-group">
+          <label>Monto</label>
+          <input type="number" name="monto" step="0.01" min="0.01" required placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label>Moneda de entrada</label>
+          <select name="moneda">
+            <option value="USD">USD ($)</option>
+            <option value="VES">Bs (VES)</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <button type="submit" class="btn-primary">Guardar movimiento</button>
+        </div>
+      </form>
+      <p class="text-muted" style="margin-top:10px; font-size:11px" id="form-mov-info"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Historial de movimientos</h2>
+        <span class="text-muted" id="mov-count">0 movimientos</span>
+      </div>
+      <div id="mov-list" class="mov-list"></div>
+    </div>
+  </section>
+
+  <!-- INVENTARIO -->
+  <section class="tab-section" id="tab-inventario">
+    <div class="card">
+      <h2 style="margin-bottom:14px">Nuevo producto</h2>
+      <form id="form-producto" class="form-grid">
+        <div class="form-group"><label>Nombre</label><input type="text" name="nombre" required placeholder="Ej: Camisa azul"></div>
+        <div class="form-group"><label>Stock inicial</label><input type="number" name="stock" min="0" step="1" required value="0"></div>
+        <div class="form-group"><label>Costo unitario (USD)</label><input type="number" name="costo" min="0" step="0.01" required value="0"></div>
+        <div class="form-group"><label>Precio venta (USD)</label><input type="number" name="precio" min="0" step="0.01" required value="0"></div>
+        <div class="form-group full"><button type="submit" class="btn-primary">Agregar producto</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Productos</h2>
+        <span class="text-muted" id="prod-count">0 productos</span>
+      </div>
+      <div id="prod-list" class="prod-list"></div>
+    </div>
+  </section>
+
+  <!-- VENTAS -->
+  <section class="tab-section" id="tab-ventas">
+    <div class="card">
+      <h2 style="margin-bottom:14px">Registrar venta</h2>
+      <form id="form-venta" class="form-grid">
+        <div class="form-group"><label>Producto</label><select name="productoId" id="venta-producto" required></select></div>
+        <div class="form-group"><label>Cantidad</label><input type="number" name="cantidad" id="venta-cantidad" min="1" step="1" required value="1"></div>
+        <div class="form-group"><label>Precio unitario</label><input type="text" id="venta-precio" readonly></div>
+        <div class="form-group"><label>Total</label><input type="text" id="venta-total" readonly value="$0.00"></div>
+        <div class="form-group full"><button type="submit" class="btn-primary">Registrar venta</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Ventas recientes</h2>
+        <span class="text-muted" id="ventas-count">0 ventas</span>
+      </div>
+      <div id="ventas-list" class="mov-list"></div>
+    </div>
+  </section>
+
+  <!-- LISTA DE COMPRAS -->
+  <section class="tab-section" id="tab-compras">
+    <div class="card">
+      <div class="card-header">
+        <h2>Lista de compras</h2>
+        <span class="text-muted" id="compras-count">0 productos</span>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px">
+        <button class="btn-primary" id="btn-auto-lowstock">＋ Agregar productos con bajo stock</button>
+        <button class="btn-secondary" id="btn-add-manual">＋ Agregar manual</button>
+      </div>
+      <div id="compras-list" class="prod-list"></div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); gap:10px; flex-wrap:wrap">
+        <div>
+          <div class="text-muted">Total estimado de compra</div>
+          <div style="font-size:20px; font-weight:700; color:var(--primary)" id="compras-total">$0.00</div>
+        </div>
+        <button class="btn-primary" id="btn-buy-selected" style="padding:12px 24px">Comprar seleccionados</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section class="tab-section" id="tab-ajustes">
+    <div class="card">
+      <h2 style="margin-bottom:14px">Ajustes generales</h2>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Tasa activa para nuevas operaciones</div>
+          <div class="settings-desc">Con cuál tasa se calculan las nuevas ventas y compras</div>
+        </div>
+        <div class="radio-group">
+          <label><input type="radio" name="tasaActiva" value="bcv"><span>BCV</span></label>
+          <label><input type="radio" name="tasaActiva" value="paralelo"><span>Paralelo</span></label>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Stock mínimo</div>
+          <div class="settings-desc">Productos con stock ≤ este valor entran en la lista de compras</div>
+        </div>
+        <input type="number" id="input-stock-min" min="0" step="1" style="width:80px; padding:8px; border:1px solid var(--border); border-radius:8px; text-align:center">
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Moneda de vista</div>
+          <div class="settings-desc">Cómo se muestran los montos (los registros NO cambian)</div>
+        </div>
+        <div class="radio-group">
+          <label><input type="radio" name="monedaVista" value="USD"><span>USD ($)</span></label>
+          <label><input type="radio" name="monedaVista" value="VES"><span>VES (Bs)</span></label>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Ajustar tasas</div>
+          <div class="settings-desc">Haz clic en las tasas del encabezado para agregar % o valor manual</div>
+        </div>
+        <button class="btn-secondary" id="btn-open-rate-bcv">Editar BCV</button>
+        <button class="btn-secondary" id="btn-open-rate-par">Editar Paralelo</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom:14px; color:var(--danger)">Zona de peligro</h2>
+      <p class="text-muted" style="margin-bottom:12px">Esto borra TODOS los datos guardados en este navegador.</p>
+      <button class="btn-danger" style="padding:10px 18px; background:#fde8ea" id="btn-reset-all">🗑 Borrar todos los datos</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- MODAL: AJUSTE DE TASA -->
+<div class="modal-backdrop" id="rate-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Ajustar tasa <span id="rate-modal-title"></span></h3>
+      <button class="modal-close" id="rate-modal-close">×</button>
+    </div>
+    <div class="form-group">
+      <label>Valor de la API</label>
+      <input type="number" id="rate-modal-api" step="0.01" readonly>
+    </div>
+    <div class="form-group">
+      <label>Porcentaje a agregar (%)</label>
+      <input type="number" id="rate-modal-pct" step="0.01" placeholder="Ej: 5 para +5%">
+    </div>
+    <div class="form-group">
+      <label>Valor manual (opcional, sobrescribe todo)</label>
+      <input type="number" id="rate-modal-manual" step="0.01" placeholder="Dejar vacío para usar API + %">
+    </div>
+    <div class="form-group">
+      <label>Tasa efectiva</label>
+      <input type="text" id="rate-modal-effective" readonly style="font-weight:700; color:var(--primary)">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="rate-modal-reset">Restablecer</button>
+      <button class="btn-primary" id="rate-modal-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   ROSMARINO v2 — Gestión de Tienda con tasa congelada
+   ============================================================ */
+const STORAGE_KEY = 'rosmarino_v1';
+
+const state = {
+  movimientos: [],
+  productos: [],
+  listaCompras: [],
+  tasas: {
+    bcv:      { api: 0, pct: 0, manual: null, updatedAt: null },
+    paralelo: { api: 0, pct: 0, manual: null, updatedAt: null }
+  },
+  config: { tasaActiva: 'bcv', stockMinimo: 5, monedaVista: 'USD' }
+};
+
+let currentPeriod = 'semana';
+let chartInstance = null;
+let editingRateKey = null;
+
+/* ---------- UTILIDADES ---------- */
+function uid() { return (crypto.randomUUID && crypto.randomUUID()) || (Date.now() + '-' + Math.random().toString(36).slice(2)); }
+function fmtUSD(n) { return '$' + (Number(n)||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtBs(n)  { return 'Bs ' + (Number(n)||0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) +
+         ' · ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+}
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type==='error' ? ' error' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = 'toast'; }, 3200);
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- TASAS ---------- */
+function getBaseRate(key) {
+  const t = state.tasas[key];
+  return t ? (Number(t.api) || 0) : 0;
+}
+function getEffectiveRate(key) {
+  const t = state.tasas[key];
+  if (!t) return 0;
+  if (t.manual && Number(t.manual) > 0) return Number(t.manual);
+  return (Number(t.api) || 0) * (1 + (Number(t.pct) || 0) / 100);
+}
+function getActiveRate() { return getEffectiveRate(state.config.tasaActiva); }
+
+/* ---------- DISPLAY ---------- */
+// Valor congelado en VES de un movimiento
+function recordVESValue(m) {
+  if (m.monedaOriginal === 'VES' && m.montoOriginal != null) return Number(m.montoOriginal);
+  if (m.tasaUsada && m.tasaUsada > 1) return (Number(m.montoUSD) || 0) * m.tasaUsada;
+  // Fallback legacy (registros USD sin tasa congelada)
+  return (Number(m.montoUSD) || 0) * (getActiveRate() || 1);
+}
+// Formatea un valor en USD según la moneda de vista
+function displayCurrent(usd) {
+  if (state.config.monedaVista === 'VES') return fmtBs((Number(usd) || 0) * (getActiveRate() || 0));
+  return fmtUSD(usd);
+}
+// Formatea un valor congelado de movimiento
+function displayRecord(usd, ves) {
+  return state.config.monedaVista === 'VES' ? fmtBs(ves) : fmtUSD(usd);
+}
+
+/* ---------- PERSISTENCIA ---------- */
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { console.error(e); toast('No se pudo guardar. Espacio lleno.', 'error'); }
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    state.movimientos = Array.isArray(d.movimientos) ? d.movimientos : [];
+    state.productos   = Array.isArray(d.productos)   ? d.productos   : [];
+    state.listaCompras = Array.isArray(d.listaCompras) ? d.listaCompras : [];
+    state.tasas = d.tasas || state.tasas;
+    state.config = d.config || state.config;
+    migrateState();
+  } catch (e) { console.error('Error al cargar:', e); }
+}
+function migrateState() {
+  // Migrar formato antiguo de tasas (números planos)
+  if (typeof state.tasas.bcv === 'number' || state.tasas.bcv == null) {
+    const oldBcv = Number(state.tasas.bcv) || 0;
+    const oldPar = Number(state.tasas.paralelo) || 0;
+    state.tasas = {
+      bcv:      { api: oldBcv, pct: 0, manual: null, updatedAt: state.tasas.updatedAt || null },
+      paralelo: { api: oldPar, pct: 0, manual: null, updatedAt: state.tasas.updatedAt || null }
+    };
+  }
+  if (!state.config) state.config = { tasaActiva: 'bcv', stockMinimo: 5, monedaVista: 'USD' };
+  if (!state.config.tasaActiva) state.config.tasaActiva = 'bcv';
+  if (state.config.stockMinimo == null) state.config.stockMinimo = 5;
+  if (!state.config.monedaVista) state.config.monedaVista = 'USD';
+  if (!Array.isArray(state.listaCompras)) state.listaCompras = [];
+}
+
+/* ---------- API TASAS ---------- */
+async function fetchTasas() {
+  const btn = document.getElementById('btn-refresh-rates');
+  btn.classList.add('spin');
+  try {
+    const [resBcv, resPar] = await Promise.all([
+      fetch('https://ve.dolarapi.com/v1/dolares/oficial'),
+      fetch('https://ve.dolarapi.com/v1/dolares/paralelo')
+    ]);
+    if (!resBcv.ok || !resPar.ok) throw new Error('HTTP error');
+    const [bcv, par] = await Promise.all([resBcv.json(), resPar.json()]);
+    const valBcv = Number(bcv.promedio || bcv.venta || bcv.compra) || 0;
+    const valPar = Number(par.promedio || par.venta || par.compra) || 0;
+    state.tasas.bcv.api = valBcv;
+    state.tasas.bcv.updatedAt = new Date().toISOString();
+    state.tasas.paralelo.api = valPar;
+    state.tasas.paralelo.updatedAt = new Date().toISOString();
+    save();
+    renderAll();
+    toast('Cotizaciones actualizadas desde la API');
+  } catch (e) {
+    console.error(e);
+    toast('No se pudieron obtener las tasas', 'error');
+  } finally { btn.classList.remove('spin'); }
+}
+
+/* ---------- MODAL RATE ---------- */
+function openRateModal(key) {
+  editingRateKey = key;
+  const t = state.tasas[key];
+  document.getElementById('rate-modal-title').textContent = key === 'bcv' ? 'BCV' : 'Paralelo';
+  document.getElementById('rate-modal-api').value = t.api || '';
+  document.getElementById('rate-modal-pct').value = t.pct || 0;
+  document.getElementById('rate-modal-manual').value = t.manual || '';
+  updateRateModalEffective();
+  document.getElementById('rate-modal').classList.add('show');
+}
+function closeRateModal() {
+  document.getElementById('rate-modal').classList.remove('show');
+  editingRateKey = null;
+}
+function updateRateModalEffective() {
+  const api = parseFloat(document.getElementById('rate-modal-api').value) || 0;
+  const pct = parseFloat(document.getElementById('rate-modal-pct').value) || 0;
+  const manualRaw = document.getElementById('rate-modal-manual').value;
+  const manual = manualRaw === '' ? null : parseFloat(manualRaw);
+  const effective = (manual && manual > 0) ? manual : api * (1 + pct / 100);
+  document.getElementById('rate-modal-effective').value = effective ? fmtBs(effective) : '—';
+}
+function saveRateModal() {
+  if (!editingRateKey) return;
+  const api = parseFloat(document.getElementById('rate-modal-api').value) || 0;
+  const pct = parseFloat(document.getElementById('rate-modal-pct').value) || 0;
+  const manualRaw = document.getElementById('rate-modal-manual').value;
+  const manual = manualRaw === '' ? null : (parseFloat(manualRaw) || null);
+  state.tasas[editingRateKey] = { ...state.tasas[editingRateKey], api, pct, manual };
+  save();
+  closeRateModal();
+  renderAll();
+  toast('Tasa actualizada');
+}
+function resetRateModal() {
+  document.getElementById('rate-modal-pct').value = 0;
+  document.getElementById('rate-modal-manual').value = '';
+  updateRateModalEffective();
+}
+
+/* ---------- TABS ---------- */
+function initTabs() {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'dashboard') setTimeout(renderChart, 50);
+    });
+  });
+}
+
+function initPeriodFilter() {
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPeriod = btn.dataset.period;
+      renderKPIs(); renderChart();
+    });
+  });
+}
+
+/* ---------- CÁLCULOS ---------- */
+function filterByPeriod(movs, periodo) {
+  const now = new Date();
+  if (periodo === 'dia') {
+    const t = now.toDateString();
+    return movs.filter(m => new Date(m.fecha).toDateString() === t);
+  }
+  if (periodo === 'semana') {
+    const start = new Date(now); start.setDate(start.getDate() - 6); start.setHours(0,0,0,0);
+    return movs.filter(m => new Date(m.fecha) >= start);
+  }
+  if (periodo === 'mes') {
+    return movs.filter(m => {
+      const d = new Date(m.fecha);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+  }
+  if (periodo === 'año') {
+    return movs.filter(m => new Date(m.fecha).getFullYear() === now.getFullYear());
+  }
+  return movs;
+}
+
+function computeTotals(periodo) {
+  const useVES = state.config.monedaVista === 'VES';
+  const filtered = filterByPeriod(state.movimientos, periodo);
+  let ingresos = 0, egresos = 0, costoVentas = 0;
+  filtered.forEach(m => {
+    const val = useVES ? recordVESValue(m) : (Number(m.montoUSD) || 0);
+    if (m.tipo === 'ingreso' || m.tipo === 'venta') ingresos += val;
+    if (m.tipo === 'egreso') egresos += val;
+    if (m.tipo === 'venta') {
+      const costoBase = (Number(m.costoUnitarioUSD) || 0) * (Number(m.cantidad) || 0);
+      costoVentas += useVES ? costoBase * (m.tasaUsada || 1) : costoBase;
+    }
+  });
+  return { ingresos, egresos, costoVentas, ganancia: ingresos - costoVentas - egresos, useVES };
+}
+
+function fmtTotals(v, useVES) { return useVES ? fmtBs(v) : fmtUSD(v); }
+
+function renderKPIs() {
+  const t = computeTotals(currentPeriod);
+  document.getElementById('kpi-ingresos').textContent = fmtTotals(t.ingresos, t.useVES);
+  document.getElementById('kpi-egresos').textContent  = fmtTotals(t.egresos, t.useVES);
+  document.getElementById('kpi-costo').textContent    = fmtTotals(t.costoVentas, t.useVES);
+  const gEl = document.getElementById('kpi-ganancia');
+  gEl.textContent = fmtTotals(t.ganancia, t.useVES);
+  gEl.className = 'kpi-value ' + (t.ganancia >= 0 ? 'positive' : 'negative');
+}
+
+/* ---------- CHART ---------- */
+function computeChartData(periodo) {
+  const now = new Date();
+  const movs = state.movimientos;
+  const useVES = state.config.monedaVista === 'VES';
+  const value = (m) => useVES ? recordVESValue(m) : (Number(m.montoUSD) || 0);
+
+  let labels = [], buckets = [];
+  if (periodo === 'dia') {
+    labels = ['0-4h','4-8h','8-12h','12-16h','16-20h','20-24h'];
+    buckets = labels.map(() => ({ ing: 0, egr: 0 }));
+    const today = now.toDateString();
+    movs.forEach(m => {
+      const d = new Date(m.fecha);
+      if (d.toDateString() !== today) return;
+      const idx = Math.floor(d.getHours() / 4);
+      const v = value(m);
+      if (m.tipo === 'ingreso' || m.tipo === 'venta') buckets[idx].ing += v;
+      else if (m.tipo === 'egreso') buckets[idx].egr += v;
+    });
+  } else if (periodo === 'semana') {
+    const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now); d.setDate(d.getDate() - i);
+      labels.push(dayNames[d.getDay()] + ' ' + d.getDate());
+      buckets.push({ ing: 0, egr: 0, key: d.toDateString() });
+    }
+    movs.forEach(m => {
+      const key = new Date(m.fecha).toDateString();
+      const idx = buckets.findIndex(b => b.key === key);
+      if (idx < 0) return;
+      const v = value(m);
+      if (m.tipo === 'ingreso' || m.tipo === 'venta') buckets[idx].ing += v;
+      else if (m.tipo === 'egreso') buckets[idx].egr += v;
+    });
+  } else if (periodo === 'mes') {
+    const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    labels = Array.from({ length: days }, (_, i) => String(i + 1));
+    buckets = labels.map(() => ({ ing: 0, egr: 0 }));
+    movs.forEach(m => {
+      const d = new Date(m.fecha);
+      if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return;
+      const idx = d.getDate() - 1;
+      const v = value(m);
+      if (m.tipo === 'ingreso' || m.tipo === 'venta') buckets[idx].ing += v;
+      else if (m.tipo === 'egreso') buckets[idx].egr += v;
+    });
+  } else {
+    labels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    buckets = labels.map(() => ({ ing: 0, egr: 0 }));
+    movs.forEach(m => {
+      const d = new Date(m.fecha);
+      if (d.getFullYear() !== now.getFullYear()) return;
+      const idx = d.getMonth();
+      const v = value(m);
+      if (m.tipo === 'ingreso' || m.tipo === 'venta') buckets[idx].ing += v;
+      else if (m.tipo === 'egreso') buckets[idx].egr += v;
+    });
+  }
+
+  return {
+    labels,
+    ingresos: buckets.map(b => +b.ing.toFixed(2)),
+    egresos:  buckets.map(b => +b.egr.toFixed(2)),
+    useVES
+  };
+}
+
+function renderChart() {
+  const data = computeChartData(currentPeriod);
+  const canvas = document.getElementById('chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const fmt = data.useVES ? fmtBs : fmtUSD;
+
+  if (chartInstance) {
+    chartInstance.data.labels = data.labels;
+    chartInstance.data.datasets[0].data = data.ingresos;
+    chartInstance.data.datasets[1].data = data.egresos;
+    chartInstance.options.scales.y.ticks.callback = (v) => (data.useVES ? 'Bs ' : '$') + v;
+    chartInstance.options.plugins.tooltip.callbacks.label = (c) => ' ' + c.dataset.label + ': ' + fmt(c.parsed.y);
+    chartInstance.update();
+    return;
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: 'Ingresos', data: data.ingresos,
+          borderColor: '#2d6a4f', backgroundColor: 'rgba(45, 106, 79, 0.10)',
+          borderWidth: 2.5, tension: 0.4, fill: true,
+          pointBackgroundColor: '#2d6a4f', pointRadius: 0, pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#2d6a4f', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
+        },
+        {
+          label: 'Egresos', data: data.egresos,
+          borderColor: '#e63946', backgroundColor: 'rgba(230, 57, 70, 0.08)',
+          borderWidth: 2.5, tension: 0.4, fill: true,
+          pointBackgroundColor: '#e63946', pointRadius: 0, pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#e63946', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(26, 26, 26, 0.92)', padding: 10, cornerRadius: 8,
+          titleFont: { size: 12, weight: '600' }, bodyFont: { size: 12 },
+          callbacks: { label: (c) => ' ' + c.dataset.label + ': ' + fmt(c.parsed.y) }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#6c757d', font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
+        },
+        y: {
+          beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: {
+            color: '#6c757d', font: { size: 11 },
+            callback: (v) => (data.useVES ? 'Bs ' : '$') + v
+          }
+        }
+      }
+    }
+  });
+}
+
+/* ---------- MOVIMIENTOS ---------- */
+function renderMovimientos() {
+  const list = document.getElementById('mov-list');
+  const countEl = document.getElementById('mov-count');
+  countEl.textContent = state.movimientos.length + ' movimiento' + (state.movimientos.length === 1 ? '' : 's');
+
+  if (state.movimientos.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="icon">📄</span>No hay movimientos registrados</div>';
+    return;
+  }
+
+  const sorted = [...state.movimientos].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  list.innerHTML = sorted.map(m => {
+    const isPos = m.tipo === 'ingreso' || m.tipo === 'venta';
+    const sign = isPos ? '+' : '-';
+    const cls = isPos ? 'positive' : 'negative';
+    const badgeCls = m.esCompra ? 'compra' : (m.tipo === 'venta' ? 'venta' : m.tipo);
+    const usdVal = Number(m.montoUSD) || 0;
+    const vesVal = recordVESValue(m);
+    const shown = displayRecord(usdVal, vesVal);
+    let sub = fmtDate(m.fecha);
+    if (m.tasaUsada) sub += ' · tasa ' + fmtBs(m.tasaUsada);
+    if (m.monedaOriginal === 'VES' && m.montoOriginal) sub += ' · entrada ' + fmtBs(m.montoOriginal);
+    return `
+      <div class="mov-item">
+        <div class="mov-item-info">
+          <div class="mov-item-title">
+            <span class="badge ${badgeCls}">${m.tipo}</span>
+            <span>${escapeHtml(m.descripcion)}</span>
+          </div>
+          <div class="mov-item-sub">${sub}</div>
+        </div>
+        <div class="mov-item-amount ${cls}">${sign}${shown}</div>
+        <button class="btn-danger" data-del="${m.id}" title="Eliminar">✕</button>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => deleteMovimiento(b.dataset.del)));
+}
+
+/* ---------- PRODUCTOS ---------- */
+function renderProductos() {
+  const list = document.getElementById('prod-list');
+  const countEl = document.getElementById('prod-count');
+  countEl.textContent = state.productos.length + ' producto' + (state.productos.length === 1 ? '' : 's');
+
+  if (state.productos.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="icon">📦</span>No hay productos en inventario</div>';
+    return;
+  }
+
+  const th = state.config.stockMinimo;
+  list.innerHTML = state.productos.map(p => {
+    const stock = Number(p.stock) || 0;
+    let stockCls = '';
+    if (stock === 0) stockCls = 'out';
+    else if (stock <= th) stockCls = 'low';
+    return `
+      <div class="prod-item">
+        <div class="mov-item-info">
+          <div class="mov-item-title">${escapeHtml(p.nombre)}</div>
+          <div class="mov-item-sub">Costo: ${displayCurrent(p.costo)} · Precio: ${displayCurrent(p.precio)}</div>
+        </div>
+        <span class="prod-item-stock ${stockCls}">${stock} en stock</span>
+        <button class="btn-danger" data-del-prod="${p.id}" title="Eliminar">✕</button>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-del-prod]').forEach(b => b.addEventListener('click', () => deleteProducto(b.dataset.delProd)));
+}
+
+/* ---------- VENTAS ---------- */
+function renderVentas() {
+  const list = document.getElementById('ventas-list');
+  const ventas = state.movimientos.filter(m => m.tipo === 'venta').sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+  document.getElementById('ventas-count').textContent = ventas.length + ' venta' + (ventas.length === 1 ? '' : 's');
+
+  if (ventas.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="icon">🛒</span>No hay ventas registradas</div>';
+    return;
+  }
+  list.innerHTML = ventas.map(m => `
+    <div class="mov-item">
+      <div class="mov-item-info">
+        <div class="mov-item-title"><span class="badge venta">venta</span> ${escapeHtml(m.descripcion)}</div>
+        <div class="mov-item-sub">${fmtDate(m.fecha)} · tasa ${fmtBs(m.tasaUsada || 0)}</div>
+      </div>
+      <div class="mov-item-amount positive">+${displayRecord(m.montoUSD, recordVESValue(m))}</div>
+      <button class="btn-danger" data-del="${m.id}" title="Eliminar (restaura stock)">✕</button>
+    </div>`).join('');
+
+  list.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => deleteMovimiento(b.dataset.del)));
+}
+
+function renderVentaSelect() {
+  const sel = document.getElementById('venta-producto');
+  const cur = sel.value;
+  if (state.productos.length === 0) {
+    sel.innerHTML = '<option value="">— Sin productos —</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— Selecciona —</option>' +
+    state.productos.map(p => `<option value="${p.id}">${escapeHtml(p.nombre)} (stock: ${p.stock})</option>`).join('');
+  if (cur && state.productos.some(p => p.id === cur)) sel.value = cur;
+}
+
+/* ---------- LISTA DE COMPRAS ---------- */
+function renderCompras() {
+  const list = document.getElementById('compras-list');
+  const countEl = document.getElementById('compras-count');
+  countEl.textContent = state.listaCompras.length + ' producto' + (state.listaCompras.length === 1 ? '' : 's');
+
+  if (state.listaCompras.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="icon">🛒</span>La lista de compras está vacía.<br><br>Agrega productos con bajo stock o manualmente.</div>';
+    document.getElementById('compras-total').textContent = displayCurrent(0);
+    return;
+  }
+
+  let totalUSD = 0;
+  list.innerHTML = state.listaCompras.map(item => {
+    const subUSD = (Number(item.cantidad) || 0) * (Number(item.costo) || 0);
+    totalUSD += subUSD;
+    return `
+      <div class="shop-item">
+        <input type="checkbox" data-check="${item.id}" ${item.checked ? 'checked' : ''}>
+        <div class="shop-item-fields">
+          <span class="shop-item-name">${escapeHtml(item.nombre)}</span>
+          <input type="number" min="1" step="1" value="${item.cantidad}" data-qty="${item.id}" title="Cantidad">
+          <span class="text-muted" style="font-size:11px">×</span>
+          <input type="number" min="0" step="0.01" value="${item.costo}" data-cost="${item.id}" title="Costo unitario">
+        </div>
+        <span class="shop-item-subtotal">${displayCurrent(subUSD)}</span>
+        <button class="btn-danger" data-del-shop="${item.id}" title="Eliminar de la lista">✕</button>
+      </div>`;
+  }).join('');
+
+  document.getElementById('compras-total').textContent = displayCurrent(totalUSD);
+
+  list.querySelectorAll('[data-check]').forEach(el => {
+    el.addEventListener('change', () => {
+      const it = state.listaCompras.find(x => x.id === el.dataset.check);
+      if (it) { it.checked = el.checked; save(); }
+    });
+  });
+  list.querySelectorAll('[data-qty]').forEach(el => {
+    el.addEventListener('input', () => {
+      const it = state.listaCompras.find(x => x.id === el.dataset.qty);
+      if (it) { it.cantidad = Math.max(1, parseInt(el.value) || 1); save(); renderCompras(); }
+    });
+  });
+  list.querySelectorAll('[data-cost]').forEach(el => {
+    el.addEventListener('input', () => {
+      const it = state.listaCompras.find(x => x.id === el.dataset.cost);
+      if (it) { it.costo = Math.max(0, parseFloat(el.value) || 0); save(); renderCompras(); }
+    });
+  });
+  list.querySelectorAll('[data-del-shop]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.listaCompras = state.listaCompras.filter(x => x.id !== el.dataset.delShop);
+      save(); renderCompras();
+    });
+  });
+}
+
+function addLowStockToPurchaseList() {
+  const th = state.config.stockMinimo;
+  const inList = new Set(state.listaCompras.map(i => i.productoId).filter(Boolean));
+  let count = 0;
+  state.productos.forEach(p => {
+    if ((Number(p.stock) || 0) <= th && !inList.has(p.id)) {
+      state.listaCompras.push({
+        id: uid(),
+        productoId: p.id,
+        nombre: p.nombre,
+        cantidad: Math.max(th * 2 - (Number(p.stock) || 0), 5),
+        costo: Number(p.costo) || 0,
+        checked: true,
+        createdAt: new Date().toISOString()
+      });
+      count++;
+    }
+  });
+  if (count > 0) {
+    save(); renderCompras();
+    toast(`${count} producto(s) agregado(s) a la lista`);
+  } else {
+    toast('No hay productos nuevos con bajo stock');
+  }
+}
+
+function addManualPurchase() {
+  const nombre = prompt('Nombre del producto a comprar:');
+  if (!nombre || !nombre.trim()) return;
+  const cantidad = parseInt(prompt('Cantidad:', '1')) || 1;
+  const costo = parseFloat(prompt('Costo unitario en USD:', '0')) || 0;
+  state.listaCompras.push({
+    id: uid(),
+    productoId: null,
+    nombre: nombre.trim(),
+    cantidad, costo,
+    checked: true,
+    createdAt: new Date().toISOString()
+  });
+  save(); renderCompras();
+  toast('Producto agregado a la lista');
+}
+
+function buySelected() {
+  const selected = state.listaCompras.filter(i => i.checked);
+  if (selected.length === 0) { toast('Selecciona al menos un producto', 'error'); return; }
+  if (!confirm(`Registrar compra de ${selected.length} producto(s)?\nSe descontará del dinero disponible como egreso.`)) return;
+
+  const activeRate = getActiveRate();
+  let totalUSD = 0;
+
+  selected.forEach(item => {
+    const subUSD = (Number(item.cantidad) || 0) * (Number(item.costo) || 0);
+    totalUSD += subUSD;
+
+    // Aumentar stock si tiene producto
+    if (item.productoId) {
+      const p = state.productos.find(x => x.id === item.productoId);
+      if (p) p.stock = (Number(p.stock) || 0) + (Number(item.cantidad) || 0);
+    }
+
+    // Crear egreso por la compra
+    state.movimientos.push({
+      id: uid(),
+      fecha: new Date().toISOString(),
+      tipo: 'egreso',
+      descripcion: `Compra: ${item.nombre} x${item.cantidad}`,
+      montoUSD: +subUSD.toFixed(2),
+      monedaOriginal: 'USD',
+      montoOriginal: +subUSD.toFixed(2),
+      tasaUsada: activeRate || 1,
+      esCompra: true
+    });
+  });
+
+  // Remover de la lista
+  state.listaCompras = state.listaCompras.filter(i => !i.checked);
+  save();
+  renderAll();
+  toast(`Compra registrada: ${displayCurrent(totalUSD)} en egresos`);
+}
+
+/* ---------- FORM: MOVIMIENTO ---------- */
+function initFormMovimiento() {
+  document.getElementById('form-movimiento').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const tipo = fd.get('tipo');
+    const descripcion = String(fd.get('descripcion')).trim();
+    const monto = parseFloat(fd.get('monto'));
+    const moneda = fd.get('moneda');
+
+    if (!descripcion || !monto || monto <= 0) { toast('Completa los campos correctamente', 'error'); return; }
+
+    const activeRate = getActiveRate();
+    if (!activeRate || activeRate <= 0) { toast('Configura una tasa válida', 'error'); return; }
+
+    let montoUSD;
+    if (moneda === 'VES') montoUSD = monto / activeRate;
+    else montoUSD = monto;
+
+    state.movimientos.push({
+      id: uid(),
+      fecha: new Date().toISOString(),
+      tipo, descripcion,
+      montoUSD: +montoUSD.toFixed(2),
+      monedaOriginal: moneda,
+      montoOriginal: +monto.toFixed(2),
+      tasaUsada: activeRate
+    });
+    save();
+    e.target.reset();
+    renderAll();
+    toast('Movimiento guardado con tasa ' + fmtBs(activeRate));
+  });
+}
+
+/* ---------- FORM: PRODUCTO ---------- */
+function initFormProducto() {
+  document.getElementById('form-producto').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const nombre = String(fd.get('nombre')).trim();
+    const stock  = parseInt(fd.get('stock')) || 0;
+    const costo  = parseFloat(fd.get('costo')) || 0;
+    const precio = parseFloat(fd.get('precio')) || 0;
+    if (!nombre) { toast('Ingresa un nombre', 'error'); return; }
+    state.productos.push({ id: uid(), nombre, stock, costo, precio });
+    save();
+    e.target.reset();
+    renderAll();
+    toast('Producto agregado');
+  });
+}
+
+/* ---------- FORM: VENTA ---------- */
+function initFormVenta() {
+  const sel = document.getElementById('venta-producto');
+  const cant = document.getElementById('venta-cantidad');
+  const precioInp = document.getElementById('venta-precio');
+  const totalInp = document.getElementById('venta-total');
+
+  function updatePrecio() {
+    const p = state.productos.find(x => x.id === sel.value);
+    precioInp.value = p ? displayCurrent(p.precio) : '';
+    updateTotal();
+  }
+  function updateTotal() {
+    const p = state.productos.find(x => x.id === sel.value);
+    const cantN = parseInt(cant.value) || 0;
+    const tot = p ? p.precio * cantN : 0;
+    totalInp.value = displayCurrent(tot);
+  }
+  sel.addEventListener('change', updatePrecio);
+  cant.addEventListener('input', updateTotal);
+
+  document.getElementById('form-venta').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const p = state.productos.find(x => x.id === sel.value);
+    const cantN = parseInt(cant.value) || 0;
+    if (!p) { toast('Selecciona un producto', 'error'); return; }
+    if (cantN <= 0) { toast('Cantidad inválida', 'error'); return; }
+    if (p.stock < cantN) { toast(`Stock insuficiente (disponible: ${p.stock})`, 'error'); return; }
+
+    const activeRate = getActiveRate();
+    if (!activeRate || activeRate <= 0) { toast('Configura una tasa válida', 'error'); return; }
+
+    const montoUSD = +(p.precio * cantN).toFixed(2);
+    p.stock -= cantN;
+
+    state.movimientos.push({
+      id: uid(),
+      fecha: new Date().toISOString(),
+      tipo: 'venta',
+      descripcion: `Venta: ${p.nombre} x${cantN}`,
+      montoUSD,
+      costoUnitarioUSD: p.costo,
+      cantidad: cantN,
+      productoId: p.id,
+      monedaOriginal: 'USD',
+      montoOriginal: montoUSD,
+      tasaUsada: activeRate
+    });
+    save();
+    e.target.reset();
+    cant.value = 1;
+    precioInp.value = '';
+    totalInp.value = displayCurrent(0);
+    renderAll();
+    toast('Venta registrada');
+  });
+}
+
+/* ---------- ELIMINAR ---------- */
+function deleteMovimiento(id) {
+  const m = state.movimientos.find(x => x.id === id);
+  if (!m) return;
+  if (!confirm('¿Eliminar este movimiento?')) return;
+  if (m.tipo === 'venta' && m.productoId) {
+    const p = state.productos.find(p => p.id === m.productoId);
+    if (p) p.stock += m.cantidad;
+  }
+  if (m.esCompra && m.productoId) {
+    const p = state.productos.find(p => p.id === m.productoId);
+    if (p) p.stock -= m.cantidad;
+  }
+  state.movimientos = state.movimientos.filter(x => x.id !== id);
+  save(); renderAll();
+  toast('Movimiento eliminado');
+}
+function deleteProducto(id) {
+  if (!confirm('¿Eliminar este producto?')) return;
+  state.productos = state.productos.filter(p => p.id !== id);
+  save(); renderAll();
+  toast('Producto eliminado');
+}
+
+/* ---------- SETTINGS UI ---------- */
+function initSettings() {
+  const radioTasa = document.querySelectorAll('input[name="tasaActiva"]');
+  radioTasa.forEach(r => {
+    r.checked = state.config.tasaActiva === r.value;
+    r.addEventListener('change', () => {
+      if (r.checked) {
+        state.config.tasaActiva = r.value;
+        save(); renderAll();
+        toast('Tasa activa: ' + (r.value === 'bcv' ? 'BCV' : 'Paralelo'));
+      }
+    });
+  });
+
+  const radioMoneda = document.querySelectorAll('input[name="monedaVista"]');
+  radioMoneda.forEach(r => {
+    r.checked = state.config.monedaVista === r.value;
+    r.addEventListener('change', () => {
+      if (r.checked) {
+        state.config.monedaVista = r.value;
+        save(); renderAll();
+        updateCurrencyBtn();
+      }
+    });
+  });
+
+  const inputStock = document.getElementById('input-stock-min');
+  inputStock.value = state.config.stockMinimo;
+  inputStock.addEventListener('change', () => {
+    state.config.stockMinimo = Math.max(0, parseInt(inputStock.value) || 0);
+    save(); renderAll();
+    toast('Stock mínimo: ' + state.config.stockMinimo);
+  });
+
+  document.getElementById('btn-open-rate-bcv').addEventListener('click', () => openRateModal('bcv'));
+  document.getElementById('btn-open-rate-par').addEventListener('click', () => openRateModal('paralelo'));
+
+  document.getElementById('btn-reset-all').addEventListener('click', () => {
+    if (!confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) return;
+    if (!confirm('¿Estás completamente seguro?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+}
+
+function updateCurrencyBtn() {
+  document.getElementById('btn-currency').textContent = state.config.monedaVista === 'USD' ? '$' : 'Bs';
+}
+
+/* ---------- RENDER ALL ---------- */
+function renderAll() {
+  renderTasas();
+  renderKPIs();
+  renderChart();
+  renderMovimientos();
+  renderProductos();
+  renderVentaSelect();
+  renderVentas();
+  renderCompras();
+  updateFormInfo();
+  updateCurrencyBtn();
+}
+
+function renderTasas() {
+  const bcvEff = getEffectiveRate('bcv');
+  const parEff = getEffectiveRate('paralelo');
+  document.getElementById('rate-bcv').textContent = bcvEff ? fmtBs(bcvEff) : '—';
+  document.getElementById('rate-paralelo').textContent = parEff ? fmtBs(parEff) : '—';
+
+  // Marcar tasa activa
+  document.querySelectorAll('.rate-card').forEach(el => {
+    el.classList.toggle('active', el.dataset.rate === state.config.tasaActiva);
+  });
+
+  // Info en formulario de movimientos
+  const info = document.getElementById('form-mov-info');
+  if (info) {
+    const active = getActiveRate();
+    if (active > 0) info.textContent = `Tasa activa (${state.config.tasaActiva.toUpperCase()}): ${fmtBs(active)} · Los registros guardan esta tasa de forma permanente.`;
+    else info.textContent = '⚠️ Configura una tasa antes de registrar movimientos.';
+  }
+}
+
+function updateFormInfo() {
+  const info = document.getElementById('form-mov-info');
+  if (!info) return;
+  const active = getActiveRate();
+  if (active > 0) {
+    info.textContent = `Tasa activa (${state.config.tasaActiva.toUpperCase()}): ${fmtBs(active)} · Los registros guardan esta tasa de forma permanente.`;
+  } else {
+    info.textContent = '⚠️ Configura una tasa válida antes de registrar movimientos.';
+  }
+}
+
+/* ---------- INIT ---------- */
+function init() {
+  load();
+  initTabs();
+  initPeriodFilter();
+  initFormMovimiento();
+  initFormProducto();
+  initFormVenta();
+  initSettings();
+
+  // Botones del header
+  document.getElementById('btn-refresh-rates').addEventListener('click', fetchTasas);
+  document.getElementById('btn-currency').addEventListener('click', () => {
+    state.config.monedaVista = state.config.monedaVista === 'USD' ? 'VES' : 'USD';
+    save(); renderAll();
+    // Sincronizar radios de ajustes
+    const r = document.querySelector(`input[name="monedaVista"][value="${state.config.monedaVista}"]`);
+    if (r) r.checked = true;
+  });
+
+  // Click en tasa para editar
+  document.querySelectorAll('.rate-card').forEach(el => {
+    el.addEventListener('click', () => openRateModal(el.dataset.rate));
+  });
+
+  // Modal
+  document.getElementById('rate-modal-close').addEventListener('click', closeRateModal);
+  document.getElementById('rate-modal-save').addEventListener('click', saveRateModal);
+  document.getElementById('rate-modal-reset').addEventListener('click', resetRateModal);
+  document.getElementById('rate-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'rate-modal') closeRateModal();
+  });
+  ['rate-modal-pct', 'rate-modal-manual', 'rate-modal-api'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateRateModalEffective);
+  });
+
+  // Lista de compras
+  document.getElementById('btn-auto-lowstock').addEventListener('click', addLowStockToPurchaseList);
+  document.getElementById('btn-add-manual').addEventListener('click', addManualPurchase);
+  document.getElementById('btn-buy-selected').addEventListener('click', buySelected);
+
+  renderAll();
+  fetchTasas();
+  setTimeout(renderChart, 100);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
