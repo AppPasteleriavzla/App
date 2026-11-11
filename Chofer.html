@@ -333,7 +333,6 @@
             min-height: 100vh;
         }
 
-        /* LOGIN */
         #login-overlay {
             background:
                 radial-gradient(circle at 18% 12%, rgba(56,189,248,.30), transparent 46%),
@@ -384,7 +383,6 @@
         .login-hint { margin-top: 14px; font-size: .66rem; font-weight: 700; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; }
         .login-hint i { color: var(--primary); }
 
-        /* HEADER */
         header {
             background: linear-gradient(135deg, rgba(7,18,32,.98) 0%, rgba(8,38,62,.96) 62%, rgba(8,51,80,.94) 100%);
             border-bottom: 1px solid rgba(255,255,255,.08);
@@ -422,7 +420,6 @@
             font-size: .95rem;
         }
 
-        /* NAV */
         .bottom-nav {
             left: 12px; right: 12px; bottom: 12px;
             width: auto;
@@ -455,7 +452,6 @@
         .nav-item.active i { transform: translateY(-1px); }
         .nav-item:active { transform: scale(.96); }
 
-        /* LAYOUT */
         main { padding: 1.15rem 1.15rem 0; max-width: 520px; }
         .screen { animation: fadeInScreen .32s cubic-bezier(.16,1,.3,1) forwards; }
         .section-header { margin-top: .3rem; margin-bottom: 1rem; }
@@ -470,7 +466,6 @@
             white-space: nowrap;
         }
 
-        /* TARJETAS Y FORMULARIOS */
         .form-card, .delivery-item, .ruta-cliente-card, .client-gps-card, .pedido-card {
             border-radius: var(--radius-md);
             border: 1px solid rgba(219,231,241,.95);
@@ -505,7 +500,6 @@
         .btn-success { background: linear-gradient(135deg,#10b981,#047857); box-shadow: 0 14px 26px -16px rgba(5,150,105,.85); }
         .btn-icon { border-radius: 12px; }
 
-        /* TARJETA DEL CAMIÓN */
         .truck-status-card {
             position: relative;
             overflow: hidden;
@@ -554,7 +548,6 @@
         .truck-progress-track { height: 7px; border-radius: 999px; background: rgba(255,255,255,.10); overflow: hidden; }
         .truck-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#38bdf8,#34d399); transition: width .4s cubic-bezier(.16,1,.3,1); }
 
-        /* ACCIONES RÁPIDAS */
         .quick-actions { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin: 12px 0 16px; }
         .quick-action {
             border: 1px solid rgba(219,231,241,.95);
@@ -578,7 +571,6 @@
         .qa-amber { background: linear-gradient(135deg,#fef3c7,#fde68a); color: #b45309; }
         .qa-green { background: linear-gradient(135deg,#d1fae5,#a7f3d0); color: #047857; }
 
-        /* ESTADÍSTICAS Y CLIENTES */
         .ruta-stat {
             background: linear-gradient(160deg,#ffffff,#f0f9ff);
             border-radius: 16px;
@@ -601,7 +593,6 @@
         .pedido-actions button { border-radius: 10px; padding: 9px; }
         .client-gps-card { border-left: 4px solid var(--success); }
 
-        /* VENTA */
         .producto-selector { border-radius: 14px; padding: 10px 11px; background: #f8fbfe; }
         .producto-selector-icon { border-radius: 12px; }
         .btn-state { border-radius: 13px; padding: 12px 6px; background: #f8fbfe; border-width: 1.5px; }
@@ -614,7 +605,6 @@
         .envases-control { border-radius: 18px; }
         .envases-stepper button, .envases-stepper input { border-radius: 12px; }
 
-        /* HISTORIAL */
         .hist-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .hist-kpi { padding: 13px 10px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,.7); box-shadow: 0 14px 28px -24px rgba(15,23,42,.4); }
         .hist-kpi-green { background: linear-gradient(145deg,#d1fae5,#ecfdf5); }
@@ -634,7 +624,6 @@
         .cart-summary-total.negative { color: #fca5a5; }
         .delivery-item { padding: 1rem; }
 
-        /* MODALES */
         .modal-overlay { background: rgba(4,12,24,.62); backdrop-filter: blur(7px); }
         .modal-container {
             max-width: 440px;
@@ -647,7 +636,6 @@
         .modal-header h3 { letter-spacing: -.015em; }
         .modal-close { width: 34px; height: 34px; border-radius: 10px; background: var(--surface-subtle); display: flex; align-items: center; justify-content: center; }
 
-        /* GASTOS · PANTALLA */
         .gastos-hero {
             position: relative; overflow: hidden;
             border-radius: var(--radius-lg);
@@ -708,7 +696,6 @@
         .gasto-empty strong { display: block; font-size: .88rem; color: var(--text-main); margin-bottom: 3px; }
         .gasto-empty span { font-size: .72rem; font-weight: 600; line-height: 1.4; display: block; }
 
-        /* GASTOS · MODAL */
         .gasto-categorias { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
         .gasto-cat-btn {
             border: 1.5px solid var(--border); background: #f8fbfe; border-radius: 13px;
@@ -732,7 +719,6 @@
         #modal-gasto .gasto-preview { margin: 2px 0 10px; }
         #modal-gasto .btn-primary { padding: 13px; }
 
-        /* TOASTS */
         #toast-container { bottom: 108px; }
         .toast { border-radius: 14px; backdrop-filter: blur(14px); }
 
@@ -1139,6 +1125,29 @@
             <div class="cart-summary-total" style="font-size: 0.95rem;">
                 <span>EFECTIVO A RENDIR</span>
                 <span id="resumen-efectivo-rendir">Bs. 0.00</span>
+            </div>
+        </div>
+
+        <!-- NEGOCIACIONES DE HOY -->
+        <div id="negociaciones-hoy-container" style="display:none; margin-bottom:12px;">
+            <div style="background: linear-gradient(135deg,#fef3c7,#fde68a); border:1px solid #fbbf24; border-radius:16px; padding:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="font-size:0.7rem; font-weight:800; color:#92400e; text-transform:uppercase; letter-spacing:0.06em;">
+                        <i class="fa-solid fa-handshake"></i> Negociaciones de hoy
+                    </div>
+                    <span id="negociaciones-count" style="font-size:0.6rem; font-weight:800; background:#fbbf24; color:#78350f; padding:3px 8px; border-radius:99px;">0</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:110px; background:rgba(255,255,255,0.7); border-radius:10px; padding:8px 10px;">
+                        <div style="font-size:0.58rem; font-weight:800; color:#92400e; text-transform:uppercase;">Descuentos</div>
+                        <div id="negociaciones-descuento" style="font-size:1rem; font-weight:900; color:#b91c1c;">Bs. 0.00</div>
+                    </div>
+                    <div style="flex:1; min-width:110px; background:rgba(255,255,255,0.7); border-radius:10px; padding:8px 10px;">
+                        <div style="font-size:0.58rem; font-weight:800; color:#92400e; text-transform:uppercase;">Extras</div>
+                        <div id="negociaciones-extra" style="font-size:1rem; font-weight:900; color:#047857;">Bs. 0.00</div>
+                    </div>
+                </div>
+                <div id="negociaciones-lista" style="display:flex; flex-direction:column; gap:5px; max-height:240px; overflow-y:auto;"></div>
             </div>
         </div>
 
@@ -1680,7 +1689,7 @@ function renderCatalogoProductos() {
 
     const ordenados = [...productosGlobal];
     const esMayorista = getTipoClienteActual() === 'Mayorista';
-    const esEspecial = getTipoClienteActual() === 'Especial';
+    const esEspecial  = getTipoClienteActual() === 'Especial';
     const bloqueado = document.getElementById('venta-estado').value !== 'Entregado';
 
     cont.innerHTML = ordenados.map(p => {
@@ -1690,12 +1699,17 @@ function renderCatalogoProductos() {
         const stockCls = stock === 0 ? 'out' : (stock <= minimo ? 'low' : 'ok');
         const cantidad = carritoVenta[p.id] || 0;
         const precio = getPrecioProducto(p, cantidad);
+        const precioBase = getPrecioBaseProducto(p, cantidad);
+        const tieneCustom = Object.prototype.hasOwnProperty.call(preciosVenta, p.id);
+        const esNegociado = cantidad > 0 && tieneCustom;
+        const costoProd = parseFloat(p.costo) || 0;
+        const bajoCosto = cantidad > 0 && costoProd > 0 && precio < costoProd;
+
         const mostrarBadge = esMayorista && p.precio_mayorista != null && p.precio_mayorista !== '';
         const mostrarBadgeEspecial = esEspecial && p.precio_especial != null && p.precio_especial !== '';
         const minPromo = Number(p.cantidad_minima_mayorista) || 0;
         const tienePromo = esMayorista && p.precio_mayorista != null && p.precio_mayorista !== '' && minPromo > 0;
 
-        // PARCHE AQUA VITA: mostrar el precio aplicable al tipo de cliente actual
         return `
             <div class="producto-selector">
                 <div class="producto-selector-icon ${catClass(p.categoria)}">
@@ -1708,11 +1722,40 @@ function renderCatalogoProductos() {
                         ${mostrarBadge ? '<span class="badge-mayorista">MAYORISTA</span>' : ''}
                         ${mostrarBadgeEspecial ? '<span class="badge-especial">ESPECIAL</span>' : ''}
                     </div>
-                    <div class="producto-selector-detalle" style="font-weight:800; color:var(--primary-dark); font-size:0.82rem; margin-top:2px;">
-                        ${fmtBs(precio)} <span style="font-weight:600; color:var(--text-muted);">/ ${esc(p.unidad_medida || 'u')}</span>
-                        ${mostrarBadgeEspecial ? `<br><small style="color:#7e22ce;font-weight:700;">Precio especial: Bs. ${Number(p.precio_especial).toFixed(2)}</small>` : ''}
-                        ${tienePromo ? `<br><small style="color:var(--success);font-weight:700;">Promo mayorista a partir de ${minPromo} ud: Bs. ${Number(p.precio_mayorista).toFixed(2)}</small>` : ''}
-                    </div>
+
+                    ${cantidad > 0 ? `
+                        <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
+                            <span style="font-size:0.6rem; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.05em;">Precio</span>
+                            <input type="number" value="${precio.toFixed(2)}"
+                                min="0" step="0.01" inputmode="decimal"
+                                onchange="setPrecioVenta('${p.id}', this.value)"
+                                title="Edita si negociaste con el cliente"
+                                style="width:78px; padding:5px 7px; border:1.5px solid ${esNegociado ? 'var(--warning)' : 'var(--border)'};
+                                    border-radius:6px; font-size:0.85rem; font-weight:800; text-align:center;
+                                    background:${esNegociado ? 'var(--warning-light)' : 'white'};
+                                    color:${bajoCosto ? 'var(--danger)' : 'var(--text-main)'}; font-family:inherit;">
+                            <span style="font-size:0.68rem; color:var(--text-muted);">Bs./${esc(p.unidad_medida || 'u')}</span>
+                            ${esNegociado ? `
+                                <button type="button" onclick="resetPrecioVenta('${p.id}')" title="Volver al precio base"
+                                    style="background:var(--surface); border:1px solid var(--border); border-radius:5px;
+                                    padding:3px 6px; font-size:0.62rem; cursor:pointer; color:var(--text-muted);">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </button>
+                                <span style="font-size:0.58rem; font-weight:800; color:#92400e; background:var(--warning-light);
+                                    padding:2px 6px; border-radius:4px;">NEGOCIADO · base ${fmtBs(precioBase)}</span>` : ''}
+                            ${bajoCosto ? `
+                                <span style="font-size:0.58rem; font-weight:800; color:#991b1b; background:var(--danger-light);
+                                    padding:2px 6px; border-radius:4px;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> BAJO COSTO ${fmtBs(costoProd)}</span>` : ''}
+                        </div>
+                    ` : `
+                        <div class="producto-selector-detalle" style="font-weight:800; color:var(--primary-dark); font-size:0.82rem; margin-top:2px;">
+                            ${fmtBs(precio)} <span style="font-weight:600; color:var(--text-muted);">/ ${esc(p.unidad_medida || 'u')}</span>
+                            ${mostrarBadgeEspecial ? `<br><small style="color:#7e22ce;font-weight:700;">Precio especial: Bs. ${Number(p.precio_especial).toFixed(2)}</small>` : ''}
+                            ${tienePromo ? `<br><small style="color:var(--success);font-weight:700;">Promo mayorista a partir de ${minPromo} ud: Bs. ${Number(p.precio_mayorista).toFixed(2)}</small>` : ''}
+                        </div>
+                    `}
+
                     <div class="producto-selector-stock ${stockCls}">
                         Stock: ${stock} ${stock === 0 ? '(AGOTADO)' : ''}
                     </div>
@@ -1811,13 +1854,17 @@ function setPrecioVenta(productoId, valor) {
         delete preciosVenta[p.id];
     } else {
         preciosVenta[p.id] = numero;
+        const costo = parseFloat(p.costo) || 0;
+        if (costo > 0 && numero < costo) {
+            toast(`⚠️ El precio de "${p.nombre}" (${fmtBs(numero)}) está por debajo del costo (${fmtBs(costo)}).`, 'warning', 4500);
+        }
     }
-    renderCarritoResumen();
+    renderCatalogoProductos();
 }
 
 function resetPrecioVenta(productoId) {
     delete preciosVenta[productoId];
-    renderCarritoResumen();
+    renderCatalogoProductos();
 }
 
 function actualizarEnvasesWrapper() {
@@ -2267,6 +2314,42 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia, omitirCo
 
         if (pedidoId) await marcarPedidoEntregado(pedidoId, esEntregado ? 'Entregado' : 'No entregado');
 
+        // ── GUARDAR PRECIO BASE PARA AUDITORÍA DE NEGOCIACIONES ──
+        try {
+            const basesPorProducto = [];
+            items.forEach(item => {
+                const p = productosGlobal.find(x => String(x.id) === String(item.producto_id));
+                if (p) basesPorProducto.push({
+                    producto_id: item.producto_id,
+                    precio_base: getPrecioBaseProducto(p, item.cantidad)
+                });
+            });
+
+            if (basesPorProducto.length) {
+                const hace60s = new Date(Date.now() - 60000).toISOString();
+                const { data: ultimaEntrega } = await supabaseClient
+                    .from('entregas')
+                    .select('id')
+                    .eq('flota_id', unidadSeleccionadaId)
+                    .gte('created_at', hace60s)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (ultimaEntrega?.id) {
+                    await Promise.all(basesPorProducto.map(b =>
+                        supabaseClient.from('entregas_detalles')
+                            .update({ precio_base: b.precio_base })
+                            .eq('entrega_id', ultimaEntrega.id)
+                            .eq('producto_id', b.producto_id)
+                    ));
+                }
+            }
+        } catch (errBase) {
+            console.warn('No se pudo guardar precio_base (¿ejecutaste la migración?):', errBase?.message);
+        }
+        // ────────────────────────────────────────────────────────────
+
         document.getElementById('form-venta-chofer').reset();
         document.getElementById('venta-efectivo-recibido').value = '';
         document.getElementById('venta-vuelto').className = 'efectivo-vuelto';
@@ -2547,7 +2630,7 @@ async function marcarPedidoEntregado(pedidoId, estado) {
 }
 
 // ============================================
-// COBRANZA / ABONOS  (PARCHE AQUA VITA: guarda flota_id y chofer_id en Supabase)
+// COBRANZA / ABONOS
 // ============================================
 function abrirAbonoChofer(clienteId) {
     const c = clientesGlobal.find(x => String(x.id) === String(clienteId))
@@ -2595,7 +2678,6 @@ async function registrarAbonoChofer() {
         if (error) throw error;
         if (!data.success) throw new Error(data.error || 'Error desconocido');
 
-        // PARCHE AQUA VITA: asociar flota y chofer al abono en la tabla abonos
         try {
             const abonoId = data?.abono_id || data?.id || null;
             if (abonoId) {
@@ -2604,7 +2686,6 @@ async function registrarAbonoChofer() {
                     chofer_id: datosChoferLogueado?.id || null
                 }).eq('id', abonoId);
             } else {
-                // Fallback: buscar el último abono de este cliente
                 const { data: ultimo } = await supabaseClient.from('abonos')
                     .select('id')
                     .eq('cliente_id', clienteAbonoActual.id)
@@ -2622,7 +2703,6 @@ async function registrarAbonoChofer() {
             console.warn('No se pudo asociar flota/chofer al abono:', errVinculo?.message || errVinculo);
         }
 
-        // Respaldo local (por si el admin consulta desde localStorage en algún momento)
         guardarAbonoLocal({
             id: data?.abono_id || data?.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
             cliente_id: clienteAbonoActual.id,
@@ -2662,7 +2742,7 @@ async function fetchHistorialVentasChofer() {
 
         const { data, error } = await supabaseClient
             .from('entregas')
-            .select('*, entregas_detalles(cantidad, productos(nombre))')
+            .select('*, entregas_detalles(*, productos(nombre))')
             .eq('flota_id', unidadSeleccionadaId)
             .gte('created_at', inicio.toISOString())
             .lte('created_at', fin.toISOString())
@@ -2670,7 +2750,7 @@ async function fetchHistorialVentasChofer() {
         if (error) throw error;
         entregasGlobales = data || [];
 
-        const ventasBs = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado').reduce((a, e) => a + Number(e.total), 0);
+        const ventasBs    = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado').reduce((a, e) => a + Number(e.total), 0);
         const ventasCount = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado').length;
         document.getElementById('resumen-ventas-bs').innerText = fmtBs(ventasBs);
         document.getElementById('resumen-ventas-count').innerText = ventasCount;
@@ -2709,15 +2789,50 @@ async function fetchHistorialVentasChofer() {
         elRendir.innerText = fmtBs(efectivoARendir);
         elRendir.classList.toggle('negative', efectivoARendir < 0);
 
+        // ── NEGOCIACIONES ──
+        const negociaciones = [];
+        entregasGlobales.forEach(e => {
+            if ((e.estado || 'Entregado') !== 'Entregado') return;
+            (e.entregas_detalles || []).forEach(d => {
+                const precio = Number(d.precio_unitario || 0);
+                const base   = d.precio_base != null ? Number(d.precio_base) : null;
+                if (base == null || Math.abs(precio - base) < 0.005) return;
+                negociaciones.push({
+                    producto: d.productos?.nombre || 'Producto',
+                    cantidad: d.cantidad,
+                    precio, base,
+                    diff: (precio - base) * d.cantidad,
+                    cliente: e.cliente,
+                    hora: e.created_at
+                });
+            });
+        });
+        renderNegociacionesHoy(negociaciones);
+
+        // ── LISTA DE ENTREGAS (con detalle de negociación) ──
         const cont = document.getElementById('driver-delivery-list');
         if (!entregasGlobales.length) {
             cont.innerHTML = '<div class="loading-text">No hay ventas hoy.</div>';
         } else {
             cont.innerHTML = entregasGlobales.map(e => {
-                const estado = e.estado || 'Entregado';
+                const estado  = e.estado || 'Entregado';
                 const payClass = {Efectivo:'pay-efectivo',QR:'pay-qr',Crédito:'pay-credito',Transferencia:'pay-transferencia'}[e.metodo_pago] || 'pay-efectivo';
-                const stClass = {Entregado:'st-entregado','No entregado':'st-no-entregado',Pendiente:'st-pendiente'}[estado] || 'st-entregado';
-                const detalle = (e.entregas_detalles || []).map(d => `${d.cantidad}x ${esc(d.productos?.nombre || '')}`).join(', ');
+                const stClass  = {Entregado:'st-entregado','No entregado':'st-no-entregado',Pendiente:'st-pendiente'}[estado] || 'st-entregado';
+
+                const detalle = (e.entregas_detalles || []).map(d => {
+                    const nombre = esc(d.productos?.nombre || '');
+                    const precio = Number(d.precio_unitario || 0);
+                    const base   = d.precio_base != null ? Number(d.precio_base) : null;
+                    const negociado = base != null && Math.abs(precio - base) > 0.005;
+                    if (negociado) {
+                        const esBajo = precio < base;
+                        const color  = esBajo ? '#b45309' : '#047857';
+                        const icono  = esBajo ? '↓' : '↑';
+                        return `<span style="color:${color}; font-weight:800;">${d.cantidad}x ${nombre} <span style="font-size:0.65rem; opacity:0.85;">${icono} ${fmtBs(precio)} (base ${fmtBs(base)})</span></span>`;
+                    }
+                    return `${d.cantidad}x ${nombre}`;
+                }).join(', ');
+
                 const vacios = e.vacios_devueltos || 0;
                 const vaciosBadge = vacios > 0 ? ` • 🔄 ${vacios} vacíos` : '';
 
@@ -2742,6 +2857,38 @@ async function fetchHistorialVentasChofer() {
         console.error(err);
         document.getElementById('driver-delivery-list').innerHTML = '<div class="loading-text">Error.</div>';
     }
+}
+
+// ============================================
+// HISTORIAL DE NEGOCIACIONES
+// ============================================
+function renderNegociacionesHoy(negociaciones) {
+    const cont = document.getElementById('negociaciones-hoy-container');
+    if (!cont) return;
+    if (!negociaciones.length) { cont.style.display = 'none'; return; }
+    cont.style.display = 'block';
+
+    const descuento = negociaciones.filter(n => n.diff < 0).reduce((a, n) => a + n.diff, 0);
+    const extra     = negociaciones.filter(n => n.diff > 0).reduce((a, n) => a + n.diff, 0);
+
+    document.getElementById('negociaciones-count').innerText = negociaciones.length;
+    document.getElementById('negociaciones-descuento').innerText = fmtBs(Math.abs(descuento));
+    document.getElementById('negociaciones-extra').innerText = fmtBs(extra);
+
+    document.getElementById('negociaciones-lista').innerHTML = negociaciones.map(n => {
+        const esBajo  = n.diff < 0;
+        const signo   = esBajo ? '−' : '+';
+        const color   = esBajo ? '#b91c1c' : '#047857';
+        return `<div style="display:flex; justify-content:space-between; gap:8px; padding:7px 9px; background:rgba(255,255,255,0.75); border-radius:8px; font-size:0.72rem;">
+            <div style="min-width:0; flex:1;">
+                <div style="font-weight:800; color:#78350f; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${n.cantidad}x ${esc(n.producto)}</div>
+                <div style="font-size:0.6rem; color:#92400e; margin-top:1px;">${esc(n.cliente || 'Cliente')} · ${formatTime(n.hora)} · base ${fmtBs(n.base)} → real ${fmtBs(n.precio)}</div>
+            </div>
+            <div style="text-align:right; font-weight:900; color:${color}; white-space:nowrap; align-self:center;">
+                ${signo}${fmtBs(Math.abs(n.diff))}
+            </div>
+        </div>`;
+    }).join('');
 }
 
 // ============================================
