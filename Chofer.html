@@ -196,10 +196,17 @@
         .envases-stepper button.plus { color: var(--success); }
         .envases-control.manual .envases-stepper button { border-color: #fbbf24; }
         .envases-stepper input { height: 48px; text-align: center; font-size: 1.4rem; font-weight: 900; border-radius: 10px; border: 2px solid var(--primary-light); background: white; color: var(--primary-dark); font-family: inherit; }
+        .envases-stepper input::-webkit-outer-spin-button, .envases-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .envases-stepper input[type=number] { -moz-appearance: textfield; appearance: textfield; }
         .envases-control.manual .envases-stepper input { border-color: #fbbf24; color: #b45309; }
         .envases-actions { display: flex; gap: 6px; }
         .envases-actions button { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.8); background: white; font-weight: 700; font-size: 0.7rem; cursor: pointer; color: var(--primary-dark); font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .envases-actions button.auto-btn { background: var(--success); color: white; border-color: var(--success); }
+        .envases-stepper button:disabled { opacity: .35; cursor: not-allowed; }
+        .envases-stepper input[readonly] { cursor: not-allowed; background: #f8fafc; }
+        .envases-rule { display: flex; align-items: flex-start; gap: 6px; margin-top: 9px; padding: 7px 9px; border-radius: 9px; background: rgba(255,255,255,.72); border: 1px solid rgba(2,132,199,.15); font-size: .64rem; font-weight: 700; color: var(--primary-dark); line-height: 1.45; }
+        .envases-rule i { margin-top: 2px; flex-shrink: 0; }
+        .envases-control.manual .envases-rule { background: rgba(255,251,235,.85); border-color: #fbbf24; color: #b45309; }
         .envases-preview { margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.7); border-radius: 8px; font-size: 0.75rem; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; line-height: 1.3; }
         .envases-preview.warn { background: #fef3c7; color: #b45309; }
         .envases-preview.good { background: #dcfce7; color: #15803d; }
@@ -740,6 +747,81 @@
             .quick-actions { gap: 7px; }
             .quick-action { font-size: .6rem; }
         }
+
+        /* ===== PRÉSTAMOS DE EQUIPOS ===== */
+        .prestamos-hero { position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 1.1rem; background: linear-gradient(135deg,#0f172a 0%,#134e4a 62%,#0f766e 100%); color: #fff; box-shadow: var(--shadow-md); margin-bottom: 12px; }
+        .prestamos-hero::before { content: ''; position: absolute; width: 160px; height: 160px; right: -60px; top: -80px; border-radius: 50%; background: radial-gradient(circle, rgba(45,212,191,.35), rgba(45,212,191,0) 70%); pointer-events: none; }
+        .prestamos-hero-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .prestamos-hero-label { font-size: .6rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: #99f6e4; }
+        .prestamos-hero-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.14); border-radius: 99px; padding: 3px 8px; font-size: .56rem; font-weight: 800; color: #ccfbf1; white-space: nowrap; }
+        .prestamos-hero-total { position: relative; z-index: 1; font-size: 1.9rem; font-weight: 900; line-height: 1; letter-spacing: -.03em; margin: 9px 0 11px; }
+        .prestamos-hero-split { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,.14); }
+        .prestamos-hero-split span { display: block; font-size: .54rem; font-weight: 800; color: #99f6e4; text-transform: uppercase; letter-spacing: .04em; }
+        .prestamos-hero-split strong { display: block; font-size: .95rem; font-weight: 900; margin-top: 2px; }
+
+        .prestamo-nuevo-btn { margin-bottom: 12px; }
+
+        .prestamos-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 11px; scrollbar-width: none; }
+        .prestamos-tabs::-webkit-scrollbar { display: none; }
+        .prestamos-tab { flex-shrink: 0; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-family: inherit; font-size: .64rem; font-weight: 800; padding: 7px 11px; border-radius: 99px; cursor: pointer; box-shadow: var(--shadow-sm); }
+        .prestamos-tab.active { background: #0f172a; border-color: #0f172a; color: #fff; }
+        .prestamos-tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 99px; background: var(--danger); color: #fff; font-size: .52rem; font-weight: 900; margin-left: 3px; }
+
+        .prestamos-lista { display: flex; flex-direction: column; gap: 10px; }
+        .prestamo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: .95rem; box-shadow: var(--shadow-sm); }
+        .prestamo-card.vencido { border-color: #fecaca; }
+        .prestamo-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+        .prestamo-numero { font-size: .58rem; font-weight: 900; letter-spacing: .05em; color: var(--primary-dark); text-transform: uppercase; }
+        .prestamo-badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+        .prestamo-badge { font-size: .52rem; font-weight: 900; padding: 3px 7px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+        .prestamo-badge.activo { background: #ccfbf1; color: #0f766e; }
+        .prestamo-badge.parcial { background: var(--warning-light); color: #b45309; }
+        .prestamo-badge.devuelto { background: var(--success-light); color: #15803d; }
+        .prestamo-badge.cerrado { background: var(--surface-subtle); color: var(--text-muted); }
+        .prestamo-badge.anulado { background: var(--danger-light); color: #b91c1c; }
+        .prestamo-badge.pendiente { background: var(--purple-light); color: #6d28d9; }
+        .prestamo-badge.vencido { background: var(--danger); color: #fff; }
+        .prestamo-card-title { font-size: .9rem; font-weight: 900; line-height: 1.2; }
+        .prestamo-card-sub { font-size: .66rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+        .prestamo-card-meta { display: flex; flex-wrap: wrap; gap: 4px 9px; margin-top: 7px; font-size: .62rem; font-weight: 700; color: var(--text-muted); }
+        .prestamo-card-meta span { display: inline-flex; align-items: center; gap: 4px; }
+        .prestamo-equipos { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .prestamo-equipo-chip { display: inline-flex; align-items: center; gap: 4px; font-size: .58rem; font-weight: 800; padding: 4px 7px; border-radius: 7px; background: var(--surface-subtle); color: var(--text-muted); }
+        .prestamo-equipo-chip.lleno { background: var(--primary-light); color: var(--primary-dark); }
+        .prestamo-equipo-chip.vacio { background: #f1f5f9; color: #475569; }
+        .prestamo-equipo-chip.bebedero { background: var(--purple-light); color: #6d28d9; }
+        .prestamo-equipo-chip.pendiente { background: var(--warning-light); color: #b45309; }
+        .prestamo-card-footer { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--border); }
+        .prestamo-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); font-family: inherit; font-size: .62rem; font-weight: 800; padding: 7px 10px; border-radius: 8px; cursor: pointer; }
+        .prestamo-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .prestamo-btn.ghost { background: var(--surface-subtle); color: var(--text-muted); }
+
+        .prestamo-empty { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius-md); padding: 1.3rem; text-align: center; color: var(--text-muted); font-size: .74rem; font-weight: 700; line-height: 1.6; }
+        .prestamo-empty i { display: block; font-size: 1.4rem; color: #0d9488; margin-bottom: 7px; }
+        .prestamo-empty code { background: var(--surface-subtle); padding: 2px 5px; border-radius: 5px; font-size: .68rem; }
+
+        .prestamo-form-section { background: var(--surface-subtle); border: 1px solid var(--border); border-radius: 12px; padding: 11px; margin-bottom: 10px; }
+        .prestamo-form-section .form-title { font-size: .74rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 9px; display: flex; align-items: center; gap: 6px; }
+        .prestamo-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 9px; }
+        .prestamo-form-grid .input-group { margin-bottom: 8px; }
+        .prestamo-builder-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 9px; margin-bottom: 8px; }
+        .prestamo-builder-title { font-size: .7rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+        .prestamo-items-draft { display: flex; flex-direction: column; gap: 6px; margin-top: 9px; }
+        .prestamo-item-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 7px 9px; }
+        .prestamo-item-info { font-size: .66rem; font-weight: 800; }
+        .prestamo-item-info small { display: block; font-size: .58rem; color: var(--text-muted); font-weight: 700; margin-top: 1px; }
+        .prestamo-item-remove { width: 25px; height: 25px; border: none; border-radius: 7px; background: var(--danger-light); color: var(--danger); cursor: pointer; flex-shrink: 0; }
+        .prestamo-total { display: flex; justify-content: space-between; align-items: center; margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: .7rem; font-weight: 900; }
+        .prestamo-help { font-size: .62rem; color: var(--text-muted); font-weight: 700; line-height: 1.5; margin-top: 5px; }
+        .prestamo-detalle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 11px; }
+        .prestamo-detalle-item { background: var(--surface-subtle); border: 1px solid var(--border); border-radius: 9px; padding: 7px 8px; }
+        .prestamo-detalle-item span { display: block; font-size: .52rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+        .prestamo-detalle-item strong { display: block; font-size: .68rem; font-weight: 800; margin-top: 2px; word-break: break-word; }
+        .prestamo-detalle-line { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 9px; font-size: .66rem; font-weight: 700; margin-bottom: 6px; }
+        .prestamo-detalle-line small { color: var(--text-muted); font-weight: 700; }
+        .prestamo-upload-status { font-size: .6rem; color: var(--text-muted); font-weight: 700; margin-top: 3px; }
+
+        .modal-container.prestamo-modal-container { max-width: 520px; }
     </style>
 </head>
 <body>
@@ -1047,18 +1129,21 @@
                         <div class="envases-control" id="envases-control">
                             <div class="envases-control-header">
                                 <div class="envases-control-title"><i class="fa-solid fa-bottle-water"></i> Vacíos Recogidos</div>
-                                <span class="envases-mode-pill" id="envases-mode-pill"><i class="fa-solid fa-rotate"></i> Auto</span>
+                                <span class="envases-mode-pill" id="envases-mode-pill"><i class="fa-solid fa-lock"></i> Mínimo</span>
                             </div>
                             <div class="envases-stepper">
-                                <button type="button" class="minus" onclick="ajustarVacios(-1)"><i class="fa-solid fa-minus"></i></button>
-                                <input type="number" id="venta-vacios-recogidos" value="0" min="0" oninput="marcarModoManualPorInput()">
+                                <button type="button" class="minus" id="btn-vacios-minus" onclick="ajustarVacios(-1)"><i class="fa-solid fa-minus"></i></button>
+                                <input type="number" id="venta-vacios-recogidos" value="0" min="0" readonly aria-label="Vacíos recogidos (mínimo obligatorio)">
                                 <button type="button" class="plus" onclick="ajustarVacios(1)"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div class="envases-actions">
                                 <button type="button" class="auto-btn" id="btn-auto-vacios" onclick="setVaciosAuto()">
                                     <i class="fa-solid fa-rotate"></i> Intercambio 1×1
                                 </button>
-                                <button type="button" onclick="setVaciosCero()"><i class="fa-solid fa-ban"></i> Cero</button>
+                                <button type="button" onclick="setVaciosTodo()"><i class="fa-solid fa-rotate-left"></i> Devolver todo</button>
+                            </div>
+                            <div class="envases-rule" id="envases-rule">
+                                <i class="fa-solid fa-lock"></i> Mínimo obligatorio: <strong>0</strong> vacío(s) por los botellones vendidos.
                             </div>
                             <div class="envases-preview neutral" id="envases-preview">
                                 <i class="fa-solid fa-info-circle"></i>
@@ -1208,15 +1293,154 @@
             <div class="loading-text">Cargando gastos...</div>
         </div>
     </div>
+
+    <!-- ============ PRÉSTAMOS ============ -->
+    <div id="screen-prestamos" class="screen">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-hand-holding-droplet" style="color:#0d9488;"></i> Préstamos</h2>
+            <span class="section-badge" id="prestamos-chofer-count">0</span>
+        </div>
+
+        <div class="prestamos-hero">
+            <div class="prestamos-hero-top">
+                <span class="prestamos-hero-label">Mis equipos solicitados</span>
+                <span class="prestamos-hero-pill" id="prestamos-chofer-pill"><i class="fa-solid fa-shield-halved"></i> Bajo control</span>
+            </div>
+            <div class="prestamos-hero-total" id="prestamos-chofer-hero-total">0</div>
+            <div class="prestamos-hero-split">
+                <div><span>Pendientes</span><strong id="prestamos-chofer-hero-pendientes">0</strong></div>
+                <div><span>Aprobados</span><strong id="prestamos-chofer-hero-aprobados">0</strong></div>
+                <div><span>Vencidos</span><strong id="prestamos-chofer-hero-vencidos">0</strong></div>
+            </div>
+        </div>
+
+        <button type="button" class="btn-primary prestamo-nuevo-btn" onclick="abrirModalPrestamoChofer()">
+            <i class="fa-solid fa-plus"></i> Solicitar préstamo
+        </button>
+
+        <div class="prestamos-tabs" id="prestamos-chofer-tabs">
+            <button type="button" class="prestamos-tab active" data-tab="curso" onclick="cambiarTabPrestamosChofer('curso', this)">En curso</button>
+            <button type="button" class="prestamos-tab" data-tab="pendientes" onclick="cambiarTabPrestamosChofer('pendientes', this)">Por aprobar <span class="prestamos-tab-badge" id="prestamos-chofer-badge-pendientes" style="display:none;">0</span></button>
+            <button type="button" class="prestamos-tab" data-tab="historial" onclick="cambiarTabPrestamosChofer('historial', this)">Historial</button>
+        </div>
+
+        <div id="lista-prestamos-chofer" class="prestamos-lista">
+            <div class="loading-text">Cargando préstamos...</div>
+        </div>
+    </div>
 </main>
 
 <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchScreen('ruta', this)"><i class="fa-solid fa-list-check"></i><span>Mi Ruta</span></div>
     <div class="nav-item" onclick="switchScreen('vender', this)"><i class="fa-solid fa-cash-register"></i><span>Vender</span></div>
     <div class="nav-item" onclick="switchScreen('gastos', this)"><i class="fa-solid fa-receipt"></i><span>Gastos</span></div>
+    <div class="nav-item" onclick="switchScreen('prestamos', this)"><i class="fa-solid fa-hand-holding-droplet"></i><span>Préstamos</span></div>
     <div class="nav-item" onclick="switchScreen('historial', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Historial</span></div>
     <div class="nav-item" onclick="switchScreen('clientes', this)"><i class="fa-solid fa-map-location-dot"></i><span>Directorio</span></div>
 </nav>
+
+<!-- ===== MODALES DE PRÉSTAMOS ===== -->
+<div id="prestamoChoferModal" class="modal-overlay">
+    <div class="modal-container prestamo-modal-container">
+        <div class="modal-header">
+            <h3 style="color: var(--primary-dark); font-size: 1.05rem; margin: 0;"><i class="fa-solid fa-hand-holding-droplet"></i> Solicitar préstamo</h3>
+            <button type="button" class="modal-close" onclick="cerrarModalPrestamoChofer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="form-prestamo-chofer" onsubmit="guardarPrestamoChofer(event)">
+            <div class="prestamo-form-section">
+                <div class="form-title"><i class="fa-solid fa-user"></i> Datos del prestatario</div>
+                <div class="input-group">
+                    <label>Cliente registrado (opcional)</label>
+                    <select id="pc-cliente" onchange="pcClienteCambio()">
+                        <option value="">— Manual —</option>
+                    </select>
+                    <small id="pc-cliente-info">Si elige un cliente se completan sus datos.</small>
+                </div>
+                <div class="input-group"><label>Nombre del prestatario *</label><input type="text" id="pc-prestatario" required placeholder="Nombre o razón social"></div>
+                <div class="input-group">
+                    <label>Tipo de prestatario</label>
+                    <select id="pc-tipo">
+                        <option value="Cliente">Cliente</option>
+                        <option value="Empresa">Empresa</option>
+                        <option value="Institucion">Institución</option>
+                        <option value="Interno">Interno</option>
+                    </select>
+                </div>
+                <div class="prestamo-form-grid">
+                    <div class="input-group"><label>Responsable *</label><input type="text" id="pc-responsable" required placeholder="Quien recibe"></div>
+                    <div class="input-group"><label>CI</label><input type="text" id="pc-ci" placeholder="Documento"></div>
+                    <div class="input-group"><label>Teléfono</label><input type="tel" id="pc-telefono" placeholder="Contacto"></div>
+                    <div class="input-group"><label>Cargo</label><input type="text" id="pc-cargo" placeholder="Ej. Encargado"></div>
+                </div>
+            </div>
+
+            <div class="prestamo-form-section">
+                <div class="form-title"><i class="fa-solid fa-location-dot"></i> Ubicación y fechas</div>
+                <div class="input-group"><label>Ubicación *</label><input type="text" id="pc-ubicacion" required placeholder="Lugar de entrega"></div>
+                <div class="input-group"><label>Dirección / referencia</label><input type="text" id="pc-direccion" placeholder="Dirección o referencia"></div>
+                <input type="hidden" id="pc-lat"><input type="hidden" id="pc-lng">
+                <div class="prestamo-form-grid">
+                    <div class="input-group"><label>Fecha del préstamo</label><input type="date" id="pc-fecha" required></div>
+                    <div class="input-group"><label>Compromiso de devolución</label><input type="date" id="pc-compromiso"></div>
+                </div>
+                <button type="button" class="prestamo-btn ghost" style="width:100%;" onclick="pcUsarUbicacion()"><i class="fa-solid fa-location-crosshairs"></i> Usar mi ubicación actual</button>
+            </div>
+
+            <div class="prestamo-form-section">
+                <div class="form-title"><i class="fa-solid fa-camera"></i> Respaldo</div>
+                <div class="input-group">
+                    <label>Foto del equipo o documento</label>
+                    <input type="file" id="pc-foto" accept="image/*,application/pdf" onchange="pcSubirArchivo(this,'pc-foto-url')">
+                    <input type="hidden" id="pc-foto-url">
+                    <div class="prestamo-upload-status" id="pc-foto-estado">Se guardará en el bucket "prestamos".</div>
+                </div>
+                <div class="input-group"><label>Observaciones</label><textarea id="pc-observaciones" rows="2" placeholder="Condiciones, accesorios, notas..." style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.9rem;"></textarea></div>
+            </div>
+
+            <div class="prestamo-form-section">
+                <div class="form-title"><i class="fa-solid fa-boxes-stacked"></i> Equipos solicitados</div>
+                <div class="prestamo-builder-block">
+                    <div class="prestamo-builder-title"><i class="fa-solid fa-bottle-water"></i> Botellones</div>
+                    <div class="prestamo-form-grid">
+                        <div class="input-group">
+                            <label>Condición</label>
+                            <select id="pc-botellon-cond">
+                                <option value="Lleno">Lleno</option>
+                                <option value="Vacio">Vacío</option>
+                            </select>
+                        </div>
+                        <div class="input-group"><label>Cantidad</label><input type="number" min="1" step="1" value="1" id="pc-botellon-cant"></div>
+                    </div>
+                    <div class="input-group"><label>Producto (opcional)</label><select id="pc-botellon-producto"><option value="">— Sin producto —</option></select></div>
+                    <button type="button" class="prestamo-btn ghost" style="width:100%;" onclick="pcAgregarBotellon()"><i class="fa-solid fa-plus"></i> Agregar botellones</button>
+                </div>
+                <div class="prestamo-builder-block">
+                    <div class="prestamo-builder-title"><i class="fa-solid fa-faucet-drip"></i> Bebedero</div>
+                    <div class="input-group">
+                        <label>Bebedero disponible</label>
+                        <select id="pc-bebedero-select"><option value="">— Seleccione un bebedero —</option></select>
+                    </div>
+                    <button type="button" class="prestamo-btn ghost" style="width:100%;" onclick="pcAgregarBebedero()"><i class="fa-solid fa-plus"></i> Agregar bebedero</button>
+                </div>
+                <div id="pc-items-draft" class="prestamo-items-draft"></div>
+                <div class="prestamo-total"><span id="pc-items-total">0 equipos</span><span id="pc-items-bebederos">0 bebederos</span></div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="btn-pc-guardar"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+            <div class="prestamo-help"><i class="fa-solid fa-circle-info"></i> Administración debe aprobar la solicitud. Los préstamos no generan venta, comisión ni movimiento de caja.</div>
+        </form>
+    </div>
+</div>
+
+<div id="prestamoChoferDetalleModal" class="modal-overlay">
+    <div class="modal-container prestamo-modal-container">
+        <div class="modal-header">
+            <h3 id="pc-detalle-title" style="color: var(--primary-dark); font-size: 1.05rem; margin: 0;"><i class="fa-solid fa-file-lines"></i> Detalle del préstamo</h3>
+            <button type="button" class="modal-close" onclick="cerrarModalPrestamoChoferDetalle()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="pc-detalle-body"><div class="loading-text">Cargando...</div></div>
+    </div>
+</div>
 
 <div id="toast-container" aria-live="polite"></div>
 
@@ -1389,6 +1613,7 @@ function switchScreen(name, navEl) {
     if (name === 'clientes') renderDirectorioGPS();
     if (name === 'vender') { renderCatalogoProductos(); }
     if (name === 'gastos') cargarGastosChofer();
+    if (name === 'prestamos') cargarPrestamosChofer();
 }
 
 // ============================================
@@ -1880,9 +2105,11 @@ function actualizarEnvasesWrapper() {
             const p = productosGlobal.find(x => String(x.id) === String(pid));
             return p?.requiere_envase ? acc + carritoVenta[pid] : acc;
         }, 0);
-        if (!vaciosModoManual) {
-            document.getElementById('venta-vacios-recogidos').value = totalAgua;
+        const input = document.getElementById('venta-vacios-recogidos');
+        if (!vaciosModoManual || (parseInt(input.value) || 0) < totalAgua) {
+            input.value = totalAgua;
         }
+        actualizarModoVacios();
         actualizarPreviewEnvases();
     } else {
         wrapper.style.display = 'none';
@@ -1895,46 +2122,91 @@ function actualizarEnvasesWrapper() {
 // ============================================
 // CONTROL DE VACÍOS
 // ============================================
+function getMinimoVacios() {
+    return getTotalAguaCarrito();
+}
+
 function ajustarVacios(delta) {
     const input = document.getElementById('venta-vacios-recogidos');
-    const nuevo = Math.max(0, (parseInt(input.value) || 0) + delta);
-    input.value = nuevo;
+    if (!input) return;
 
-    const totalAgua = getTotalAguaCarrito();
-    if (nuevo === totalAgua) setModoAuto();
-    else setModoManual();
+    const minimo = getMinimoVacios();
+    const actual = parseInt(input.value) || 0;
+
+    if (delta < 0 && actual <= minimo) {
+        toast(`Debes recoger al menos ${minimo} vacío(s) por los botellones vendidos. Solo administración puede autorizar una excepción.`, 'warning', 5000);
+        return;
+    }
+
+    input.value = Math.max(minimo, actual + delta);
+    actualizarModoVacios();
     actualizarPreviewEnvases();
 }
 
-function marcarModoManualPorInput() {
-    const totalAgua = getTotalAguaCarrito();
-    if ((parseInt(document.getElementById('venta-vacios-recogidos').value) || 0) === totalAgua) setModoAuto();
-    else setModoManual();
-    actualizarPreviewEnvases();
+function actualizarModoVacios() {
+    const input = document.getElementById('venta-vacios-recogidos');
+    if (!input) return;
+
+    const minimo = getMinimoVacios();
+    const actual = parseInt(input.value) || 0;
+    if (actual < minimo) input.value = minimo;
+
+    const valor = parseInt(input.value) || 0;
+    const extra = valor > minimo;
+    vaciosModoManual = extra;
+
+    const control = document.getElementById('envases-control');
+    if (control) control.classList.toggle('manual', extra);
+
+    const pill = document.getElementById('envases-mode-pill');
+    if (pill) {
+        pill.innerHTML = extra
+            ? '<i class="fa-solid fa-plus"></i> Devolución extra'
+            : '<i class="fa-solid fa-lock"></i> Mínimo';
+    }
+
+    const rule = document.getElementById('envases-rule');
+    if (rule) {
+        rule.innerHTML = extra
+            ? `<i class="fa-solid fa-circle-plus"></i> Mínimo obligatorio: <strong>${minimo}</strong> · registrando <strong>${valor - minimo}</strong> devolución(es) extra.`
+            : `<i class="fa-solid fa-lock"></i> Mínimo obligatorio: <strong>${minimo}</strong> vacío(s) por los botellones vendidos.`;
+    }
+
+    const minus = document.getElementById('btn-vacios-minus');
+    if (minus) minus.disabled = valor <= minimo;
+
+    const autoBtn = document.getElementById('btn-auto-vacios');
+    if (autoBtn) autoBtn.classList.toggle('auto-btn', !extra);
 }
 
 function setVaciosAuto() {
-    document.getElementById('venta-vacios-recogidos').value = getTotalAguaCarrito();
-    setModoAuto();
+    const input = document.getElementById('venta-vacios-recogidos');
+    if (!input) return;
+    input.value = getMinimoVacios();
+    actualizarModoVacios();
     actualizarPreviewEnvases();
 }
 
-function setVaciosCero() {
-    document.getElementById('venta-vacios-recogidos').value = 0;
-    setModoManual();
+function setVaciosTodo() {
+    const input = document.getElementById('venta-vacios-recogidos');
+    if (!input) return;
+
+    const deuda = Math.max(0, Number(clienteSeleccionadoActual?.saldo_envases_prestados || 0));
+    input.value = getMinimoVacios() + deuda;
+    actualizarModoVacios();
     actualizarPreviewEnvases();
+
+    if (!deuda) toast('El cliente no tiene envases pendientes de ventas anteriores.', 'info');
 }
 
 function setModoAuto() {
-    vaciosModoManual = false;
-    document.getElementById('envases-control').classList.remove('manual');
-    document.getElementById('envases-mode-pill').innerHTML = '<i class="fa-solid fa-rotate"></i> Auto';
+    const input = document.getElementById('venta-vacios-recogidos');
+    if (input) input.value = getMinimoVacios();
+    actualizarModoVacios();
 }
 
 function setModoManual() {
-    vaciosModoManual = true;
-    document.getElementById('envases-control').classList.add('manual');
-    document.getElementById('envases-mode-pill').innerHTML = '<i class="fa-solid fa-pen"></i> Manual';
+    actualizarModoVacios();
 }
 
 function getTotalAguaCarrito() {
@@ -1958,6 +2230,14 @@ function actualizarPreviewEnvases() {
     const totalAgua = getTotalAguaCarrito();
     const vacios = parseInt(document.getElementById('venta-vacios-recogidos').value) || 0;
     const envasesActuales = clienteSeleccionadoActual.saldo_envases_prestados || 0;
+
+    if (vacios < totalAgua) {
+        preview.className = 'envases-preview warn';
+        preview.querySelector('i').className = 'fa-solid fa-ban';
+        texto.innerHTML = `Faltan <strong>${totalAgua - vacios} vacío(s)</strong>. La venta no se puede completar sin autorización de administración.`;
+        return;
+    }
+
     const nuevos = envasesActuales + totalAgua - vacios;
 
     let icono, clase, mensaje;
@@ -2244,7 +2524,13 @@ async function registrarVentaFinal(nombreCliente, lat, lng, referencia, omitirCo
     const totalCarrito = calcularTotalCarrito();
 
     const tieneAgua = Object.keys(carritoVenta).some(pid => productosGlobal.find(x => String(x.id) === String(pid))?.requiere_envase);
+    const totalBotellones = getTotalAguaCarrito();
+    const minimoVacios = (esEntregado && tieneAgua) ? totalBotellones : 0;
     const vacios = (esEntregado && tieneAgua) ? (parseInt(document.getElementById('venta-vacios-recogidos').value) || 0) : 0;
+
+    if (esEntregado && tieneAgua && vacios < minimoVacios) {
+        return toast(`Regla de envases: debes recoger al menos ${minimoVacios} vacío(s) por los ${totalBotellones} botellón(es) vendidos. Solo administración puede autorizar una excepción.`, 'error', 7000);
+    }
 
     if (esEntregado && metodoPago === 'Efectivo') {
         const recibido = parseFloat(document.getElementById('venta-efectivo-recibido').value) || 0;
@@ -3218,6 +3504,591 @@ function renderDirectorioGPS() {
                 </a>
             </div>`;
     }).join('');
+}
+
+// ============================================
+// PRÉSTAMOS DE EQUIPOS (CHOFER)
+// ============================================
+let prestamosChoferData = { todos: [], instalado: true, error: '' };
+let prestamosChoferTab = 'curso';
+let pcDraftItems = [];
+let pcBebederosDisponibles = [];
+let prestamosChoferRealtimeActivo = false;
+
+function pcVal(id) {
+    return (document.getElementById(id)?.value || '').trim();
+}
+
+function pcSet(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value == null ? '' : value;
+}
+
+function pcFechaCorta(v) {
+    if (!v) return '—';
+    const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+    return new Date(v).toLocaleDateString('es-BO');
+}
+
+function pcHaceDias(dias) {
+    const d = new Date();
+    d.setDate(d.getDate() + dias);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function pcEstadoBadges(p) {
+    let html = '';
+    if (p.estado_aprobacion === 'Pendiente') {
+        html += '<span class="prestamo-badge pendiente">Pendiente</span>';
+    } else if (p.estado_aprobacion === 'Rechazado') {
+        html += '<span class="prestamo-badge anulado">Rechazado</span>';
+    }
+    const estado = String(p.estado || 'Activo').toLowerCase();
+    const clase = ['activo','parcial','devuelto','cerrado','anulado'].includes(estado) ? estado : 'cerrado';
+    html += `<span class="prestamo-badge ${clase}">${esc(p.estado || 'Activo')}</span>`;
+    if (p.vencido) html += '<span class="prestamo-badge vencido">Vencido</span>';
+    return html;
+}
+
+function pcEquiposChips(p) {
+    const chips = [];
+    const llenos = Number(p.botellones_llenos || 0);
+    const vacios = Number(p.botellones_vacios || 0);
+    const bebederos = Number(p.bebederos_total || 0);
+    const pendientes = Number(p.pendientes || 0);
+    if (llenos) chips.push(`<span class="prestamo-equipo-chip lleno"><i class="fa-solid fa-bottle-water"></i> ${llenos} lleno${llenos === 1 ? '' : 's'}</span>`);
+    if (vacios) chips.push(`<span class="prestamo-equipo-chip vacio"><i class="fa-solid fa-bottle-water"></i> ${vacios} vacío${vacios === 1 ? '' : 's'}</span>`);
+    if (bebederos) chips.push(`<span class="prestamo-equipo-chip bebedero"><i class="fa-solid fa-faucet-drip"></i> ${bebederos} bebedero${bebederos === 1 ? '' : 's'}</span>`);
+    if (pendientes) chips.push(`<span class="prestamo-equipo-chip pendiente"><i class="fa-solid fa-hourglass-half"></i> ${pendientes} pendiente${pendientes === 1 ? '' : 's'}</span>`);
+    return chips.join('');
+}
+
+function pcCard(p) {
+    const compromiso = p.fecha_compromiso
+        ? `<span><i class="fa-regular fa-calendar-check"></i> ${pcFechaCorta(p.fecha_compromiso)}</span>`
+        : '<span><i class="fa-regular fa-calendar"></i> Sin compromiso</span>';
+    const atraso = p.vencido && Number(p.dias_atraso) > 0
+        ? `<span style="color:var(--danger);font-weight:900;"><i class="fa-solid fa-triangle-exclamation"></i> ${p.dias_atraso} día(s) de atraso</span>`
+        : '';
+    const nota = p.estado_aprobacion === 'Pendiente'
+        ? '<div class="prestamo-help" style="margin-top:7px;"><i class="fa-solid fa-clock"></i> Esperando aprobación de administración.</div>'
+        : '';
+
+    return `
+        <div class="prestamo-card${p.vencido ? ' vencido' : ''}">
+            <div class="prestamo-card-top">
+                <div>
+                    <div class="prestamo-numero">${esc(p.numero || 'PRÉSTAMO')}</div>
+                    <div class="prestamo-card-title">${esc(p.prestatario_nombre || 'Sin nombre')}</div>
+                    <div class="prestamo-card-sub">${esc(p.responsable_nombre || '—')}${p.responsable_telefono ? ' · ' + esc(p.responsable_telefono) : ''}</div>
+                </div>
+                <div class="prestamo-badges">${pcEstadoBadges(p)}</div>
+            </div>
+            <div class="prestamo-card-meta">
+                <span><i class="fa-regular fa-calendar"></i> ${pcFechaCorta(p.fecha_prestamo)}</span>
+                ${compromiso}
+                <span><i class="fa-solid fa-location-dot"></i> ${esc(p.ubicacion || 'Sin ubicación')}</span>
+                ${atraso}
+            </div>
+            <div class="prestamo-equipos">${pcEquiposChips(p)}</div>
+            ${nota}
+            <div class="prestamo-card-footer">
+                <button type="button" class="prestamo-btn ghost" onclick="abrirDetallePrestamoChofer('${p.id}')"><i class="fa-solid fa-eye"></i> Ver detalle</button>
+            </div>
+        </div>`;
+}
+
+function pcListaFiltrada() {
+    const todos = prestamosChoferData.todos || [];
+    if (prestamosChoferTab === 'pendientes') {
+        return todos.filter(p => p.estado_aprobacion === 'Pendiente' && p.estado !== 'Anulado');
+    }
+    if (prestamosChoferTab === 'curso') {
+        return todos.filter(p => p.estado_aprobacion === 'Aprobado' && ['Activo','Parcial'].includes(p.estado));
+    }
+    return todos.filter(p => p.estado_aprobacion !== 'Pendiente' && !['Activo','Parcial'].includes(p.estado || ''));
+}
+
+function renderPrestamosChofer() {
+    const cont = document.getElementById('lista-prestamos-chofer');
+    if (!cont) return;
+
+    if (!prestamosChoferData.instalado) {
+        cont.innerHTML = `
+            <div class="prestamo-empty">
+                <i class="fa-solid fa-database"></i>
+                El módulo de préstamos aún no está instalado en Supabase.<br>
+                Pide a administración que ejecute <code>modulo_prestamos.sql</code>.
+            </div>`;
+        return;
+    }
+
+    const todos = prestamosChoferData.todos || [];
+    const pendientes = todos.filter(p => p.estado_aprobacion === 'Pendiente' && p.estado !== 'Anulado');
+    const aprobados = todos.filter(p => p.estado_aprobacion === 'Aprobado' && ['Activo','Parcial'].includes(p.estado));
+    const vencidos = aprobados.filter(p => p.vencido);
+    const equipos = aprobados.reduce((s, p) => s + Number(p.pendientes || 0), 0)
+        + pendientes.reduce((s, p) => s + Number(p.pendientes || 0), 0);
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('prestamos-chofer-hero-total', equipos);
+    set('prestamos-chofer-hero-pendientes', pendientes.length);
+    set('prestamos-chofer-hero-aprobados', aprobados.length);
+    set('prestamos-chofer-hero-vencidos', vencidos.length);
+    set('prestamos-chofer-count', `${aprobados.length} en curso`);
+
+    const pill = document.getElementById('prestamos-chofer-pill');
+    if (pill) {
+        pill.innerHTML = pendientes.length
+            ? `<i class="fa-solid fa-clock"></i> ${pendientes.length} por aprobar`
+            : '<i class="fa-solid fa-shield-halved"></i> Bajo control';
+    }
+    const badge = document.getElementById('prestamos-chofer-badge-pendientes');
+    if (badge) {
+        badge.textContent = pendientes.length;
+        badge.style.display = pendientes.length ? 'inline-flex' : 'none';
+    }
+
+    const lista = pcListaFiltrada();
+    if (!lista.length) {
+        const mensajes = {
+            curso: 'No tienes préstamos aprobados en curso.',
+            pendientes: 'No tienes solicitudes pendientes de aprobación.',
+            historial: 'Todavía no hay préstamos cerrados.'
+        };
+        cont.innerHTML = `<div class="prestamo-empty"><i class="fa-solid fa-circle-check"></i>${mensajes[prestamosChoferTab] || 'Sin préstamos.'}</div>`;
+        return;
+    }
+
+    cont.innerHTML = lista.map(p => pcCard(p)).join('');
+}
+
+async function cargarPrestamosChofer() {
+    const cont = document.getElementById('lista-prestamos-chofer');
+    if (!cont || !datosChoferLogueado) return;
+    cont.innerHTML = '<div class="loading-text">Cargando préstamos...</div>';
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('v_prestamos_resumen')
+            .select('*')
+            .eq('chofer_id', datosChoferLogueado.id)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+
+        prestamosChoferData = { todos: data || [], instalado: true, error: '' };
+        suscribirRealtimePrestamosChofer();
+    } catch (e) {
+        const msg = e?.message || String(e);
+        const noInstalado = /does not exist|no existe|42P01|Could not find the table|schema cache/i.test(msg);
+        prestamosChoferData = { todos: [], instalado: !noInstalado, error: msg };
+        if (!noInstalado) console.error('Error al cargar préstamos:', e);
+    }
+
+    renderPrestamosChofer();
+}
+
+function cambiarTabPrestamosChofer(tab, el) {
+    prestamosChoferTab = tab;
+    document.querySelectorAll('#prestamos-chofer-tabs .prestamos-tab').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderPrestamosChofer();
+}
+
+function suscribirRealtimePrestamosChofer() {
+    if (prestamosChoferRealtimeActivo) return;
+    prestamosChoferRealtimeActivo = true;
+
+    const refrescar = () => programarRecarga('prestamos', () => {
+        if (document.getElementById('screen-prestamos').classList.contains('active')) {
+            cargarPrestamosChofer();
+        }
+    });
+
+    supabaseClient.channel('chofer-prestamos-live')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'prestamos' }, refrescar)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'prestamo_items' }, refrescar)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'prestamo_movimientos' }, refrescar)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'bebederos' }, refrescar)
+        .subscribe();
+}
+
+async function abrirModalPrestamoChofer() {
+    const form = document.getElementById('form-prestamo-chofer');
+    if (!form) return;
+    form.reset();
+    pcDraftItems = [];
+    pcSet('pc-fecha', hoyISO());
+    pcSet('pc-compromiso', pcHaceDias(7));
+    pcSet('pc-foto-url', '');
+    pcSet('pc-lat', '');
+    pcSet('pc-lng', '');
+    const estadoFoto = document.getElementById('pc-foto-estado');
+    if (estadoFoto) estadoFoto.textContent = 'Se guardará en el bucket "prestamos".';
+
+    if (!clientesGlobal.length) {
+        try { await cargarClientesGlobales(); } catch (e) {}
+    }
+    if (!productosGlobal.length) {
+        try { await cargarProductosGlobales(); } catch (e) {}
+    }
+
+    const selCliente = document.getElementById('pc-cliente');
+    if (selCliente) {
+        selCliente.innerHTML = '<option value="">— Manual —</option>' + clientesGlobal.map(c =>
+            `<option value="${c.id}">${esc(c.nombre)}${c.zona ? ' · ' + esc(c.zona) : ''}</option>`
+        ).join('');
+    }
+
+    const botellas = (productosGlobal || []).filter(p => p.requiere_envase && p.activo !== false);
+    const selProducto = document.getElementById('pc-botellon-producto');
+    if (selProducto) {
+        selProducto.innerHTML = '<option value="">— Sin producto —</option>' + botellas.map(p =>
+            `<option value="${p.id}">${esc(p.nombre)}${p.codigo ? ' · ' + esc(p.codigo) : ''}</option>`
+        ).join('');
+        if (botellas.length === 1) selProducto.value = botellas[0].id;
+    }
+
+    await pcCargarBebederosDisponibles();
+    pcRenderDraft();
+    document.getElementById('prestamoChoferModal').style.display = 'flex';
+}
+
+function cerrarModalPrestamoChofer() {
+    document.getElementById('prestamoChoferModal').style.display = 'none';
+}
+
+function cerrarModalPrestamoChoferDetalle() {
+    document.getElementById('prestamoChoferDetalleModal').style.display = 'none';
+}
+
+function pcClienteCambio() {
+    const id = pcVal('pc-cliente');
+    const info = document.getElementById('pc-cliente-info');
+    const c = (clientesGlobal || []).find(x => String(x.id) === String(id));
+    if (!c) {
+        if (info) info.textContent = 'Si elige un cliente se completan sus datos.';
+        return;
+    }
+    pcSet('pc-prestatario', c.nombre || '');
+    pcSet('pc-telefono', c.telefono || '');
+    pcSet('pc-direccion', c.direccion || '');
+    pcSet('pc-ubicacion', c.direccion || c.zona || '');
+    pcSet('pc-tipo', 'Cliente');
+    if (c.latitud && c.longitud) {
+        pcSet('pc-lat', c.latitud);
+        pcSet('pc-lng', c.longitud);
+    }
+    if (info) {
+        info.textContent = `Envases por ventas: ${Number(c.saldo_envases_prestados || 0)}. Saldo: ${fmtBs(c.saldo_pendiente || 0)}.`;
+    }
+}
+
+async function pcCargarBebederosDisponibles() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('v_bebederos')
+            .select('*')
+            .eq('estado', 'Disponible')
+            .eq('en_prestamo', false)
+            .order('codigo', { ascending: true });
+        if (error) throw error;
+        pcBebederosDisponibles = data || [];
+    } catch (e) {
+        pcBebederosDisponibles = [];
+    }
+    pcRenderBebederosSelect();
+}
+
+function pcRenderBebederosSelect() {
+    const sel = document.getElementById('pc-bebedero-select');
+    if (!sel) return;
+    const usados = new Set(pcDraftItems.filter(i => i.bebedero_id).map(i => String(i.bebedero_id)));
+    const disponibles = pcBebederosDisponibles.filter(b => !usados.has(String(b.id)));
+    const anterior = sel.value;
+    sel.innerHTML = '<option value="">— Seleccione un bebedero —</option>' + disponibles.map(b =>
+        `<option value="${b.id}">${esc(b.codigo)}${b.marca ? ' · ' + esc(b.marca) : ''}${b.serie ? ' · Serie ' + esc(b.serie) : ''}</option>`
+    ).join('');
+    if (disponibles.some(b => String(b.id) === String(anterior))) sel.value = anterior;
+}
+
+function pcAgregarBotellon() {
+    const cond = pcVal('pc-botellon-cond') || 'Lleno';
+    const cant = parseInt(pcVal('pc-botellon-cant'), 10);
+    if (!cant || cant <= 0) return toast('Ingresa una cantidad válida de botellones.', 'warning');
+
+    const productoId = pcVal('pc-botellon-producto') || null;
+    const producto = productoId ? (productosGlobal || []).find(p => String(p.id) === String(productoId)) : null;
+
+    pcDraftItems.push({
+        tipo_equipo: 'Botellon',
+        cantidad: cant,
+        condicion_entrega: cond === 'Vacio' ? 'Vacio' : 'Lleno',
+        producto_id: productoId,
+        producto_nombre: producto?.nombre || '',
+        descripcion: cond === 'Vacio' ? 'Botellón vacío' : 'Botellón lleno'
+    });
+    pcSet('pc-botellon-cant', 1);
+    pcRenderDraft();
+}
+
+function pcAgregarBebedero() {
+    const id = pcVal('pc-bebedero-select');
+    if (!id) return toast('Selecciona un bebedero disponible.', 'warning');
+    if (pcDraftItems.some(i => String(i.bebedero_id) === String(id))) {
+        return toast('Ese bebedero ya está en la solicitud.', 'warning');
+    }
+    const b = pcBebederosDisponibles.find(x => String(x.id) === String(id));
+    if (!b) return toast('El bebedero ya no está disponible.', 'warning');
+
+    pcDraftItems.push({
+        tipo_equipo: 'Bebedero',
+        cantidad: 1,
+        bebedero_id: b.id,
+        codigo: b.codigo,
+        serie: b.serie || '',
+        descripcion: `Bebedero ${b.codigo}`
+    });
+    pcRenderDraft();
+}
+
+function pcQuitarItem(index) {
+    pcDraftItems.splice(index, 1);
+    pcRenderDraft();
+}
+
+function pcRenderDraft() {
+    const cont = document.getElementById('pc-items-draft');
+    if (!cont) return;
+
+    if (!pcDraftItems.length) {
+        cont.innerHTML = '<div class="prestamo-help" style="text-align:center;">Todavía no agregaste equipos.</div>';
+    } else {
+        cont.innerHTML = pcDraftItems.map((it, i) => {
+            const esBebedero = it.tipo_equipo === 'Bebedero';
+            const titulo = esBebedero ? `Bebedero ${esc(it.codigo || '')}` : esc(it.descripcion || 'Botellón');
+            const detalle = esBebedero
+                ? `${it.serie ? 'Serie ' + esc(it.serie) + ' · ' : ''}1 unidad`
+                : `${it.cantidad} unidad(es)${it.producto_nombre ? ' · ' + esc(it.producto_nombre) : ''}`;
+            return `
+                <div class="prestamo-item-row">
+                    <div class="prestamo-item-info">${titulo}<small>${detalle}</small></div>
+                    <button type="button" class="prestamo-item-remove" onclick="pcQuitarItem(${i})" title="Quitar"><i class="fa-solid fa-trash"></i></button>
+                </div>`;
+        }).join('');
+    }
+
+    const equipos = pcDraftItems.reduce((s, it) => s + Number(it.cantidad || 0), 0);
+    const bebederos = pcDraftItems.filter(it => it.tipo_equipo === 'Bebedero').reduce((s, it) => s + Number(it.cantidad || 0), 0);
+    const totalEl = document.getElementById('pc-items-total');
+    const bebEl = document.getElementById('pc-items-bebederos');
+    if (totalEl) totalEl.textContent = `${equipos} equipo${equipos === 1 ? '' : 's'}`;
+    if (bebEl) bebEl.textContent = `${bebederos} bebedero${bebederos === 1 ? '' : 's'}`;
+
+    pcRenderBebederosSelect();
+}
+
+function pcUsarUbicacion() {
+    if (!navigator.geolocation) return toast('Este dispositivo no permite obtener la ubicación.', 'warning');
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            pcSet('pc-lat', lat);
+            pcSet('pc-lng', lng);
+            if (!pcVal('pc-ubicacion')) pcSet('pc-ubicacion', `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+            toast('Ubicación capturada.', 'success');
+        },
+        err => toast('No se pudo obtener la ubicación: ' + err.message, 'error'),
+        { enableHighAccuracy: true, timeout: 12000 }
+    );
+}
+
+async function pcSubirArchivo(input, hiddenId) {
+    const file = input?.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+        input.value = '';
+        return toast('El archivo supera el límite de 10 MB.', 'warning');
+    }
+
+    const nombreLimpio = (file.name || 'archivo')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `prestamos/${Date.now()}_${nombreLimpio}`;
+
+    try {
+        const { data, error } = await supabaseClient.storage
+            .from('prestamos')
+            .upload(path, file, { cacheControl: '3600', upsert: true, contentType: file.type || undefined });
+        if (error) throw error;
+        const { data: pub } = supabaseClient.storage.from('prestamos').getPublicUrl(data.path);
+        const hidden = document.getElementById(hiddenId);
+        if (hidden) hidden.value = pub.publicUrl;
+        const estado = document.getElementById('pc-foto-estado');
+        if (estado) estado.textContent = 'Archivo subido correctamente.';
+        toast('Archivo subido.', 'success');
+    } catch (err) {
+        toast('No se pudo subir el archivo: ' + (err?.message || err), 'error');
+    }
+}
+
+async function guardarPrestamoChofer(e) {
+    e.preventDefault();
+    if (!pcDraftItems.length) return toast('Agrega al menos un botellón o bebedero.', 'warning');
+
+    const prestatario = pcVal('pc-prestatario');
+    const responsable = pcVal('pc-responsable');
+    const ubicacion = pcVal('pc-ubicacion');
+    if (!prestatario || !responsable || !ubicacion) {
+        return toast('Completa el prestatario, el responsable y la ubicación.', 'warning');
+    }
+
+    const btn = document.getElementById('btn-pc-guardar');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...'; }
+
+    try {
+        const fotoUrl = pcVal('pc-foto-url');
+        const lat = parseFloat(pcVal('pc-lat'));
+        const lng = parseFloat(pcVal('pc-lng'));
+
+        const payload = {
+            p_cliente_id: pcVal('pc-cliente') || null,
+            p_prestatario_nombre: prestatario,
+            p_prestatario_tipo: pcVal('pc-tipo') || 'Cliente',
+            p_responsable_nombre: responsable,
+            p_responsable_ci: pcVal('pc-ci') || null,
+            p_responsable_telefono: pcVal('pc-telefono') || null,
+            p_responsable_cargo: pcVal('pc-cargo') || null,
+            p_ubicacion: ubicacion,
+            p_direccion: pcVal('pc-direccion') || null,
+            p_latitud: Number.isFinite(lat) ? lat : null,
+            p_longitud: Number.isFinite(lng) ? lng : null,
+            p_url_maps: Number.isFinite(lat) && Number.isFinite(lng) ? `https://maps.google.com/?q=${lat},${lng}` : null,
+            p_fecha_prestamo: pcVal('pc-fecha') || hoyISO(),
+            p_fecha_compromiso: pcVal('pc-compromiso') || null,
+            p_poliza_numero: null,
+            p_poliza_aseguradora: null,
+            p_poliza_vigencia_hasta: null,
+            p_poliza_url: null,
+            p_foto_url: fotoUrl || null,
+            p_observaciones: pcVal('pc-observaciones') || null,
+            p_origen: 'Chofer',
+            p_chofer_id: datosChoferLogueado?.id || null,
+            p_flota_id: unidadActual?.id || null,
+            p_ruta_id: null,
+            p_registrado_por: datosChoferLogueado?.nombre || 'Chofer',
+            p_items: pcDraftItems.map(it => ({
+                tipo_equipo: it.tipo_equipo,
+                cantidad_prestada: Number(it.cantidad || 1),
+                condicion_entrega: it.tipo_equipo === 'Bebedero' ? 'No aplica' : it.condicion_entrega,
+                bebedero_id: it.bebedero_id || null,
+                producto_id: it.producto_id || null,
+                descripcion: it.descripcion || null,
+                codigo_activo: it.codigo || null
+            })),
+            p_adjuntos: fotoUrl ? [{ tipo: 'Foto equipo', nombre: 'Foto de la solicitud', url: fotoUrl }] : []
+        };
+
+        const { data, error } = await supabaseClient.rpc('rpc_registrar_prestamo', payload);
+        if (error) throw error;
+
+        cerrarModalPrestamoChofer();
+        pcDraftItems = [];
+        prestamosChoferTab = 'pendientes';
+        document.querySelectorAll('#prestamos-chofer-tabs .prestamos-tab').forEach(b => {
+            b.classList.toggle('active', b.dataset.tab === 'pendientes');
+        });
+        await cargarPrestamosChofer();
+        toast(`Solicitud ${data?.numero || ''} enviada. Espera la aprobación de administración.`, 'success', 5000);
+    } catch (err) {
+        toast('No se pudo enviar la solicitud: ' + (err?.message || err), 'error', 6000);
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar solicitud'; }
+    }
+}
+
+async function abrirDetallePrestamoChofer(id) {
+    const modal = document.getElementById('prestamoChoferDetalleModal');
+    const body = document.getElementById('pc-detalle-body');
+    if (!modal || !body) return;
+    modal.style.display = 'flex';
+    body.innerHTML = '<div class="loading-text">Cargando detalle...</div>';
+
+    try {
+        const { data, error } = await supabaseClient.from('v_prestamo_detalle').select('*').eq('id', id).single();
+        if (error) throw error;
+        renderDetallePrestamoChofer(data);
+    } catch (e) {
+        body.innerHTML = `<div class="prestamo-empty"><i class="fa-solid fa-triangle-exclamation"></i>No se pudo cargar el préstamo: ${esc(e?.message || e)}</div>`;
+    }
+}
+
+function renderDetallePrestamoChofer(p) {
+    const body = document.getElementById('pc-detalle-body');
+    const title = document.getElementById('pc-detalle-title');
+    if (!body) return;
+    if (title) title.innerHTML = `<i class="fa-solid fa-file-lines"></i> ${esc(p.numero || 'Préstamo')}`;
+
+    const items = (p.items || []).filter(i => !i.anulado);
+    const movimientos = p.movimientos || [];
+    const pendienteTotal = items.reduce((s, i) =>
+        s + Math.max(0, Number(i.cantidad_prestada || 0) - Number(i.cantidad_devuelta || 0) - Number(i.cantidad_perdida || 0)), 0);
+
+    const detalle = [
+        ['Estado', p.estado || '—'],
+        ['Aprobación', p.estado_aprobacion || '—'],
+        ['Prestatario', p.prestatario_nombre || '—'],
+        ['Responsable', p.responsable_nombre || '—'],
+        ['Teléfono', p.responsable_telefono || '—'],
+        ['Ubicación', p.ubicacion || '—'],
+        ['Fecha préstamo', pcFechaCorta(p.fecha_prestamo)],
+        ['Compromiso', pcFechaCorta(p.fecha_compromiso)],
+        ['Registrado por', p.registrado_por || '—'],
+        ['Origen', p.origen || '—']
+    ];
+
+    const itemsHtml = items.length ? items.map(i => {
+        const pend = Math.max(0, Number(i.cantidad_prestada || 0) - Number(i.cantidad_devuelta || 0) - Number(i.cantidad_perdida || 0));
+        const titulo = i.tipo_equipo === 'Bebedero'
+            ? `Bebedero ${esc(i.bebedero_codigo || '')}`
+            : `Botellón ${String(i.condicion_entrega || '').toLowerCase()}`;
+        const extra = i.tipo_equipo === 'Bebedero' && i.bebedero_serie ? ` · Serie ${esc(i.bebedero_serie)}` : '';
+        return `<div class="prestamo-detalle-line">
+            <strong>${titulo}${extra}</strong><br>
+            <small>Prestado: ${Number(i.cantidad_prestada || 0)} · Devuelto: ${Number(i.cantidad_devuelta || 0)} · <strong style="color:var(--warning);">Pendiente: ${pend}</strong></small>
+        </div>`;
+    }).join('') : '<div class="prestamo-help">Sin líneas activas.</div>';
+
+    const movimientosHtml = movimientos.length ? movimientos.map(m => `
+        <div class="prestamo-detalle-line">
+            <strong>${esc(m.tipo)} ${Number(m.cantidad || 0)}</strong><br>
+            <small>${pcFechaCorta(m.fecha)} · ${esc(m.recibido_por || '—')}${m.observaciones ? ' · ' + esc(m.observaciones) : ''}</small>
+        </div>`).join('') : '<div class="prestamo-help">Sin devoluciones registradas.</div>';
+
+    const aviso = p.estado_aprobacion === 'Pendiente'
+        ? '<div class="prestamo-help" style="margin:10px 0;color:var(--purple);"><i class="fa-solid fa-clock"></i> Esperando aprobación de administración.</div>'
+        : (p.estado !== 'Anulado' && pendienteTotal > 0
+            ? '<div class="prestamo-help" style="margin:10px 0;"><i class="fa-solid fa-circle-info"></i> Las devoluciones las registra administración.</div>'
+            : '');
+
+    body.innerHTML = `
+        <div class="prestamo-detalle-grid">
+            ${detalle.map(([k, v]) => `<div class="prestamo-detalle-item"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('')}
+        </div>
+        ${p.url_maps ? `<a href="${esc(p.url_maps)}" target="_blank" rel="noopener" class="prestamo-btn ghost" style="margin-bottom:10px;"><i class="fa-solid fa-map-location-dot"></i> Ver ubicación</a>` : ''}
+        ${p.foto_url ? `<a href="${esc(p.foto_url)}" target="_blank" rel="noopener" class="prestamo-btn ghost" style="margin-bottom:10px;"><i class="fa-solid fa-image"></i> Ver foto</a>` : ''}
+        ${aviso}
+        <div class="form-title" style="font-size:.74rem;font-weight:900;color:var(--primary-dark);margin:10px 0 7px;"><i class="fa-solid fa-boxes-stacked"></i> Equipos</div>
+        ${itemsHtml}
+        <div class="prestamo-total"><span>Pendiente total</span><span>${pendienteTotal} equipo(s)</span></div>
+        <div class="form-title" style="font-size:.74rem;font-weight:900;color:var(--primary-dark);margin:12px 0 7px;"><i class="fa-solid fa-rotate-left"></i> Devoluciones</div>
+        ${movimientosHtml}
+        ${p.observaciones ? `<div class="prestamo-help" style="margin-top:10px;"><strong>Observaciones:</strong> ${esc(p.observaciones)}</div>` : ''}
+        ${p.rechazado_motivo ? `<div class="prestamo-help" style="margin-top:8px;color:var(--danger);"><strong>Motivo de rechazo:</strong> ${esc(p.rechazado_motivo)}</div>` : ''}
+        ${p.anulado_motivo ? `<div class="prestamo-help" style="margin-top:8px;color:var(--danger);"><strong>Motivo de anulación:</strong> ${esc(p.anulado_motivo)}</div>` : ''}
+    `;
 }
 
 // ============================================
