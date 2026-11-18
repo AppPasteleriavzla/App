@@ -665,7 +665,43 @@
         .hist-kpi-value { font-size: 1.45rem; font-weight: 900; letter-spacing: -.03em; }
         .hist-kpi-green .hist-kpi-value { color: #047857; }
         .hist-kpi-blue .hist-kpi-value { color: #0369a1; }
+        .hist-kpi-gold { background: linear-gradient(145deg,#fef3c7,#fffbeb); }
+        .hist-kpi-gold .hist-kpi-value { color: #b45309; }
+        .hist-kpi-slate { background: linear-gradient(145deg,#e2e8f0,#f8fafc); }
+        .hist-kpi-slate .hist-kpi-value { color: #334155; }
         .hist-kpi-label { font-size: .6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+        .reporte-final-link {
+            width: 100%; margin: 0 0 12px; padding: 11px 14px;
+            border: 1px solid #7dd3fc; border-radius: 13px;
+            background: linear-gradient(135deg,#eff6ff,#e0f2fe);
+            color: #0369a1; font-family: inherit; font-size: .78rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            cursor: pointer;
+        }
+        .reporte-modal-container { max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; }
+        .reporte-modal-body { overflow-y: auto; min-height: 0; padding-right: 2px; }
+        .reporte-hero {
+            background: linear-gradient(145deg,#064e3b 0%,#047857 55%,#059669 100%);
+            color: #fff; border-radius: 16px; padding: 18px 16px; text-align: center;
+            box-shadow: 0 20px 38px -24px rgba(4,120,87,.9); margin-bottom: 14px;
+        }
+        .reporte-hero-label { font-size: .6rem; font-weight: 900; letter-spacing: .09em; color: #a7f3d0; text-transform: uppercase; }
+        .reporte-hero-value { font-size: 2rem; font-weight: 900; letter-spacing: -.04em; line-height: 1.1; margin-top: 3px; }
+        .reporte-hero-sub { font-size: .65rem; color: #d1fae5; margin-top: 4px; }
+        .reporte-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .reporte-summary > div { background: var(--surface-subtle); border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+        .reporte-summary span { display: block; font-size: .58rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+        .reporte-summary strong { display: block; font-size: .95rem; font-weight: 900; margin-top: 3px; color: var(--text-main); }
+        .reporte-section { margin-bottom: 12px; }
+        .reporte-section-title { font-size: .6rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+        .reporte-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: .76rem; border-bottom: 1px dashed var(--border); }
+        .reporte-row:last-child { border-bottom: none; }
+        .reporte-row span { min-width: 0; }
+        .reporte-row strong { white-space: nowrap; }
+        .reporte-row.total { border-top: 2px solid var(--border); border-bottom: none; margin-top: 2px; padding-top: 8px; font-weight: 900; }
+        .reporte-empty { padding: 8px 0; font-size: .7rem; color: var(--text-muted); line-height: 1.4; }
+        .reporte-note { font-size: .64rem; color: var(--text-muted); line-height: 1.45; background: var(--surface-subtle); border-radius: 10px; padding: 9px 11px; margin: 10px 0 12px; }
+        .reporte-copy-btn { width: 100%; }
         .hist-gastos-link {
             width: 100%; margin: 0 0 15px; padding: 11px 14px;
             border: 1px solid #fcd34d; border-radius: 13px;
@@ -941,6 +977,60 @@
             <input type="search" id="cliente-modal-buscar" placeholder="Nombre, dirección, zona o teléfono..." autocomplete="off" oninput="renderListaClientesModal()" onkeydown="manejarTeclaBuscadorClientesModal(event)">
         </div>
         <div class="cliente-modal-list" id="cliente-modal-list"></div>
+    </div>
+</div>
+
+<!-- MODAL REPORTE FINAL DEL CHOFER -->
+<div id="modal-reporte-chofer" class="modal-overlay" onclick="if (event.target === this) cerrarReporteFinalChofer()">
+    <div class="modal-container reporte-modal-container" role="dialog" aria-modal="true" aria-labelledby="reporte-final-titulo">
+        <div class="modal-header">
+            <h3 id="reporte-final-titulo" style="color: var(--primary-dark); font-size: 1.05rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Mi reporte final
+            </h3>
+            <button type="button" class="modal-close" onclick="cerrarReporteFinalChofer()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="reporte-modal-body">
+            <div class="reporte-hero">
+                <div class="reporte-hero-label">Mi comisión de hoy</div>
+                <div class="reporte-hero-value" id="reporte-comision">Bs. 0.00</div>
+                <div class="reporte-hero-sub" id="reporte-fecha">Hoy</div>
+            </div>
+
+            <div class="reporte-summary">
+                <div><span>Ventas del día</span><strong id="reporte-ventas">Bs. 0.00</strong></div>
+                <div><span>Neto de ventas</span><strong id="reporte-neto">Bs. 0.00</strong></div>
+            </div>
+
+            <div class="reporte-section">
+                <div class="reporte-section-title">Cobranza por método</div>
+                <div class="reporte-row"><span>Efectivo</span><strong id="reporte-efectivo">Bs. 0.00</strong></div>
+                <div class="reporte-row"><span>QR / Pago Móvil</span><strong id="reporte-qr">Bs. 0.00</strong></div>
+                <div class="reporte-row"><span>Transferencia</span><strong id="reporte-transferencia">Bs. 0.00</strong></div>
+                <div class="reporte-row"><span>Crédito</span><strong id="reporte-credito">Bs. 0.00</strong></div>
+            </div>
+
+            <div class="reporte-section">
+                <div class="reporte-section-title">Comisión por producto</div>
+                <div id="reporte-comisiones-lista"><div class="reporte-empty">Cargando...</div></div>
+            </div>
+
+            <div class="reporte-section">
+                <div class="reporte-section-title">Efectivo a rendir</div>
+                <div class="reporte-row"><span>Abonos en efectivo</span><strong id="reporte-abonos">Bs. 0.00</strong></div>
+                <div class="reporte-row"><span>Gastos del día (total)</span><strong id="reporte-gastos-total">Bs. 0.00</strong></div>
+                <div class="reporte-row"><span>Gastos en efectivo</span><strong id="reporte-gastos">Bs. 0.00</strong></div>
+                <div class="reporte-row total"><span>Efectivo a rendir</span><strong id="reporte-rendir">Bs. 0.00</strong></div>
+            </div>
+
+            <div class="reporte-note">
+                <strong>Neto de ventas</strong> = ventas del día − tu comisión.
+                <strong>Efectivo a rendir</strong> = efectivo cobrado + abonos en efectivo − gastos en efectivo.
+            </div>
+
+            <button type="button" class="btn-primary reporte-copy-btn" onclick="copiarReporteFinalChofer()">
+                <i class="fa-solid fa-copy"></i> Copiar resumen
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1263,7 +1353,19 @@
                 <div class="hist-kpi-value" id="resumen-ventas-count">0</div>
                 <div class="hist-kpi-label">Entregas</div>
             </div>
+            <div class="hist-kpi hist-kpi-gold">
+                <div class="hist-kpi-value" id="resumen-comision-bs">Bs. 0</div>
+                <div class="hist-kpi-label">Mi comisión</div>
+            </div>
+            <div class="hist-kpi hist-kpi-slate">
+                <div class="hist-kpi-value" id="resumen-neto-bs">Bs. 0</div>
+                <div class="hist-kpi-label">Neto de ventas</div>
+            </div>
         </div>
+
+        <button type="button" class="reporte-final-link" onclick="abrirReporteFinalChofer()">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Ver mi reporte final del día
+        </button>
 
         <div class="cart-summary" style="margin-bottom: 12px; padding: 12px 14px;">
             <div style="font-size: 0.68rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Cobranza de hoy</div>
@@ -1549,6 +1651,7 @@ let categoriaGastoActual = 'Gasolina';
 let filtroGastoActual = 'Todos';
 let gastosEsquemaExtendido = true;
 let gastosCargando = false;
+let reporteFinalChofer = null;
 
 const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -3284,6 +3387,35 @@ async function registrarAbonoChofer() {
 // ============================================
 // HISTORIAL
 // ============================================
+function calcularComisionesChofer(entregas) {
+    const porProducto = new Map();
+    let total = 0;
+
+    (entregas || []).forEach(e => {
+        if ((e.estado || 'Entregado') !== 'Entregado') return;
+        (e.entregas_detalles || []).forEach(d => {
+            const cantidad = Number(d.cantidad || 0);
+            const comisionUnitaria = Number(d.comision_unitaria || 0);
+            const subtotal = cantidad * comisionUnitaria;
+            total += subtotal;
+            if (subtotal <= 0) return;
+
+            const clave = `${d.producto_id || d.productos?.nombre || 'producto'}|${comisionUnitaria}`;
+            const item = porProducto.get(clave) || {
+                nombre: d.productos?.nombre || 'Producto',
+                cantidad: 0,
+                comisionUnitaria,
+                total: 0
+            };
+            item.cantidad += cantidad;
+            item.total += subtotal;
+            porProducto.set(clave, item);
+        });
+    });
+
+    return { total, porProducto: [...porProducto.values()].sort((a, b) => b.total - a.total) };
+}
+
 async function fetchHistorialVentasChofer() {
     if (!unidadSeleccionadaId) {
         document.getElementById('driver-delivery-list').innerHTML = '<div class="loading-text">No hay ruta activa.</div>';
@@ -3305,15 +3437,15 @@ async function fetchHistorialVentasChofer() {
         if (error) throw error;
         entregasGlobales = data || [];
 
-        const ventasBs    = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado').reduce((a, e) => a + Number(e.total), 0);
-        const ventasCount = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado').length;
+        const entregasEntregadas = entregasGlobales.filter(e => (e.estado || 'Entregado') === 'Entregado');
+        const ventasBs    = entregasEntregadas.reduce((a, e) => a + Number(e.total || 0), 0);
+        const ventasCount = entregasEntregadas.length;
         document.getElementById('resumen-ventas-bs').innerText = fmtBs(ventasBs);
         document.getElementById('resumen-ventas-count').innerText = ventasCount;
         document.getElementById('historial-total-count').innerText = `${entregasGlobales.length} registros`;
 
         const porMetodo = { Efectivo: 0, QR: 0, Transferencia: 0, Crédito: 0 };
-        entregasGlobales.forEach(e => {
-            if ((e.estado || 'Entregado') !== 'Entregado') return;
+        entregasEntregadas.forEach(e => {
             const m = e.metodo_pago || 'N/A';
             if (porMetodo[m] != null) porMetodo[m] += Number(e.total || 0);
         });
@@ -3322,14 +3454,18 @@ async function fetchHistorialVentasChofer() {
         document.getElementById('resumen-transferencia').innerText = fmtBs(porMetodo.Transferencia);
         document.getElementById('resumen-credito').innerText = fmtBs(porMetodo.Crédito);
 
-        const abonosEfectivo = abonosLocalesDeHoy()
+        const abonosHoy = abonosLocalesDeHoy();
+        const abonosEfectivo = abonosHoy
             .filter(a => a.metodo_pago === 'Efectivo')
             .reduce((a, b) => a + Number(b.monto || 0), 0);
         document.getElementById('resumen-abonos-efectivo').innerText = fmtBs(abonosEfectivo);
 
         let gastosEfectivo = 0;
+        let gastosTotal = 0;
         try {
             gastosGlobales = await obtenerGastosChoferHoy();
+            gastosTotal = gastosGlobales
+                .reduce((a, g) => a + Number(g.monto || 0), 0);
             gastosEfectivo = gastosGlobales
                 .filter(g => (g.metodo_pago || 'Efectivo') === 'Efectivo')
                 .reduce((a, g) => a + Number(g.monto || 0), 0);
@@ -3343,6 +3479,28 @@ async function fetchHistorialVentasChofer() {
         const elRendir = document.getElementById('resumen-efectivo-rendir');
         elRendir.innerText = fmtBs(efectivoARendir);
         elRendir.classList.toggle('negative', efectivoARendir < 0);
+
+        const { total: comisionDia, porProducto: comisionesDetalle } = calcularComisionesChofer(entregasGlobales);
+        const netoVentas = ventasBs - comisionDia;
+        document.getElementById('resumen-comision-bs').innerText = fmtBs(comisionDia);
+        document.getElementById('resumen-neto-bs').innerText = fmtBs(netoVentas);
+
+        reporteFinalChofer = {
+            fecha: new Date(),
+            chofer: datosChoferLogueado?.nombre || datosChoferLogueado?.codigo || 'Chofer',
+            ruta: unidadActual?.nombre || '',
+            ventasBs,
+            ventasCount,
+            comisionDia,
+            netoVentas,
+            porMetodo: { ...porMetodo },
+            abonosEfectivo,
+            gastosEfectivo,
+            gastosTotal,
+            efectivoARendir,
+            comisiones: comisionesDetalle
+        };
+        renderReporteFinalChofer();
 
         // ── NEGOCIACIONES ──
         const negociaciones = [];
@@ -3411,6 +3569,140 @@ async function fetchHistorialVentasChofer() {
     } catch (err) {
         console.error(err);
         document.getElementById('driver-delivery-list').innerHTML = '<div class="loading-text">Error.</div>';
+    }
+}
+
+// ============================================
+// REPORTE FINAL DEL CHOFER
+// ============================================
+function renderReporteFinalChofer() {
+    if (!reporteFinalChofer) return;
+    const r = reporteFinalChofer;
+    const set = (id, valor) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = valor;
+    };
+
+    const fecha = r.fecha.toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long' });
+    set('resumen-comision-bs', fmtBs(r.comisionDia));
+    set('resumen-neto-bs', fmtBs(r.netoVentas));
+    set('reporte-comision', fmtBs(r.comisionDia));
+    set('reporte-fecha', [r.ruta, fecha].filter(Boolean).join(' · '));
+    set('reporte-ventas', fmtBs(r.ventasBs));
+    set('reporte-neto', fmtBs(r.netoVentas));
+    set('reporte-efectivo', fmtBs(r.porMetodo.Efectivo));
+    set('reporte-qr', fmtBs(r.porMetodo.QR));
+    set('reporte-transferencia', fmtBs(r.porMetodo.Transferencia));
+    set('reporte-credito', fmtBs(r.porMetodo.Crédito));
+    set('reporte-abonos', fmtBs(r.abonosEfectivo));
+    set('reporte-gastos-total', fmtBs(r.gastosTotal));
+    set('reporte-gastos', fmtBs(r.gastosEfectivo));
+
+    const rendir = document.getElementById('reporte-rendir');
+    if (rendir) {
+        rendir.innerText = fmtBs(r.efectivoARendir);
+        rendir.style.color = r.efectivoARendir < 0 ? '#b91c1c' : '#047857';
+    }
+
+    const cont = document.getElementById('reporte-comisiones-lista');
+    if (cont) {
+        cont.innerHTML = r.comisiones.length
+            ? r.comisiones.map(c => `<div class="reporte-row">
+                <span>${c.cantidad}x ${esc(c.nombre)} <small style="color:var(--text-muted);">(${fmtBs(c.comisionUnitaria)} c/u)</small></span>
+                <strong>${fmtBs(c.total)}</strong>
+            </div>`).join('')
+            : '<div class="reporte-empty">Hoy no hay comisiones registradas. Revisa que los productos tengan comisión configurada.</div>';
+    }
+}
+
+async function abrirReporteFinalChofer() {
+    if (!unidadSeleccionadaId) {
+        toast('No hay ruta activa.', 'warning');
+        return;
+    }
+    const modal = document.getElementById('modal-reporte-chofer');
+    if (!modal) return;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    if (reporteFinalChofer) renderReporteFinalChofer();
+
+    try {
+        await fetchHistorialVentasChofer();
+        renderReporteFinalChofer();
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function cerrarReporteFinalChofer() {
+    const modal = document.getElementById('modal-reporte-chofer');
+    if (modal && modal.style.display !== 'none') {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+function textoReporteFinalChofer() {
+    const r = reporteFinalChofer;
+    if (!r) return '';
+
+    const fecha = r.fecha.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const lineas = [`MI REPORTE FINAL - ${fecha}`];
+    if (r.ruta) lineas.push(`Ruta: ${r.ruta}`);
+    if (r.chofer) lineas.push(`Chofer: ${r.chofer}`);
+    lineas.push(
+        '',
+        `Ventas del día: ${fmtBs(r.ventasBs)}`,
+        `Mi comisión: ${fmtBs(r.comisionDia)}`,
+        `Neto de ventas: ${fmtBs(r.netoVentas)}`,
+        '',
+        `Efectivo: ${fmtBs(r.porMetodo.Efectivo)}`,
+        `QR / Pago Móvil: ${fmtBs(r.porMetodo.QR)}`,
+        `Transferencia: ${fmtBs(r.porMetodo.Transferencia)}`,
+        `Crédito: ${fmtBs(r.porMetodo.Crédito)}`,
+        '',
+        `Abonos en efectivo: ${fmtBs(r.abonosEfectivo)}`,
+        `Gastos del día: ${fmtBs(r.gastosTotal)}`,
+        `Gastos en efectivo: ${fmtBs(r.gastosEfectivo)}`,
+        `Efectivo a rendir: ${fmtBs(r.efectivoARendir)}`,
+        '',
+        'Comisión por producto:'
+    );
+
+    if (r.comisiones.length) {
+        r.comisiones.forEach(c => lineas.push(`- ${c.cantidad}x ${c.nombre}: ${fmtBs(c.total)}`));
+    } else {
+        lineas.push('- Sin comisiones registradas.');
+    }
+    return lineas.join('\n');
+}
+
+async function copiarReporteFinalChofer() {
+    const texto = textoReporteFinalChofer();
+    if (!texto) return;
+
+    try {
+        if (navigator.clipboard?.writeText) {
+            try {
+                await navigator.clipboard.writeText(texto);
+                toast('Reporte copiado. Ya puedes compartirlo.', 'success');
+                return;
+            } catch (e) { /* usar respaldo */ }
+        }
+        const area = document.createElement('textarea');
+        area.value = texto;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.focus();
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+        toast('Reporte copiado. Ya puedes compartirlo.', 'success');
+    } catch (e) {
+        console.error(e);
+        toast('No se pudo copiar el reporte.', 'error');
     }
 }
 
@@ -4430,7 +4722,10 @@ document.addEventListener('DOMContentLoaded', () => {
     actualizarCalculadoraEfectivo();
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') cerrarModalClientesPicker();
+        if (e.key === 'Escape') {
+            cerrarModalClientesPicker();
+            cerrarReporteFinalChofer();
+        }
     });
 });
 </script>
