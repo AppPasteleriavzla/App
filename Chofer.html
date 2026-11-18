@@ -285,30 +285,33 @@
         .cliente-notas strong { display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px; }
         .cliente-direccion { background: var(--surface-subtle); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 10px; border-radius: 8px; font-size: 0.75rem; margin-top: 6px; display: none; text-align: left; }
 
-        /* SELECTOR DE CLIENTES */
-        .cliente-picker { position: relative; }
-        .cliente-picker #venta-cliente { padding-right: 52px; }
-        .cliente-picker-btn {
-            position: absolute; top: 50%; right: 7px; transform: translateY(-50%);
-            width: 38px; height: 38px; border: none; border-radius: 10px;
+        /* BUSCADOR DE CLIENTES */
+        .cliente-buscar-launch {
+            width: 100%; margin-top: 7px; padding: 9px 12px;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            border: 1.5px dashed var(--primary); border-radius: 10px;
             background: var(--primary-light); color: var(--primary-dark);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 2; transition: background .2s;
+            font-family: inherit; font-size: .76rem; font-weight: 800; cursor: pointer;
+            transition: background .2s, border-color .2s;
         }
-        .cliente-picker-btn:hover { background: #bae6fd; }
-        .cliente-picker-btn i { transition: transform .2s; }
-        .cliente-picker-btn[aria-expanded="true"] i { transform: rotate(180deg); }
-        .cliente-picker-panel {
-            position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 60;
-            display: flex; flex-direction: column; max-height: min(340px, 55vh);
-            background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-            box-shadow: 0 18px 40px -16px rgba(15,23,42,.28); overflow: hidden;
+        .cliente-buscar-launch:hover { background: #bae6fd; border-color: var(--primary-dark); }
+        .cliente-buscar-launch:active { transform: scale(.99); }
+        .cliente-modal-container { max-width: 440px; display: flex; flex-direction: column; overflow: hidden; }
+        .cliente-modal-search { position: relative; flex-shrink: 0; margin-bottom: 10px; }
+        .cliente-modal-search > i {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: .85rem; pointer-events: none;
         }
-        .cliente-picker-panel[hidden] { display: none; }
-        .cliente-picker-search { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--surface-subtle); }
-        .cliente-picker-search i { color: var(--text-muted); font-size: .8rem; }
-        .cliente-picker-search input { flex: 1; min-width: 0; border: none; background: transparent; padding: 2px; font-family: inherit; font-size: .85rem; outline: none; color: var(--text-main); }
-        .cliente-picker-list { overflow-y: auto; overscroll-behavior: contain; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+        .cliente-modal-search input {
+            width: 100%; padding: 12px 12px 12px 40px; border: 1.5px solid var(--border);
+            border-radius: 12px; background: var(--bg-body); color: var(--text-main);
+            font-family: inherit; font-size: .88rem; outline: none;
+        }
+        .cliente-modal-search input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(14,165,233,.12); }
+        .cliente-modal-list {
+            flex: 1; min-height: 0; max-height: 52vh; overflow-y: auto; overscroll-behavior: contain;
+            display: flex; flex-direction: column; gap: 4px; padding-right: 2px;
+        }
         .cliente-picker-item {
             width: 100%; display: flex; align-items: center; gap: 9px; padding: 9px 8px;
             border: 1px solid transparent; border-radius: 10px; background: transparent;
@@ -924,6 +927,23 @@
     </div>
 </div>
 
+<!-- MODAL BUSCAR CLIENTE -->
+<div id="modal-clientes-picker" class="modal-overlay" onclick="if (event.target === this) cerrarModalClientesPicker()">
+    <div class="modal-container cliente-modal-container" role="dialog" aria-modal="true" aria-labelledby="cliente-modal-titulo">
+        <div class="modal-header">
+            <h3 id="cliente-modal-titulo" style="color: var(--primary-dark); font-size: 1.05rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-magnifying-glass"></i> Buscar cliente
+            </h3>
+            <button type="button" class="modal-close" onclick="cerrarModalClientesPicker()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cliente-modal-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="cliente-modal-buscar" placeholder="Nombre, dirección, zona o teléfono..." autocomplete="off" oninput="renderListaClientesModal()" onkeydown="manejarTeclaBuscadorClientesModal(event)">
+        </div>
+        <div class="cliente-modal-list" id="cliente-modal-list"></div>
+    </div>
+</div>
+
 <!-- MODAL ABONO / COBRANZA -->
 <div id="modal-abono-chofer" class="modal-overlay">
     <div class="modal-container">
@@ -1122,20 +1142,11 @@
                     <!-- CLIENTE -->
                     <div class="input-group">
                         <label>Cliente / Local *</label>
-                        <div class="cliente-picker" id="cliente-picker">
-                            <input type="text" id="venta-cliente" list="clientes-datalist" placeholder="Escribe o elige un cliente..." autocomplete="off" required>
-                            <button type="button" class="cliente-picker-btn" id="btn-abrir-clientes" onclick="toggleListaClientesPicker(event)" aria-label="Mostrar lista de clientes" aria-expanded="false" aria-controls="cliente-picker-panel" title="Elegir cliente">
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </button>
-                            <div class="cliente-picker-panel" id="cliente-picker-panel" hidden>
-                                <div class="cliente-picker-search">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                    <input type="search" id="cliente-picker-buscar" placeholder="Buscar cliente..." autocomplete="off" oninput="renderListaClientesPicker()" onkeydown="manejarTeclaBuscadorClientes(event)">
-                                </div>
-                                <div class="cliente-picker-list" id="cliente-picker-list"></div>
-                            </div>
-                        </div>
+                        <input type="text" id="venta-cliente" list="clientes-datalist" placeholder="Escribe o busca un cliente..." autocomplete="off" required>
                         <datalist id="clientes-datalist"></datalist>
+                        <button type="button" class="cliente-buscar-launch" onclick="abrirModalClientesPicker(event)">
+                            <i class="fa-solid fa-magnifying-glass"></i> Buscar o elegir cliente de la lista
+                        </button>
                         <small id="venta-cliente-tipo" style="display:none;"></small>
                         <div class="cliente-direccion" id="venta-cliente-direccion"></div>
                         <div class="cliente-notas" id="venta-cliente-notas"></div>
@@ -1170,7 +1181,7 @@
                     <div id="carrito-resumen" style="display: none;">
                         <div class="cart-summary">
                             <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Resumen de la venta</div>
-                            <div class="cart-hint"><i class="fa-solid fa-tag"></i> Puedes editar el <strong>Precio unitario</strong> de cada producto para aplicar un precio especial en esta venta.</div>
+                            <div class="cart-hint" id="cart-hint-precio"><i class="fa-solid fa-tag"></i> Puedes editar el <strong>Precio unitario</strong> de cada producto para aplicar un precio especial en esta venta.</div>
                             <div id="cart-items-resumen"></div>
                             <div class="cart-summary-total">
                                 <span>TOTAL</span>
@@ -1223,7 +1234,7 @@
                         <div class="input-group" style="margin-bottom: 8px;">
                             <label style="color: #047857;">Efectivo recibido (Bs.)</label>
                             <input type="number" id="venta-efectivo-recibido" min="0" step="0.01" inputmode="decimal" placeholder="0.00" oninput="actualizarCalculadoraEfectivo()">
-                            <small style="color:#047857;font-size:0.65rem;line-height:1.35;display:block;margin-top:4px;">Este monto es solo para calcular el vuelto. El total sale de los precios del carrito; si cobras un precio especial, edítalo en <strong>Precio unitario</strong>.</small>
+                            <small id="efectivo-ayuda-precio" style="color:#047857;font-size:0.65rem;line-height:1.35;display:block;margin-top:4px;">Este monto es solo para calcular el vuelto. El total sale de los precios del carrito; si cobras un precio especial, edítalo en <strong>Precio unitario</strong>.</small>
                         </div>
                         <div class="efectivo-vuelto" id="venta-vuelto">Vuelto: Bs. 0.00</div>
                     </div>
@@ -1641,11 +1652,35 @@ function getPrecioBaseProducto(p, cantidad = 0) {
 }
 
 function getPrecioProducto(p, cantidad = 0) {
-    if (Object.prototype.hasOwnProperty.call(preciosVenta, p.id)) {
+    // Los clientes Mayoristas siempre pagan el precio configurado (mayorista o minorista
+    // según la cantidad mínima). No se aceptan precios manuales para este tipo de cliente.
+    if (getTipoClienteActual() !== 'Mayorista' && Object.prototype.hasOwnProperty.call(preciosVenta, p.id)) {
         const manual = Number(preciosVenta[p.id]);
         if (Number.isFinite(manual) && manual >= 0) return manual;
     }
     return getPrecioBaseProducto(p, cantidad);
+}
+
+function precioBloqueadoParaCliente() {
+    return getTipoClienteActual() === 'Mayorista';
+}
+
+function actualizarAvisoPreciosCliente() {
+    const bloqueado = precioBloqueadoParaCliente();
+
+    const hint = document.getElementById('cart-hint-precio');
+    if (hint) {
+        hint.innerHTML = bloqueado
+            ? '<i class="fa-solid fa-lock"></i> Cliente <strong>Mayorista</strong>: los precios son fijos y no se pueden editar.'
+            : '<i class="fa-solid fa-tag"></i> Puedes editar el <strong>Precio unitario</strong> de cada producto para aplicar un precio especial en esta venta.';
+    }
+
+    const ayuda = document.getElementById('efectivo-ayuda-precio');
+    if (ayuda) {
+        ayuda.innerHTML = bloqueado
+            ? 'Cliente mayorista: el total usa los precios fijos configurados. No se puede editar el precio unitario.'
+            : 'Este monto es solo para calcular el vuelto. El total sale de los precios del carrito; si cobras un precio especial, edítalo en <strong>Precio unitario</strong>.';
+    }
 }
 
 document.getElementById('ruta-fecha').innerText = new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'}).toUpperCase();
@@ -2006,23 +2041,35 @@ function renderCatalogoProductos() {
                     ${cantidad > 0 ? `
                         <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-top:5px;">
                             <span style="font-size:0.6rem; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.05em;">Precio</span>
-                            <input type="number" value="${precio.toFixed(2)}"
-                                min="0" step="0.01" inputmode="decimal"
-                                onchange="setPrecioVenta('${p.id}', this.value)"
-                                title="Edita si negociaste con el cliente"
-                                style="width:78px; padding:5px 7px; border:1.5px solid ${esNegociado ? 'var(--warning)' : 'var(--border)'};
-                                    border-radius:6px; font-size:0.85rem; font-weight:800; text-align:center;
-                                    background:${esNegociado ? 'var(--warning-light)' : 'white'};
-                                    color:${bajoCosto ? 'var(--danger)' : 'var(--text-main)'}; font-family:inherit;">
-                            <span style="font-size:0.68rem; color:var(--text-muted);">Bs./${esc(p.unidad_medida || 'u')}</span>
-                            ${esNegociado ? `
-                                <button type="button" onclick="resetPrecioVenta('${p.id}')" title="Volver al precio base"
-                                    style="background:var(--surface); border:1px solid var(--border); border-radius:5px;
-                                    padding:3px 6px; font-size:0.62rem; cursor:pointer; color:var(--text-muted);">
-                                    <i class="fa-solid fa-rotate-left"></i>
-                                </button>
-                                <span style="font-size:0.58rem; font-weight:800; color:#92400e; background:var(--warning-light);
-                                    padding:2px 6px; border-radius:4px;">NEGOCIADO · base ${fmtBs(precioBase)}</span>` : ''}
+                            ${esMayorista ? `
+                                <span style="font-size:0.95rem; font-weight:900; color:var(--primary-dark);">${fmtBs(precio)}</span>
+                                <span style="font-size:0.68rem; color:var(--text-muted);">Bs./${esc(p.unidad_medida || 'u')}</span>
+                                <span style="font-size:0.58rem; font-weight:800; color:#047857; background:var(--success-light);
+                                    padding:2px 6px; border-radius:4px;">
+                                    <i class="fa-solid fa-lock"></i> PRECIO FIJO</span>
+                                ${tienePromo && cantidad < minPromo ? `
+                                    <span style="font-size:0.58rem; font-weight:800; color:#92400e; background:var(--warning-light);
+                                        padding:2px 6px; border-radius:4px;">
+                                        Faltan ${minPromo - cantidad} ud${(minPromo - cantidad) === 1 ? '' : 's'} para mayorista</span>` : ''}
+                            ` : `
+                                <input type="number" value="${precio.toFixed(2)}"
+                                    min="0" step="0.01" inputmode="decimal"
+                                    onchange="setPrecioVenta('${p.id}', this.value)"
+                                    title="Edita si negociaste con el cliente"
+                                    style="width:78px; padding:5px 7px; border:1.5px solid ${esNegociado ? 'var(--warning)' : 'var(--border)'};
+                                        border-radius:6px; font-size:0.85rem; font-weight:800; text-align:center;
+                                        background:${esNegociado ? 'var(--warning-light)' : 'white'};
+                                        color:${bajoCosto ? 'var(--danger)' : 'var(--text-main)'}; font-family:inherit;">
+                                <span style="font-size:0.68rem; color:var(--text-muted);">Bs./${esc(p.unidad_medida || 'u')}</span>
+                                ${esNegociado ? `
+                                    <button type="button" onclick="resetPrecioVenta('${p.id}')" title="Volver al precio base"
+                                        style="background:var(--surface); border:1px solid var(--border); border-radius:5px;
+                                        padding:3px 6px; font-size:0.62rem; cursor:pointer; color:var(--text-muted);">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                    <span style="font-size:0.58rem; font-weight:800; color:#92400e; background:var(--warning-light);
+                                        padding:2px 6px; border-radius:4px;">NEGOCIADO · base ${fmtBs(precioBase)}</span>` : ''}
+                            `}
                             ${bajoCosto ? `
                                 <span style="font-size:0.58rem; font-weight:800; color:#991b1b; background:var(--danger-light);
                                     padding:2px 6px; border-radius:4px;">
@@ -2079,6 +2126,8 @@ function setCantidad(productoId, valor) {
 }
 
 function renderCarritoResumen() {
+    actualizarAvisoPreciosCliente();
+
     const items = Object.keys(carritoVenta);
     const resumen = document.getElementById('carrito-resumen');
     const itemsDiv = document.getElementById('cart-items-resumen');
@@ -2089,6 +2138,7 @@ function renderCarritoResumen() {
         return;
     }
 
+    const precioBloqueado = precioBloqueadoParaCliente();
     let total = 0;
     itemsDiv.innerHTML = items.map(pid => {
         const p = productosGlobal.find(x => String(x.id) === String(pid));
@@ -2106,14 +2156,23 @@ function renderCarritoResumen() {
             </div>
             <div class="cart-item-price-row">
                 <label>Precio unitario</label>
-                <input type="number" class="cart-price-input" value="${precio.toFixed(2)}" min="0" step="0.01" inputmode="decimal"
-                    onchange="setPrecioVenta('${p.id}', this.value)" title="Edita este campo para aplicar un precio especial">
-                <button type="button" class="cart-price-reset" onclick="resetPrecioVenta('${p.id}')" title="Volver al precio normal">
-                    <i class="fa-solid fa-rotate-left"></i>
-                </button>
-                ${esEspecial ? '<span class="badge-especial">ESPECIAL</span>' : ''}
+                ${precioBloqueado ? `
+                    <span style="font-size:0.85rem; font-weight:900; color:#047857;">${fmtBs(precio)}</span>
+                    <span style="font-size:0.58rem; font-weight:800; color:#047857; background:var(--success-light);
+                        padding:2px 6px; border-radius:4px;">
+                        <i class="fa-solid fa-lock"></i> FIJO</span>
+                ` : `
+                    <input type="number" class="cart-price-input" value="${precio.toFixed(2)}" min="0" step="0.01" inputmode="decimal"
+                        onchange="setPrecioVenta('${p.id}', this.value)" title="Edita este campo para aplicar un precio especial">
+                    <button type="button" class="cart-price-reset" onclick="resetPrecioVenta('${p.id}')" title="Volver al precio normal">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                    ${esEspecial ? '<span class="badge-especial">ESPECIAL</span>' : ''}
+                `}
             </div>
-            ${esEspecial ? `<div class="cart-price-note">Precio normal: ${fmtBs(precioBase)}</div>` : ''}
+            ${precioBloqueado
+                ? `<div class="cart-price-note"><i class="fa-solid fa-lock"></i> Precio fijo para cliente mayorista.</div>`
+                : (esEspecial ? `<div class="cart-price-note">Precio normal: ${fmtBs(precioBase)}</div>` : '')}
         </div>`;
     }).join('');
 
@@ -2125,6 +2184,14 @@ function renderCarritoResumen() {
 function setPrecioVenta(productoId, valor) {
     const p = productosGlobal.find(x => String(x.id) === String(productoId));
     if (!p) return;
+
+    if (precioBloqueadoParaCliente()) {
+        delete preciosVenta[p.id];
+        toast('Cliente mayorista: los precios son fijos y no se pueden modificar.', 'warning');
+        renderCatalogoProductos();
+        return;
+    }
+
     const cant = carritoVenta[p.id] || 0;
     const precioBase = getPrecioBaseProducto(p, cant);
     const texto = String(valor).trim();
@@ -2443,54 +2510,54 @@ function clientesDisponiblesPicker() {
     return [...mapa.values()];
 }
 
-function toggleListaClientesPicker(event) {
-    if (event) event.stopPropagation();
-    const panel = document.getElementById('cliente-picker-panel');
-    const btn = document.getElementById('btn-abrir-clientes');
-    if (!panel || !btn) return;
-
-    if (!panel.hidden) {
-        cerrarListaClientesPicker();
-        return;
+function abrirModalClientesPicker(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
     }
+    const modal = document.getElementById('modal-clientes-picker');
+    const buscar = document.getElementById('cliente-modal-buscar');
+    if (!modal || !buscar) return;
 
-    const textoInput = document.getElementById('venta-cliente').value.trim();
+    const textoInput = document.getElementById('venta-cliente')?.value.trim() || '';
     const coincideExacto = buscarClientePorNombre(textoInput);
-    document.getElementById('cliente-picker-buscar').value = (textoInput && !coincideExacto) ? textoInput : '';
-    panel.hidden = false;
-    btn.setAttribute('aria-expanded', 'true');
+    buscar.value = (textoInput && !coincideExacto) ? textoInput : '';
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 
     if (!clientesDisponiblesPicker().length) {
-        recargarClientesPicker();
+        recargarClientesModal();
     } else {
-        renderListaClientesPicker();
+        renderListaClientesModal();
     }
 
     if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
         setTimeout(() => {
-            if (!panel.hidden) document.getElementById('cliente-picker-buscar')?.focus();
-        }, 40);
+            if (modal.style.display === 'flex') buscar.focus();
+        }, 60);
     }
 }
 
-function cerrarListaClientesPicker() {
-    const panel = document.getElementById('cliente-picker-panel');
-    if (panel) panel.hidden = true;
-    const btn = document.getElementById('btn-abrir-clientes');
-    if (btn) btn.setAttribute('aria-expanded', 'false');
+function cerrarModalClientesPicker() {
+    const modal = document.getElementById('modal-clientes-picker');
+    if (modal && modal.style.display !== 'none') {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
 }
 
-function renderListaClientesPicker() {
-    const cont = document.getElementById('cliente-picker-list');
+function renderListaClientesModal() {
+    const cont = document.getElementById('cliente-modal-list');
     if (!cont) return;
 
-    const buscar = document.getElementById('cliente-picker-buscar');
+    const buscar = document.getElementById('cliente-modal-buscar');
     const q = normalizar(buscar?.value || '');
     const idsRuta = new Set((clientesDeRuta || []).map(c => String(c.id)));
     const disponibles = clientesDisponiblesPicker();
     const lista = disponibles.filter(c => {
         if (!q) return true;
-        return normalizar(`${c.nombre} ${c.direccion || ''} ${c.zona || ''} ${c.tipo_cliente || ''}`).includes(q);
+        return normalizar(`${c.nombre} ${c.direccion || ''} ${c.zona || ''} ${c.telefono || ''} ${c.tipo_cliente || ''}`).includes(q);
     });
 
     lista.sort((a, b) => {
@@ -2503,12 +2570,12 @@ function renderListaClientesPicker() {
     if (!lista.length) {
         if (!disponibles.length) {
             cont.innerHTML = `<div class="cliente-picker-empty">
-                <i class="fa-solid fa-users-slash" style="display:block;font-size:1.4rem;margin-bottom:6px;opacity:.5;"></i>
+                <i class="fa-solid fa-users-slash" style="display:block;font-size:1.6rem;margin-bottom:8px;opacity:.5;"></i>
                 No hay clientes cargados.<br>
-                <button type="button" class="cliente-picker-retry" onclick="recargarClientesPicker(event)"><i class="fa-solid fa-rotate"></i> Reintentar</button>
+                <button type="button" class="cliente-picker-retry" onclick="recargarClientesModal(event)"><i class="fa-solid fa-rotate"></i> Reintentar</button>
             </div>`;
         } else {
-            cont.innerHTML = `<div class="cliente-picker-empty"><i class="fa-solid fa-magnifying-glass" style="display:block;font-size:1.3rem;margin-bottom:6px;opacity:.5;"></i>Sin coincidencias para “${esc(buscar?.value || '')}”.</div>`;
+            cont.innerHTML = `<div class="cliente-picker-empty"><i class="fa-solid fa-magnifying-glass" style="display:block;font-size:1.5rem;margin-bottom:8px;opacity:.5;"></i>Sin coincidencias para “${esc(buscar?.value || '')}”.</div>`;
         }
         return;
     }
@@ -2530,7 +2597,7 @@ function renderListaClientesPicker() {
         }
 
         const seleccionado = clienteSeleccionadoActual && String(clienteSeleccionadoActual.id) === String(c.id);
-        return `<button type="button" class="cliente-picker-item${seleccionado ? ' selected' : ''}" data-id="${esc(c.id)}" onclick="seleccionarClientePicker(this.dataset.id)">
+        return `<button type="button" class="cliente-picker-item${seleccionado ? ' selected' : ''}" data-id="${esc(c.id)}" onclick="seleccionarClienteModal(this.dataset.id)">
             <span class="cliente-picker-avatar">${esc(inicial)}</span>
             <span class="cliente-picker-info">
                 <span class="cliente-picker-name">${esc(c.nombre)}</span>
@@ -2541,7 +2608,7 @@ function renderListaClientesPicker() {
     }).join('');
 }
 
-function seleccionarClientePicker(id) {
+function seleccionarClienteModal(id) {
     const c = clientesDisponiblesPicker().find(x => String(x.id) === String(id));
     if (!c) return;
 
@@ -2552,28 +2619,27 @@ function seleccionarClientePicker(id) {
     if (pedidoVentaActual && String(c.id) !== String(pedidoVentaActual.cliente_id)) pedidoVentaActual = null;
 
     actualizarInfoCliente();
-    cerrarListaClientesPicker();
+    cerrarModalClientesPicker();
 }
 
-async function recargarClientesPicker(event) {
+async function recargarClientesModal(event) {
     if (event) event.stopPropagation();
-    const cont = document.getElementById('cliente-picker-list');
+    const cont = document.getElementById('cliente-modal-list');
     if (cont) cont.innerHTML = '<div class="cliente-picker-empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando clientes...</div>';
     await cargarClientesGlobales();
-    renderListaClientesPicker();
+    renderListaClientesModal();
 }
 
-function manejarTeclaBuscadorClientes(event) {
+function manejarTeclaBuscadorClientesModal(event) {
     if (event.key === 'Escape') {
         event.preventDefault();
-        cerrarListaClientesPicker();
-        document.getElementById('venta-cliente')?.focus();
+        cerrarModalClientesPicker();
         return;
     }
     if (event.key === 'Enter') {
         event.preventDefault();
-        const primero = document.querySelector('#cliente-picker-list .cliente-picker-item');
-        if (primero) seleccionarClientePicker(primero.dataset.id);
+        const primero = document.querySelector('#cliente-modal-list .cliente-picker-item');
+        if (primero) seleccionarClienteModal(primero.dataset.id);
     }
 }
 
@@ -2584,8 +2650,8 @@ async function cargarClientesGlobales() {
             .eq('activo', true).order('nombre');
         clientesGlobal = data || [];
         renderDatalistClientes();
-        const panel = document.getElementById('cliente-picker-panel');
-        if (panel && !panel.hidden) renderListaClientesPicker();
+        const modal = document.getElementById('modal-clientes-picker');
+        if (modal && modal.style.display === 'flex') renderListaClientesModal();
     } catch (e) { console.error(e); }
 }
 
@@ -4363,12 +4429,8 @@ document.addEventListener('DOMContentLoaded', () => {
     actualizarPreviewEnvases();
     actualizarCalculadoraEfectivo();
 
-    document.addEventListener('click', (e) => {
-        const picker = document.getElementById('cliente-picker');
-        if (picker && !picker.contains(e.target)) cerrarListaClientesPicker();
-    });
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') cerrarListaClientesPicker();
+        if (e.key === 'Escape') cerrarModalClientesPicker();
     });
 });
 </script>
