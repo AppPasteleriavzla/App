@@ -904,6 +904,38 @@
         .prestamo-upload-status { font-size: .6rem; color: var(--text-muted); font-weight: 700; margin-top: 3px; }
 
         .modal-container.prestamo-modal-container { max-width: 520px; }
+
+        /* ===== SOLICITUDES DE PRODUCTO Y CAJA CHICA ===== */
+        .ops-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 13px; box-shadow: var(--shadow-sm); }
+        .ops-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 9px; margin-bottom: 9px; }
+        .ops-card-title { font-size: .82rem; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        .ops-card-sub { font-size: .62rem; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
+        .ops-items { display: flex; flex-direction: column; gap: 6px; }
+        .ops-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--surface-subtle); border-radius: 8px; padding: 7px 9px; font-size: .66rem; font-weight: 800; }
+        .ops-item small { color: var(--text-muted); font-weight: 700; }
+        .ops-pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 99px; padding: 3px 8px; font-size: .56rem; font-weight: 900; white-space: nowrap; }
+        .ops-pill.pendiente { background: var(--warning-light); color: #92400e; }
+        .ops-pill.aprobada { background: #dbeafe; color: #1d4ed8; }
+        .ops-pill.despachada { background: var(--success-light); color: #166534; }
+        .ops-pill.rechazada { background: var(--danger-light); color: #991b1b; }
+        .ops-pill.cancelada { background: #f1f5f9; color: #475569; }
+        .ops-pill.urgente { background: var(--danger-light); color: #b91c1c; }
+        .ops-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .ops-actions .prestamo-btn { flex: 1 1 auto; }
+        .cc-balance { font-size: 1.35rem; font-weight: 900; color: var(--primary-dark); margin-top: 8px; }
+        .cc-balance small { display: block; font-size: .54rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; font-weight: 800; }
+        .cc-mini { display: flex; justify-content: space-between; gap: 8px; font-size: .64rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; }
+        .cc-mini strong { color: var(--text-main); }
+        .cc-actions { display: flex; gap: 6px; margin-top: 9px; }
+        .cc-actions .prestamo-btn { flex: 1; }
+        .cc-mov-list { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 4px; }
+        .cc-mov { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px dashed var(--border); }
+        .cc-mov:last-child { border-bottom: 0; }
+        .cc-mov-title { font-size: .66rem; font-weight: 800; }
+        .cc-mov-sub { font-size: .56rem; font-weight: 700; color: var(--text-muted); margin-top: 1px; }
+        .cc-mov-monto { font-size: .7rem; font-weight: 900; white-space: nowrap; }
+        .cc-mov-monto.ingreso { color: var(--success); }
+        .cc-mov-monto.egreso { color: var(--danger); }
     </style>
 </head>
 <body>
@@ -1189,6 +1221,22 @@
             <div id="lista-pedidos-ruta" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
 
+        <div id="solicitudes-ruta-wrapper" style="margin-bottom: 15px;">
+            <div class="ops-card">
+                <div class="ops-card-head">
+                    <div>
+                        <div class="ops-card-title"><i class="fa-solid fa-clipboard-check" style="color: var(--primary);"></i> Solicitar productos</div>
+                        <div class="ops-card-sub">Pide carga a administración para tu camioneta.</div>
+                    </div>
+                    <span class="section-badge" id="solicitudes-ruta-count">0</span>
+                </div>
+                <button type="button" class="btn-primary" style="margin-top: 0;" onclick="abrirModalSolicitudProducto()">
+                    <i class="fa-solid fa-plus"></i> Nueva solicitud
+                </button>
+                <div id="lista-solicitudes-ruta" class="ops-items" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+
         <div id="ruta-stats-container" style="display: none;">
             <div class="ruta-stats">
                 <div class="ruta-stat">
@@ -1449,6 +1497,26 @@
             <i class="fa-solid fa-plus"></i> Registrar gasto
         </button>
 
+        <div class="ops-card" style="margin-bottom: 14px;">
+            <div class="ops-card-head">
+                <div>
+                    <div class="ops-card-title"><i class="fa-solid fa-coins" style="color: #b45309;"></i> Caja chica de mi camioneta</div>
+                    <div class="ops-card-sub" id="cc-chofer-flota">Sin camioneta activa</div>
+                </div>
+                <span class="ops-pill despachada" id="cc-chofer-pill">Bs. 0.00</span>
+            </div>
+            <div class="cc-balance"><small>Saldo disponible</small><span id="cc-chofer-saldo">Bs. 0.00</span></div>
+            <div class="cc-mini"><span>Aportes hoy</span><strong id="cc-chofer-aportes-hoy">+ Bs. 0.00</strong></div>
+            <div class="cc-mini"><span>Egresos hoy</span><strong id="cc-chofer-egresos-hoy">− Bs. 0.00</strong></div>
+            <div class="cc-actions">
+                <button type="button" class="prestamo-btn primary" onclick="registrarAporteDiarioChofer()"><i class="fa-solid fa-bolt"></i> Aporte Bs. 50</button>
+                <button type="button" class="prestamo-btn ghost" onclick="abrirModalCajaChicaChofer()"><i class="fa-solid fa-screwdriver-wrench"></i> Usar fondo</button>
+            </div>
+            <div id="lista-caja-chica-chofer" class="cc-mov-list">
+                <div class="prestamo-help">Cargando caja chica...</div>
+            </div>
+        </div>
+
         <div class="gastos-filtros" id="gastos-filtros">
             <button type="button" class="gasto-chip active" data-cat="Todos" onclick="filtrarGastos('Todos')">Todos</button>
             <button type="button" class="gasto-chip" data-cat="Gasolina" onclick="filtrarGastos('Gasolina')">Gasolina</button>
@@ -1548,9 +1616,17 @@
                 <div class="input-group"><label>Ubicación *</label><input type="text" id="pc-ubicacion" required placeholder="Lugar de entrega"></div>
                 <div class="input-group"><label>Dirección / referencia</label><input type="text" id="pc-direccion" placeholder="Dirección o referencia"></div>
                 <input type="hidden" id="pc-lat"><input type="hidden" id="pc-lng">
+                <div class="input-group">
+                    <label>Tipo de préstamo *</label>
+                    <select id="pc-tipo-prestamo" onchange="pcTipoCambio()">
+                        <option value="Con devolucion">Con devolución (fecha de recuperación)</option>
+                        <option value="Por consumo">Por consumo (contrato indefinido, sin fecha)</option>
+                    </select>
+                    <small id="pc-tipo-prestamo-help">El equipo se presta con una fecha de recuperación definida.</small>
+                </div>
                 <div class="prestamo-form-grid">
                     <div class="input-group"><label>Fecha del préstamo</label><input type="date" id="pc-fecha" required></div>
-                    <div class="input-group"><label>Compromiso de devolución</label><input type="date" id="pc-compromiso"></div>
+                    <div class="input-group" id="pc-compromiso-wrap"><label>Fecha de recuperación</label><input type="date" id="pc-compromiso"></div>
                 </div>
                 <button type="button" class="prestamo-btn ghost" style="width:100%;" onclick="pcUsarUbicacion()"><i class="fa-solid fa-location-crosshairs"></i> Usar mi ubicación actual</button>
             </div>
@@ -1562,6 +1638,22 @@
                     <input type="file" id="pc-foto" accept="image/*,application/pdf" onchange="pcSubirArchivo(this,'pc-foto-url')">
                     <input type="hidden" id="pc-foto-url">
                     <div class="prestamo-upload-status" id="pc-foto-estado">Se guardará en el bucket "prestamos".</div>
+                </div>
+                <div class="form-title" style="margin-top: 6px;"><i class="fa-solid fa-id-card"></i> Documentos del responsable</div>
+                <div class="input-group">
+                    <label>NIT</label>
+                    <input type="file" id="pc-nit-file" accept="image/*,application/pdf" onchange="pcSubirArchivo(this,'pc-nit-url')">
+                    <input type="hidden" id="pc-nit-url">
+                </div>
+                <div class="input-group">
+                    <label>Licencia de funcionamiento</label>
+                    <input type="file" id="pc-licencia-file" accept="image/*,application/pdf" onchange="pcSubirArchivo(this,'pc-licencia-url')">
+                    <input type="hidden" id="pc-licencia-url">
+                </div>
+                <div class="input-group">
+                    <label>Carnet de identidad del responsable</label>
+                    <input type="file" id="pc-ci-file" accept="image/*,application/pdf" onchange="pcSubirArchivo(this,'pc-ci-url')">
+                    <input type="hidden" id="pc-ci-url">
                 </div>
                 <div class="input-group"><label>Observaciones</label><textarea id="pc-observaciones" rows="2" placeholder="Condiciones, accesorios, notas..." style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.9rem;"></textarea></div>
             </div>
@@ -1611,6 +1703,93 @@
     </div>
 </div>
 
+<!-- ===== MODAL SOLICITUD DE PRODUCTOS ===== -->
+<div id="solicitudProductoModal" class="modal-overlay">
+    <div class="modal-container prestamo-modal-container">
+        <div class="modal-header">
+            <h3 style="color: var(--primary-dark); font-size: 1.05rem; margin: 0;"><i class="fa-solid fa-clipboard-check"></i> Solicitar productos</h3>
+            <button type="button" class="modal-close" onclick="cerrarModalSolicitudProducto()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="form-solicitud-producto" onsubmit="guardarSolicitudProducto(event)">
+            <div class="prestamo-form-section">
+                <div class="form-title"><i class="fa-solid fa-boxes-stacked"></i> Productos que necesitas</div>
+                <div class="prestamo-form-grid">
+                    <div class="input-group" style="grid-column: 1 / -1;">
+                        <label>Producto</label>
+                        <select id="sp-producto"><option value="">Cargando productos...</option></select>
+                    </div>
+                    <div class="input-group"><label>Cantidad</label><input type="number" id="sp-cantidad" min="1" step="1" value="1" inputmode="numeric"></div>
+                    <div class="input-group" style="display:flex;align-items:flex-end;"><button type="button" class="prestamo-btn primary" style="width:100%;" onclick="solicitudAgregarItem()"><i class="fa-solid fa-plus"></i> Agregar</button></div>
+                </div>
+                <div id="sp-items-draft" class="prestamo-items-draft"></div>
+                <div class="prestamo-total"><span id="sp-items-total">0 producto(s)</span><span>Para mi camioneta</span></div>
+            </div>
+            <div class="prestamo-form-section">
+                <div class="form-title"><i class="fa-solid fa-note-sticky"></i> Detalles de la solicitud</div>
+                <div class="input-group">
+                    <label>Prioridad</label>
+                    <select id="sp-prioridad">
+                        <option value="Normal">Normal</option>
+                        <option value="Urgente">Urgente</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Notas para administración</label>
+                    <textarea id="sp-notas" rows="2" placeholder="Ej. necesito recarga para la tarde" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.9rem;"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary" id="btn-sp-guardar"><i class="fa-solid fa-paper-plane"></i> Enviar solicitud</button>
+            <div class="prestamo-help"><i class="fa-solid fa-circle-info"></i> Administración aprueba y despacha la carga. El stock se suma a tu camioneta al confirmar.</div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== MODAL CAJA CHICA ===== -->
+<div id="cajaChicaChoferModal" class="modal-overlay">
+    <div class="modal-container prestamo-modal-container">
+        <div class="modal-header">
+            <h3 style="color: var(--primary-dark); font-size: 1.05rem; margin: 0;"><i class="fa-solid fa-coins"></i> Usar fondo de caja chica</h3>
+            <button type="button" class="modal-close" onclick="cerrarModalCajaChicaChofer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="form-caja-chica-chofer" onsubmit="guardarCajaChicaChofer(event)">
+            <div class="prestamo-form-section">
+                <div class="form-title"><i class="fa-solid fa-screwdriver-wrench"></i> Detalle del egreso</div>
+                <div class="prestamo-form-grid">
+                    <div class="input-group"><label>Monto (Bs.) *</label><input type="number" id="cc-ch-monto" min="0.01" step="0.01" required inputmode="decimal" placeholder="0.00"></div>
+                    <div class="input-group"><label>Fecha</label><input type="date" id="cc-ch-fecha"></div>
+                </div>
+                <div class="input-group">
+                    <label>Categoría *</label>
+                    <select id="cc-ch-categoria">
+                        <option value="Cambio de aceite">Cambio de aceite</option>
+                        <option value="Repuestos">Repuestos</option>
+                        <option value="Mantenimiento preventivo">Mantenimiento preventivo</option>
+                        <option value="Mantenimiento correctivo">Mantenimiento correctivo</option>
+                        <option value="Bateria">Batería</option>
+                        <option value="Llantas">Llantas</option>
+                        <option value="Accesorios">Accesorios</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Método de pago</label>
+                    <select id="cc-ch-metodo">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="QR">QR</option>
+                        <option value="Transferencia">Transferencia</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Descripción</label>
+                    <input type="text" id="cc-ch-descripcion" maxlength="180" placeholder="Ej. cambio de aceite y filtro">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary" id="btn-cc-ch-guardar"><i class="fa-solid fa-floppy-disk"></i> Guardar egreso</button>
+            <div class="prestamo-help"><i class="fa-solid fa-circle-info"></i> El egreso se descuenta del saldo de caja chica de tu camioneta.</div>
+        </form>
+    </div>
+</div>
+
 <div id="toast-container" aria-live="polite"></div>
 
 <script>
@@ -1653,6 +1832,9 @@ let filtroGastoActual = 'Todos';
 let gastosEsquemaExtendido = true;
 let gastosCargando = false;
 let reporteFinalChofer = null;
+let solicitudDraftItems = [];
+let solicitudesChoferData = { lista: [], instalado: true, error: '' };
+let cajaChicaChoferData = { resumen: null, movimientos: [], instalado: true, error: '' };
 
 const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -1832,11 +2014,11 @@ function switchScreen(name, navEl) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     if (navEl) navEl.classList.add('active');
-    if (name === 'ruta') { buscarRutaActiva(); cargarClientesDeRuta().then(() => cargarPedidosDeRuta()); }
+    if (name === 'ruta') { buscarRutaActiva(); cargarClientesDeRuta().then(() => cargarPedidosDeRuta()); cargarSolicitudesChofer(); }
     if (name === 'historial') fetchHistorialVentasChofer();
     if (name === 'clientes') renderDirectorioGPS();
     if (name === 'vender') { renderCatalogoProductos(); }
-    if (name === 'gastos') cargarGastosChofer();
+    if (name === 'gastos') { cargarGastosChofer(); cargarCajaChicaChofer(); }
     if (name === 'prestamos') cargarPrestamosChofer();
 }
 
@@ -1915,6 +2097,8 @@ async function procesarLogin(codigo, esAutomatico = false) {
         await cargarGastosChofer();
         await cargarClientesDeRuta();
         await cargarPedidosDeRuta();
+        await cargarSolicitudesChofer();
+        await cargarCajaChicaChofer();
     } catch (err) {
         console.error('Login error:', err);
         if (esAutomatico) {
@@ -3449,11 +3633,27 @@ function calcularComisionesChofer(entregas) {
 }
 
 async function fetchHistorialVentasChofer() {
-    if (!unidadSeleccionadaId) {
-        document.getElementById('driver-delivery-list').innerHTML = '<div class="loading-text">No hay ruta activa.</div>';
-        return;
-    }
+    if (!datosChoferLogueado) return;
     try {
+        // Un chofer puede tener varias filas de flota (históricas o duplicadas).
+        // El reporte del día debe sumar TODAS sus ventas, no solo la ruta actual.
+        const { data: flotasChofer, error: errorFlotas } = await supabaseClient
+            .from('flota')
+            .select('id')
+            .eq('chofer_id', datosChoferLogueado.id);
+        if (errorFlotas) throw errorFlotas;
+
+        const flotaIds = [...new Set([
+            ...(flotasChofer || []).map(f => f.id),
+            ...(unidadSeleccionadaId ? [unidadSeleccionadaId] : [])
+        ])];
+
+        if (!flotaIds.length) {
+            const listaVacia = document.getElementById('driver-delivery-list');
+            if (listaVacia) listaVacia.innerHTML = '<div class="loading-text">No hay ruta activa.</div>';
+            return;
+        }
+
         const inicio = new Date();
         inicio.setHours(0, 0, 0, 0);
         const fin = new Date();
@@ -3462,7 +3662,7 @@ async function fetchHistorialVentasChofer() {
         const { data, error } = await supabaseClient
             .from('entregas')
             .select('*, entregas_detalles(*, productos(nombre))')
-            .eq('flota_id', unidadSeleccionadaId)
+            .in('flota_id', flotaIds)
             .gte('created_at', inicio.toISOString())
             .lte('created_at', fin.toISOString())
             .order('created_at', { ascending: false });
@@ -4158,9 +4358,12 @@ function pcEquiposChips(p) {
 }
 
 function pcCard(p) {
-    const compromiso = p.fecha_compromiso
-        ? `<span><i class="fa-regular fa-calendar-check"></i> ${pcFechaCorta(p.fecha_compromiso)}</span>`
-        : '<span><i class="fa-regular fa-calendar"></i> Sin compromiso</span>';
+    const porConsumo = p.tipo_prestamo === 'Por consumo';
+    const compromiso = porConsumo
+        ? '<span><i class="fa-solid fa-infinity"></i> Por consumo · sin fecha</span>'
+        : (p.fecha_compromiso
+            ? `<span><i class="fa-regular fa-calendar-check"></i> ${pcFechaCorta(p.fecha_compromiso)}</span>`
+            : '<span><i class="fa-regular fa-calendar"></i> Sin compromiso</span>');
     const atraso = p.vencido && Number(p.dias_atraso) > 0
         ? `<span style="color:var(--danger);font-weight:900;"><i class="fa-solid fa-triangle-exclamation"></i> ${p.dias_atraso} día(s) de atraso</span>`
         : '';
@@ -4263,14 +4466,27 @@ async function cargarPrestamosChofer() {
     cont.innerHTML = '<div class="loading-text">Cargando préstamos...</div>';
 
     try {
-        const { data, error } = await supabaseClient
-            .from('v_prestamos_resumen')
-            .select('*')
-            .eq('chofer_id', datosChoferLogueado.id)
-            .order('created_at', { ascending: false });
-        if (error) throw error;
+        const [resumen, tipos] = await Promise.all([
+            supabaseClient
+                .from('v_prestamos_resumen')
+                .select('*')
+                .eq('chofer_id', datosChoferLogueado.id)
+                .order('created_at', { ascending: false }),
+            supabaseClient
+                .from('prestamos')
+                .select('id,tipo_prestamo')
+                .eq('chofer_id', datosChoferLogueado.id)
+        ]);
+        if (resumen.error) throw resumen.error;
 
-        prestamosChoferData = { todos: data || [], instalado: true, error: '' };
+        const tipoMap = {};
+        (tipos.data || []).forEach(p => { tipoMap[p.id] = p.tipo_prestamo; });
+        const todos = (resumen.data || []).map(p => ({
+            ...p,
+            tipo_prestamo: tipoMap[p.id] || p.tipo_prestamo || 'Con devolucion'
+        }));
+
+        prestamosChoferData = { todos, instalado: true, error: '' };
         suscribirRealtimePrestamosChofer();
     } catch (e) {
         const msg = e?.message || String(e);
@@ -4315,8 +4531,14 @@ async function abrirModalPrestamoChofer() {
     pcSet('pc-fecha', hoyISO());
     pcSet('pc-compromiso', pcHaceDias(7));
     pcSet('pc-foto-url', '');
+    pcSet('pc-nit-url', '');
+    pcSet('pc-licencia-url', '');
+    pcSet('pc-ci-url', '');
     pcSet('pc-lat', '');
     pcSet('pc-lng', '');
+    const tipoSel = document.getElementById('pc-tipo-prestamo');
+    if (tipoSel) tipoSel.value = 'Con devolucion';
+    pcTipoCambio();
     const estadoFoto = document.getElementById('pc-foto-estado');
     if (estadoFoto) estadoFoto.textContent = 'Se guardará en el bucket "prestamos".';
 
@@ -4378,6 +4600,48 @@ function pcClienteCambio() {
     }
 }
 
+function pcTipoCambio() {
+    const tipo = pcVal('pc-tipo-prestamo') || 'Con devolucion';
+    const esConsumo = tipo === 'Por consumo';
+    const wrap = document.getElementById('pc-compromiso-wrap');
+    const input = document.getElementById('pc-compromiso');
+    const help = document.getElementById('pc-tipo-prestamo-help');
+    if (wrap) wrap.style.opacity = esConsumo ? '.45' : '1';
+    if (input) {
+        input.disabled = esConsumo;
+        if (esConsumo) input.value = '';
+        else if (!input.value) input.value = pcHaceDias(7);
+    }
+    if (help) {
+        help.textContent = esConsumo
+            ? 'Sin fecha de recuperación: contrato indefinido. El equipo queda en poder del cliente.'
+            : 'El equipo se presta con una fecha de recuperación definida.';
+    }
+}
+
+async function pcAdjuntarDocumentos(prestamoId) {
+    if (!prestamoId) return;
+    const docs = [
+        ['NIT', 'NIT del responsable', pcVal('pc-nit-url')],
+        ['Licencia de funcionamiento', 'Licencia de funcionamiento', pcVal('pc-licencia-url')],
+        ['CI responsable', 'Carnet de identidad del responsable', pcVal('pc-ci-url')]
+    ].filter(([, , url]) => !!url);
+
+    for (const [tipo, nombre, url] of docs) {
+        try {
+            const { error } = await supabaseClient.rpc('rpc_agregar_adjunto_prestamo', {
+                p_prestamo_id: prestamoId,
+                p_tipo: tipo,
+                p_nombre: nombre,
+                p_url: url
+            });
+            if (error) throw error;
+        } catch (e) {
+            console.warn('No se pudo adjuntar ' + tipo + ':', e?.message || e);
+        }
+    }
+}
+
 async function pcCargarBebederosDisponibles() {
     try {
         const { data, error } = await supabaseClient
@@ -4388,6 +4652,17 @@ async function pcCargarBebederosDisponibles() {
             .order('codigo', { ascending: true });
         if (error) throw error;
         pcBebederosDisponibles = data || [];
+
+        // La vista no expone la categoría hasta recrearla: se completa aparte.
+        try {
+            const { data: cats } = await supabaseClient.from('bebederos').select('id,categoria');
+            const catMap = {};
+            (cats || []).forEach(b => { catMap[b.id] = b.categoria; });
+            pcBebederosDisponibles = pcBebederosDisponibles.map(b => ({
+                ...b,
+                categoria: catMap[b.id] || b.categoria || 'Dispenser normal'
+            }));
+        } catch (e) { /* migración v3 pendiente */ }
     } catch (e) {
         pcBebederosDisponibles = [];
     }
@@ -4401,7 +4676,7 @@ function pcRenderBebederosSelect() {
     const disponibles = pcBebederosDisponibles.filter(b => !usados.has(String(b.id)));
     const anterior = sel.value;
     sel.innerHTML = '<option value="">— Seleccione un bebedero —</option>' + disponibles.map(b =>
-        `<option value="${b.id}">${esc(b.codigo)}${b.marca ? ' · ' + esc(b.marca) : ''}${b.serie ? ' · Serie ' + esc(b.serie) : ''}</option>`
+        `<option value="${b.id}">${esc(b.codigo)} · ${esc(b.categoria || 'Dispenser normal')}${b.marca ? ' · ' + esc(b.marca) : ''}${b.serie ? ' · Serie ' + esc(b.serie) : ''}</option>`
     ).join('');
     if (disponibles.some(b => String(b.id) === String(anterior))) sel.value = anterior;
 }
@@ -4441,7 +4716,8 @@ function pcAgregarBebedero() {
         bebedero_id: b.id,
         codigo: b.codigo,
         serie: b.serie || '',
-        descripcion: `Bebedero ${b.codigo}`
+        categoria: b.categoria || 'Dispenser normal',
+        descripcion: `Bebedero ${b.codigo} · ${b.categoria || 'Dispenser normal'}`
     });
     pcRenderDraft();
 }
@@ -4538,6 +4814,12 @@ async function guardarPrestamoChofer(e) {
         return toast('Completa el prestatario, el responsable y la ubicación.', 'warning');
     }
 
+    const tipoPrestamo = pcVal('pc-tipo-prestamo') || 'Con devolucion';
+    const fechaRecuperacion = tipoPrestamo === 'Por consumo' ? null : (pcVal('pc-compromiso') || null);
+    if (tipoPrestamo === 'Con devolucion' && !fechaRecuperacion) {
+        return toast('Indica la fecha de recuperación para un préstamo con devolución.', 'warning');
+    }
+
     const btn = document.getElementById('btn-pc-guardar');
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...'; }
 
@@ -4560,7 +4842,7 @@ async function guardarPrestamoChofer(e) {
             p_longitud: Number.isFinite(lng) ? lng : null,
             p_url_maps: Number.isFinite(lat) && Number.isFinite(lng) ? `https://maps.google.com/?q=${lat},${lng}` : null,
             p_fecha_prestamo: pcVal('pc-fecha') || hoyISO(),
-            p_fecha_compromiso: pcVal('pc-compromiso') || null,
+            p_fecha_compromiso: fechaRecuperacion,
             p_poliza_numero: null,
             p_poliza_aseguradora: null,
             p_poliza_vigencia_hasta: null,
@@ -4587,6 +4869,18 @@ async function guardarPrestamoChofer(e) {
         const { data, error } = await supabaseClient.rpc('rpc_registrar_prestamo', payload);
         if (error) throw error;
 
+        if (data?.id && tipoPrestamo === 'Por consumo') {
+            const { error: tipoError } = await supabaseClient.rpc('rpc_actualizar_tipo_prestamo', {
+                p_prestamo_id: data.id,
+                p_tipo_prestamo: tipoPrestamo,
+                p_fecha_compromiso: null,
+                p_usuario: datosChoferLogueado?.nombre || 'Chofer'
+            });
+            if (tipoError) console.warn('No se pudo guardar el tipo de préstamo:', tipoError.message);
+        }
+
+        if (data?.id) await pcAdjuntarDocumentos(data.id);
+
         cerrarModalPrestamoChofer();
         pcDraftItems = [];
         prestamosChoferTab = 'pendientes';
@@ -4612,6 +4906,10 @@ async function abrirDetallePrestamoChofer(id) {
     try {
         const { data, error } = await supabaseClient.from('v_prestamo_detalle').select('*').eq('id', id).single();
         if (error) throw error;
+        try {
+            const { data: extra } = await supabaseClient.from('prestamos').select('tipo_prestamo').eq('id', id).maybeSingle();
+            data.tipo_prestamo = extra?.tipo_prestamo || data.tipo_prestamo || 'Con devolucion';
+        } catch (e) { data.tipo_prestamo = data.tipo_prestamo || 'Con devolucion'; }
         renderDetallePrestamoChofer(data);
     } catch (e) {
         body.innerHTML = `<div class="prestamo-empty"><i class="fa-solid fa-triangle-exclamation"></i>No se pudo cargar el préstamo: ${esc(e?.message || e)}</div>`;
@@ -4626,18 +4924,20 @@ function renderDetallePrestamoChofer(p) {
 
     const items = (p.items || []).filter(i => !i.anulado);
     const movimientos = p.movimientos || [];
+    const adjuntos = p.adjuntos || [];
     const pendienteTotal = items.reduce((s, i) =>
         s + Math.max(0, Number(i.cantidad_prestada || 0) - Number(i.cantidad_devuelta || 0) - Number(i.cantidad_perdida || 0)), 0);
 
     const detalle = [
         ['Estado', p.estado || '—'],
         ['Aprobación', p.estado_aprobacion || '—'],
+        ['Tipo de préstamo', p.tipo_prestamo === 'Por consumo' ? 'Por consumo (indefinido)' : 'Con devolución'],
         ['Prestatario', p.prestatario_nombre || '—'],
         ['Responsable', p.responsable_nombre || '—'],
         ['Teléfono', p.responsable_telefono || '—'],
         ['Ubicación', p.ubicacion || '—'],
         ['Fecha préstamo', pcFechaCorta(p.fecha_prestamo)],
-        ['Compromiso', pcFechaCorta(p.fecha_compromiso)],
+        ['Recuperación', p.tipo_prestamo === 'Por consumo' ? 'Indefinido' : pcFechaCorta(p.fecha_compromiso)],
         ['Registrado por', p.registrado_por || '—'],
         ['Origen', p.origen || '—']
     ];
@@ -4660,6 +4960,14 @@ function renderDetallePrestamoChofer(p) {
             <small>${pcFechaCorta(m.fecha)} · ${esc(m.recibido_por || '—')}${m.observaciones ? ' · ' + esc(m.observaciones) : ''}</small>
         </div>`).join('') : '<div class="prestamo-help">Sin devoluciones registradas.</div>';
 
+    const adjuntosHtml = adjuntos.length ? adjuntos.map(a => `
+        <div class="prestamo-detalle-line">
+            <a href="${esc(a.url)}" target="_blank" rel="noopener" style="color:var(--primary-dark);font-weight:800;">
+                <i class="fa-solid fa-paperclip"></i> ${esc(a.nombre || a.tipo || 'Adjunto')}
+            </a>
+            <br><small>${esc(a.tipo || '')}</small>
+        </div>`).join('') : '<div class="prestamo-help">Sin adjuntos.</div>';
+
     const aviso = p.estado_aprobacion === 'Pendiente'
         ? '<div class="prestamo-help" style="margin:10px 0;color:var(--purple);"><i class="fa-solid fa-clock"></i> Esperando aprobación de administración.</div>'
         : (p.estado !== 'Anulado' && pendienteTotal > 0
@@ -4678,10 +4986,381 @@ function renderDetallePrestamoChofer(p) {
         <div class="prestamo-total"><span>Pendiente total</span><span>${pendienteTotal} equipo(s)</span></div>
         <div class="form-title" style="font-size:.74rem;font-weight:900;color:var(--primary-dark);margin:12px 0 7px;"><i class="fa-solid fa-rotate-left"></i> Devoluciones</div>
         ${movimientosHtml}
+        <div class="form-title" style="font-size:.74rem;font-weight:900;color:var(--primary-dark);margin:12px 0 7px;"><i class="fa-solid fa-paperclip"></i> Documentos</div>
+        ${adjuntosHtml}
         ${p.observaciones ? `<div class="prestamo-help" style="margin-top:10px;"><strong>Observaciones:</strong> ${esc(p.observaciones)}</div>` : ''}
         ${p.rechazado_motivo ? `<div class="prestamo-help" style="margin-top:8px;color:var(--danger);"><strong>Motivo de rechazo:</strong> ${esc(p.rechazado_motivo)}</div>` : ''}
         ${p.anulado_motivo ? `<div class="prestamo-help" style="margin-top:8px;color:var(--danger);"><strong>Motivo de anulación:</strong> ${esc(p.anulado_motivo)}</div>` : ''}
     `;
+}
+
+// ============================================
+// SOLICITUDES DE PRODUCTO (CHOFER)
+// ============================================
+function estadoSolicitudPillChofer(estado) {
+    const map = {
+        Pendiente: 'pendiente', Aprobada: 'aprobada', Despachada: 'despachada',
+        Rechazada: 'rechazada', Cancelada: 'cancelada'
+    };
+    return `<span class="ops-pill ${map[estado] || 'cancelada'}">${esc(estado || '—')}</span>`;
+}
+
+async function cargarSolicitudesChofer() {
+    const cont = document.getElementById('lista-solicitudes-ruta');
+    if (!cont || !datosChoferLogueado) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('v_solicitudes_producto')
+            .select('*')
+            .eq('chofer_id', datosChoferLogueado.id)
+            .order('created_at', { ascending: false })
+            .limit(30);
+        if (error) throw error;
+        solicitudesChoferData = { lista: data || [], instalado: true, error: '' };
+        suscribirRealtimeSolicitudesChofer();
+    } catch (e) {
+        const msg = e?.message || String(e);
+        const noInstalado = /does not exist|no existe|42P01|Could not find the table|schema cache/i.test(msg);
+        solicitudesChoferData = { lista: [], instalado: !noInstalado, error: msg };
+        if (!noInstalado) console.error('Error al cargar solicitudes:', e);
+    }
+    renderSolicitudesChofer();
+}
+
+function renderSolicitudesChofer() {
+    const cont = document.getElementById('lista-solicitudes-ruta');
+    const badge = document.getElementById('solicitudes-ruta-count');
+    if (!cont) return;
+
+    if (!solicitudesChoferData.instalado) {
+        if (badge) badge.textContent = '0';
+        cont.innerHTML = '<div class="prestamo-help"><i class="fa-solid fa-database"></i> El módulo de solicitudes aún no está instalado.</div>';
+        return;
+    }
+
+    const lista = solicitudesChoferData.lista || [];
+    const pendientes = lista.filter(s => s.estado === 'Pendiente').length;
+    if (badge) badge.textContent = pendientes ? `${pendientes} pendiente${pendientes === 1 ? '' : 's'}` : '0';
+
+    if (!lista.length) {
+        cont.innerHTML = '<div class="prestamo-help">Aún no has solicitado productos.</div>';
+        return;
+    }
+
+    cont.innerHTML = lista.slice(0, 4).map(s => {
+        const items = Array.isArray(s.items) ? s.items : [];
+        const resumen = items.map(i => `${i.producto_nombre || 'Producto'} ×${Number(i.cantidad || 0)}`).join(' · ');
+        return `
+            <div class="ops-item" style="align-items:flex-start;">
+                <div style="min-width:0;">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <strong>${esc(s.numero || 'SOLICITUD')}</strong>
+                        ${estadoSolicitudPillChofer(s.estado)}
+                        ${s.prioridad === 'Urgente' ? '<span class="ops-pill urgente">Urgente</span>' : ''}
+                    </div>
+                    <div class="ops-card-sub" style="margin-top:4px;">${esc(resumen || 'Sin productos')}</div>
+                    <div class="ops-card-sub">${pcFechaCorta(s.created_at)} · ${Number(s.total_unidades || 0)} unidad(es)${s.respuesta ? ' · ' + esc(s.respuesta) : ''}</div>
+                </div>
+                ${s.estado === 'Pendiente'
+                    ? `<button type="button" class="prestamo-btn ghost" style="flex-shrink:0;" onclick="cancelarSolicitudProducto('${s.id}')" title="Cancelar solicitud"><i class="fa-solid fa-xmark"></i></button>`
+                    : ''}
+            </div>`;
+    }).join('') + (lista.length > 4 ? `<div class="prestamo-help">Mostrando las últimas 4 de ${lista.length} solicitudes.</div>` : '');
+}
+
+async function abrirModalSolicitudProducto() {
+    const flotaId = unidadActual?.id || unidadSeleccionadaId;
+    if (!flotaId) return toast('No tienes una camioneta activa para solicitar productos.', 'warning');
+
+    if (!productosGlobal.length) {
+        try { await cargarProductosGlobales(); } catch (e) {}
+    }
+
+    solicitudDraftItems = [];
+    const sel = document.getElementById('sp-producto');
+    if (sel) {
+        sel.innerHTML = '<option value="">— Seleccione producto —</option>' + (productosGlobal || [])
+            .filter(p => p.activo !== false)
+            .map(p => `<option value="${p.id}">${esc(p.nombre)}${p.unidad_medida ? ' · ' + esc(p.unidad_medida) : ''}</option>`)
+            .join('');
+    }
+    const cant = document.getElementById('sp-cantidad');
+    if (cant) cant.value = 1;
+    const prioridad = document.getElementById('sp-prioridad');
+    if (prioridad) prioridad.value = 'Normal';
+    const notas = document.getElementById('sp-notas');
+    if (notas) notas.value = '';
+    solicitudRenderDraft();
+    document.getElementById('solicitudProductoModal').style.display = 'flex';
+}
+
+function cerrarModalSolicitudProducto() {
+    document.getElementById('solicitudProductoModal').style.display = 'none';
+}
+
+function solicitudAgregarItem() {
+    const productoId = document.getElementById('sp-producto')?.value;
+    const cantidad = parseInt(document.getElementById('sp-cantidad')?.value, 10);
+    if (!productoId) return toast('Selecciona un producto.', 'warning');
+    if (!cantidad || cantidad <= 0) return toast('Ingresa una cantidad válida.', 'warning');
+
+    const producto = (productosGlobal || []).find(p => String(p.id) === String(productoId));
+    const existente = solicitudDraftItems.find(i => String(i.producto_id) === String(productoId));
+    if (existente) existente.cantidad += cantidad;
+    else solicitudDraftItems.push({
+        producto_id: productoId,
+        producto_nombre: producto?.nombre || 'Producto',
+        unidad: producto?.unidad_medida || '',
+        cantidad
+    });
+
+    const cant = document.getElementById('sp-cantidad');
+    if (cant) cant.value = 1;
+    solicitudRenderDraft();
+}
+
+function solicitudQuitarItem(index) {
+    solicitudDraftItems.splice(index, 1);
+    solicitudRenderDraft();
+}
+
+function solicitudRenderDraft() {
+    const cont = document.getElementById('sp-items-draft');
+    if (!cont) return;
+
+    if (!solicitudDraftItems.length) {
+        cont.innerHTML = '<div class="prestamo-help" style="text-align:center;">Todavía no agregaste productos.</div>';
+    } else {
+        cont.innerHTML = solicitudDraftItems.map((it, i) => `
+            <div class="prestamo-item-row">
+                <div class="prestamo-item-info">${esc(it.producto_nombre)}<small>${it.cantidad} unidad(es)${it.unidad ? ' · ' + esc(it.unidad) : ''}</small></div>
+                <button type="button" class="prestamo-item-remove" onclick="solicitudQuitarItem(${i})" title="Quitar"><i class="fa-solid fa-trash"></i></button>
+            </div>`).join('');
+    }
+
+    const total = solicitudDraftItems.reduce((s, it) => s + Number(it.cantidad || 0), 0);
+    const totalEl = document.getElementById('sp-items-total');
+    if (totalEl) totalEl.textContent = `${total} producto(s)`;
+}
+
+async function guardarSolicitudProducto(e) {
+    e.preventDefault();
+    const flotaId = unidadActual?.id || unidadSeleccionadaId;
+    if (!flotaId) return toast('No tienes una camioneta activa.', 'warning');
+    if (!solicitudDraftItems.length) return toast('Agrega al menos un producto.', 'warning');
+
+    const btn = document.getElementById('btn-sp-guardar');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando...'; }
+
+    try {
+        const { data, error } = await supabaseClient.rpc('rpc_crear_solicitud_producto', {
+            p_flota_id: flotaId,
+            p_chofer_id: datosChoferLogueado?.id || null,
+            p_solicitado_por: datosChoferLogueado?.nombre || 'Chofer',
+            p_notas: document.getElementById('sp-notas')?.value || null,
+            p_prioridad: document.getElementById('sp-prioridad')?.value || 'Normal',
+            p_items: solicitudDraftItems.map(it => ({
+                producto_id: it.producto_id,
+                cantidad: Number(it.cantidad || 0)
+            }))
+        });
+        if (error) throw error;
+
+        cerrarModalSolicitudProducto();
+        solicitudDraftItems = [];
+        await cargarSolicitudesChofer();
+        toast(`Solicitud ${data?.numero || ''} enviada a administración.`, 'success', 5000);
+    } catch (err) {
+        toast('No se pudo enviar la solicitud: ' + (err?.message || err), 'error', 6000);
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar solicitud'; }
+    }
+}
+
+async function cancelarSolicitudProducto(id) {
+    if (!confirm('¿Cancelar esta solicitud de productos?')) return;
+    try {
+        const { error } = await supabaseClient.rpc('rpc_cancelar_solicitud_producto', {
+            p_solicitud_id: id,
+            p_chofer_id: datosChoferLogueado?.id || null,
+            p_usuario: datosChoferLogueado?.nombre || 'Chofer'
+        });
+        if (error) throw error;
+        await cargarSolicitudesChofer();
+        toast('Solicitud cancelada.', 'success');
+    } catch (e) {
+        toast('No se pudo cancelar: ' + (e?.message || e), 'error');
+    }
+}
+
+function suscribirRealtimeSolicitudesChofer() {
+    if (suscribirRealtimeSolicitudesChofer.activo) return;
+    suscribirRealtimeSolicitudesChofer.activo = true;
+
+    supabaseClient.channel('chofer-solicitudes-live')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'solicitudes_producto' }, () => {
+            programarRecarga('solicitudes', () => {
+                if (document.getElementById('screen-ruta')?.classList.contains('active')) cargarSolicitudesChofer();
+            });
+        })
+        .subscribe();
+}
+
+// ============================================
+// CAJA CHICA (CHOFER)
+// ============================================
+function flotaActualId() {
+    return unidadActual?.id || unidadSeleccionadaId || null;
+}
+
+async function cargarCajaChicaChofer() {
+    const flotaId = flotaActualId();
+    const lista = document.getElementById('lista-caja-chica-chofer');
+    if (!flotaId) {
+        const nombre = document.getElementById('cc-chofer-flota');
+        if (nombre) nombre.textContent = 'Sin camioneta activa';
+        if (lista) lista.innerHTML = '<div class="prestamo-help">Espera a que administración active tu camioneta.</div>';
+        return;
+    }
+
+    if (lista) lista.innerHTML = '<div class="prestamo-help">Cargando caja chica...</div>';
+
+    try {
+        const [resumen, movimientos] = await Promise.all([
+            supabaseClient.from('v_caja_chica_resumen').select('*').eq('flota_id', flotaId).maybeSingle(),
+            supabaseClient.from('v_caja_chica_detalle').select('*')
+                .eq('flota_id', flotaId)
+                .order('created_at', { ascending: false })
+                .limit(20)
+        ]);
+        const primero = [resumen, movimientos].find(r => r.error);
+        if (primero) throw primero.error;
+        cajaChicaChoferData = {
+            resumen: resumen.data || null,
+            movimientos: movimientos.data || [],
+            instalado: true,
+            error: ''
+        };
+    } catch (e) {
+        const msg = e?.message || String(e);
+        const noInstalado = /does not exist|no existe|42P01|Could not find the table|schema cache/i.test(msg);
+        cajaChicaChoferData = { resumen: null, movimientos: [], instalado: !noInstalado, error: msg };
+        if (!noInstalado) console.error('Error al cargar caja chica:', e);
+    }
+    renderCajaChicaChofer();
+}
+
+function renderCajaChicaChofer() {
+    const lista = document.getElementById('lista-caja-chica-chofer');
+    if (!lista) return;
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    const nombre = unidadActual?.nombre || 'Mi camioneta';
+    set('cc-chofer-flota', nombre);
+
+    if (!cajaChicaChoferData.instalado) {
+        set('cc-chofer-saldo', 'Bs. 0.00');
+        set('cc-chofer-pill', 'No instalado');
+        set('cc-chofer-aportes-hoy', '+ ' + fmtBs(0));
+        set('cc-chofer-egresos-hoy', '− ' + fmtBs(0));
+        lista.innerHTML = '<div class="prestamo-help"><i class="fa-solid fa-database"></i> El módulo de caja chica aún no está instalado en Supabase.</div>';
+        return;
+    }
+
+    const r = cajaChicaChoferData.resumen || {};
+    const saldo = Number(r.saldo || 0);
+    set('cc-chofer-saldo', fmtBs(saldo));
+    set('cc-chofer-pill', saldo < 0 ? 'En déficit' : 'Disponible');
+    set('cc-chofer-aportes-hoy', '+ ' + fmtBs(r.aportes_hoy || 0));
+    set('cc-chofer-egresos-hoy', '− ' + fmtBs(r.egresos_hoy || 0));
+
+    const movimientos = (cajaChicaChoferData.movimientos || []).slice(0, 6);
+    if (!movimientos.length) {
+        lista.innerHTML = '<div class="prestamo-help">Todavía no hay movimientos de caja chica.</div>';
+        return;
+    }
+    lista.innerHTML = movimientos.map(m => `
+        <div class="cc-mov">
+            <div>
+                <div class="cc-mov-title">${esc(m.categoria || m.tipo)}</div>
+                <div class="cc-mov-sub">${pcFechaCorta(m.fecha || m.created_at)}${m.descripcion ? ' · ' + esc(m.descripcion) : ''}</div>
+            </div>
+            <div class="cc-mov-monto ${m.tipo === 'Aporte' ? 'ingreso' : 'egreso'}">
+                ${m.tipo === 'Aporte' ? '+' : '−'} ${fmtBs(m.monto || 0)}
+            </div>
+        </div>`).join('');
+}
+
+async function registrarAporteDiarioChofer() {
+    const flotaId = flotaActualId();
+    if (!flotaId) return toast('No tienes una camioneta activa.', 'warning');
+    if (!confirm('¿Registrar el aporte diario de Bs. 50 a la caja chica de tu camioneta?')) return;
+
+    try {
+        const { data, error } = await supabaseClient.rpc('rpc_aporte_diario_caja_chica', {
+            p_flota_id: flotaId,
+            p_fecha: hoyISO(),
+            p_monto: 50,
+            p_registrado_por: datosChoferLogueado?.nombre || 'Chofer'
+        });
+        if (error) throw error;
+        await cargarCajaChicaChofer();
+        toast(data?.ya_existia ? 'El aporte de hoy ya estaba registrado.' : 'Aporte de Bs. 50 registrado.', 'success');
+    } catch (e) {
+        toast('No se pudo registrar el aporte: ' + (e?.message || e), 'error');
+    }
+}
+
+function abrirModalCajaChicaChofer() {
+    if (!flotaActualId()) return toast('No tienes una camioneta activa.', 'warning');
+    const form = document.getElementById('form-caja-chica-chofer');
+    if (form) form.reset();
+    const fecha = document.getElementById('cc-ch-fecha');
+    if (fecha) fecha.value = hoyISO();
+    const metodo = document.getElementById('cc-ch-metodo');
+    if (metodo) metodo.value = 'Efectivo';
+    const cat = document.getElementById('cc-ch-categoria');
+    if (cat) cat.value = 'Cambio de aceite';
+    document.getElementById('cajaChicaChoferModal').style.display = 'flex';
+}
+
+function cerrarModalCajaChicaChofer() {
+    document.getElementById('cajaChicaChoferModal').style.display = 'none';
+}
+
+async function guardarCajaChicaChofer(e) {
+    e.preventDefault();
+    const flotaId = flotaActualId();
+    if (!flotaId) return toast('No tienes una camioneta activa.', 'warning');
+
+    const monto = Number(document.getElementById('cc-ch-monto')?.value || 0);
+    if (!monto || monto <= 0) return toast('Ingresa un monto válido.', 'warning');
+
+    const btn = document.getElementById('btn-cc-ch-guardar');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Guardando...'; }
+
+    try {
+        const { error } = await supabaseClient.rpc('rpc_registrar_caja_chica', {
+            p_flota_id: flotaId,
+            p_chofer_id: datosChoferLogueado?.id || null,
+            p_tipo: 'Egreso',
+            p_monto: monto,
+            p_categoria: document.getElementById('cc-ch-categoria')?.value || 'Otros',
+            p_descripcion: document.getElementById('cc-ch-descripcion')?.value || null,
+            p_fecha: document.getElementById('cc-ch-fecha')?.value || hoyISO(),
+            p_metodo_pago: document.getElementById('cc-ch-metodo')?.value || 'Efectivo',
+            p_registrado_por: datosChoferLogueado?.nombre || 'Chofer'
+        });
+        if (error) throw error;
+        cerrarModalCajaChicaChofer();
+        await cargarCajaChicaChofer();
+        toast('Egreso de caja chica registrado.', 'success');
+    } catch (err) {
+        toast('No se pudo registrar el egreso: ' + (err?.message || err), 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar egreso'; }
+    }
 }
 
 // ============================================
@@ -4702,9 +5381,9 @@ function suscribirRealtime() {
             if (datosChoferLogueado && fila.chofer_id && fila.chofer_id !== datosChoferLogueado.id) return;
             programarRecarga('flota', () => buscarRutaActiva());
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, (payload) => {
-            const fila = payload.new || payload.old || {};
-            if (unidadSeleccionadaId && fila.flota_id && fila.flota_id !== unidadSeleccionadaId) return;
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'entregas' }, () => {
+            // El reporte suma todas las flotas del chofer, así que se refresca
+            // ante cualquier entrega y no solo ante la ruta seleccionada.
             programarRecarga('entregas', () => {
                 fetchHistorialVentasChofer();
                 cargarClientesDeRuta();
@@ -4734,6 +5413,14 @@ function suscribirRealtime() {
             programarRecarga('gastos', () => {
                 cargarGastosChofer();
                 if (unidadSeleccionadaId) fetchHistorialVentasChofer();
+            });
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'caja_chica_movimientos' }, (payload) => {
+            const fila = payload.new || payload.old || {};
+            const flotaId = flotaActualId();
+            if (flotaId && fila.flota_id && fila.flota_id !== flotaId) return;
+            programarRecarga('cajachica', () => {
+                if (document.getElementById('screen-gastos')?.classList.contains('active')) cargarCajaChicaChofer();
             });
         })
         .subscribe();
