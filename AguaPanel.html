@@ -614,12 +614,52 @@
         .prestamos-contab-kpi strong { display: block; font-size: .95rem; font-weight: 900; margin-top: 3px; }
         .prestamos-contab-note { background: var(--primary-light); border: 1px solid #bae6fd; border-radius: 9px; padding: 9px 10px; font-size: .66rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; line-height: 1.5; }
 
+        /* ===== Solicitudes de producto y caja chica ===== */
+        .ops-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-sm); margin-bottom: 12px; }
+        .ops-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+        .ops-card-title { font-size: .9rem; font-weight: 900; color: var(--text); }
+        .ops-card-sub { font-size: .68rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; }
+        .ops-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: .68rem; font-weight: 700; color: var(--text-muted); margin-top: 7px; }
+        .ops-items { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .ops-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--bg); border-radius: 8px; padding: 8px 10px; font-size: .75rem; font-weight: 700; }
+        .ops-item small { color: var(--text-muted); font-weight: 700; }
+        .ops-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+        .ops-actions .prestamo-btn { flex: 1 1 auto; justify-content: center; }
+        .ops-pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 99px; padding: 3px 9px; font-size: .62rem; font-weight: 900; white-space: nowrap; }
+        .ops-pill.pendiente { background: #fef3c7; color: #92400e; }
+        .ops-pill.aprobada { background: #dbeafe; color: #1d4ed8; }
+        .ops-pill.despachada { background: #dcfce7; color: #166534; }
+        .ops-pill.rechazada { background: #fee2e2; color: #991b1b; }
+        .ops-pill.cancelada { background: #f1f5f9; color: #475569; }
+        .ops-pill.urgente { background: #fee2e2; color: #b91c1c; }
+        .cc-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .cc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 13px; box-shadow: var(--shadow-sm); }
+        .cc-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .cc-card-name { font-size: .84rem; font-weight: 900; }
+        .cc-card-driver { font-size: .66rem; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
+        .cc-balance { font-size: 1.25rem; font-weight: 900; color: var(--primary-dark); margin-top: 9px; }
+        .cc-balance small { display: block; font-size: .58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+        .cc-mini { display: flex; justify-content: space-between; gap: 8px; font-size: .68rem; font-weight: 700; color: var(--text-muted); margin-top: 5px; }
+        .cc-mini strong { color: var(--text); }
+        .cc-actions { display: flex; gap: 6px; margin-top: 10px; }
+        .cc-actions .prestamo-btn { flex: 1; justify-content: center; }
+        #screen-solicitudes.active, #screen-cajachica.active { display: block; }
+        .cc-mov { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+        .cc-mov:last-child { border-bottom: 0; }
+        .cc-mov-info { min-width: 0; }
+        .cc-mov-title { font-size: .76rem; font-weight: 800; }
+        .cc-mov-sub { font-size: .64rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+        .cc-mov-monto { font-size: .82rem; font-weight: 900; white-space: nowrap; }
+        .cc-mov-monto.ingreso { color: var(--success); }
+        .cc-mov-monto.egreso { color: var(--danger); }
+
         @media (min-width: 768px) {
             .prestamos-lista { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
             .prestamos-contab-total { grid-template-columns: repeat(4,1fr); }
             .prestamo-builder { grid-template-columns: 1fr 1fr; }
             #screen-prestamos.active .prestamos-hero { grid-column: span 2; }
             #screen-prestamos.active { display: block; }
+            .cc-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
         }
         @media (min-width: 1024px) {
             .prestamos-lista { grid-template-columns: repeat(3, minmax(0,1fr)); }
@@ -649,6 +689,7 @@
         <div class="nav-item" onclick="switchScreen('productos', this)"><i class="fa-solid fa-boxes-stacked"></i><span>Productos</span></div>
         <div class="nav-item" onclick="switchScreen('clientes', this)"><i class="fa-solid fa-users"></i><span>Clientes</span></div>
         <div class="nav-item" onclick="switchScreen('pedidos', this)"><i class="fa-solid fa-clipboard-list"></i><span>Pedidos</span></div>
+        <div class="nav-item" onclick="switchScreen('solicitudes', this)"><i class="fa-solid fa-clipboard-check"></i><span>Solicitudes</span></div>
         <div class="nav-item" onclick="switchScreen('rutas', this)"><i class="fa-solid fa-route"></i><span>Rutas</span></div>
         <div class="nav-item" onclick="switchScreen('fabrica', this)"><i class="fa-solid fa-industry"></i><span>Fábrica</span></div>
         <div class="nav-item" onclick="switchScreen('flota', this)"><i class="fa-solid fa-truck-fast"></i><span>Flota</span></div>
@@ -658,6 +699,7 @@
         <div class="nav-item" onclick="switchScreen('reportes', this)"><i class="fa-solid fa-chart-bar"></i><span>Reportes</span></div>
         <div class="nav-item" onclick="switchScreen('finanzas', this)"><i class="fa-solid fa-wallet"></i><span>Finanzas</span></div>
         <div class="nav-item" onclick="switchScreen('gastos', this)"><i class="fa-solid fa-receipt"></i><span>Gastos</span></div>
+        <div class="nav-item" onclick="switchScreen('cajachica', this)"><i class="fa-solid fa-coins"></i><span>Caja Chica</span></div>
     </nav>
 </aside>
 <script>
@@ -1383,6 +1425,109 @@
             <div class="loading-text">Cargando préstamos...</div>
         </div>
     </div>
+
+    <!-- SOLICITUDES DE PRODUCTO -->
+    <div id="screen-solicitudes" class="screen">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-clipboard-check" style="color: var(--primary);"></i> Solicitudes de producto</h2>
+            <span class="section-badge" id="solicitudes-count">0</span>
+        </div>
+        <div class="info-block"><i class="fa-solid fa-circle-info"></i> Los choferes piden productos desde su app. Al despachar, el stock se carga automáticamente a la camioneta de la solicitud.</div>
+
+        <div class="kpi-grid" style="margin-bottom: 12px;">
+            <div class="kpi-card">
+                <div class="kpi-top"><span class="kpi-title">Pendientes</span><div class="kpi-icon-wrapper"><i class="fa-solid fa-clock"></i></div></div>
+                <div class="kpi-value" id="sol-kpi-pendientes">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top"><span class="kpi-title">Aprobadas</span><div class="kpi-icon-wrapper"><i class="fa-solid fa-check"></i></div></div>
+                <div class="kpi-value" id="sol-kpi-aprobadas">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top"><span class="kpi-title">Despachadas hoy</span><div class="kpi-icon-wrapper"><i class="fa-solid fa-truck-ramp-box"></i></div></div>
+                <div class="kpi-value" id="sol-kpi-despachadas">0</div>
+            </div>
+        </div>
+
+        <div class="prestamos-tabs" id="solicitudes-tabs">
+            <button type="button" class="prestamos-tab active" data-tab="pendientes" onclick="cambiarTabSolicitudes('pendientes', this)">Pendientes</button>
+            <button type="button" class="prestamos-tab" data-tab="todas" onclick="cambiarTabSolicitudes('todas', this)">Todas</button>
+        </div>
+
+        <div id="lista-solicitudes-admin" class="prestamos-lista">
+            <div class="loading-text">Cargando solicitudes...</div>
+        </div>
+    </div>
+
+    <!-- CAJA CHICA POR CAMIONETA -->
+    <div id="screen-cajachica" class="screen">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-coins" style="color: #b45309;"></i> Caja chica por camioneta</h2>
+            <span class="section-badge" id="cc-count">0 fondos</span>
+        </div>
+        <div class="info-block"><i class="fa-solid fa-circle-info"></i> Cada camioneta aporta <strong>Bs. 50 por día</strong>. El fondo cubre cambio de aceite, repuestos, mantenimiento preventivo/correctivo, batería, llantas y accesorios.</div>
+
+        <div class="kpi-grid" style="margin-bottom: 12px;">
+            <div class="kpi-card">
+                <div class="kpi-top"><span class="kpi-title">Saldo total</span><div class="kpi-icon-wrapper"><i class="fa-solid fa-sack-dollar"></i></div></div>
+                <div class="kpi-value" id="cc-saldo-total">Bs. 0.00</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top"><span class="kpi-title">Aportes hoy</span><div class="kpi-icon-wrapper"><i class="fa-solid fa-arrow-down"></i></div></div>
+                <div class="kpi-value" id="cc-aportes-hoy">Bs. 0.00</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top"><span class="kpi-title">Egresos hoy</span><div class="kpi-icon-wrapper"><i class="fa-solid fa-arrow-up"></i></div></div>
+                <div class="kpi-value" id="cc-egresos-hoy">Bs. 0.00</div>
+            </div>
+        </div>
+
+        <div class="form-card" style="margin-bottom: 14px;">
+            <div class="form-title"><i class="fa-solid fa-plus"></i> Registrar movimiento</div>
+            <form id="form-caja-chica-admin" onsubmit="registrarCajaChicaAdmin(event)">
+                <div class="input-group"><label>Camioneta *</label><select id="cc-flota" required><option value="">Cargando camionetas...</option></select></div>
+                <div style="display: flex; gap: 8px;">
+                    <div class="input-group" style="flex: 1;"><label>Tipo</label>
+                        <select id="cc-tipo" onchange="cajaChicaTipoCambio()">
+                            <option value="Aporte">Aporte / ingreso</option>
+                            <option value="Egreso">Egreso / uso del fondo</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="flex: 1;"><label>Monto (Bs.) *</label><input type="number" id="cc-monto" min="0.01" step="0.01" value="50" required></div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <div class="input-group" style="flex: 1;"><label>Categoría</label>
+                        <select id="cc-categoria">
+                            <option value="Aporte diario">Aporte diario</option>
+                            <option value="Cambio de aceite">Cambio de aceite</option>
+                            <option value="Repuestos">Repuestos</option>
+                            <option value="Mantenimiento preventivo">Mantenimiento preventivo</option>
+                            <option value="Mantenimiento correctivo">Mantenimiento correctivo</option>
+                            <option value="Bateria">Batería</option>
+                            <option value="Llantas">Llantas</option>
+                            <option value="Accesorios">Accesorios</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="flex: 1;"><label>Fecha</label><input type="date" id="cc-fecha"></div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <div class="input-group" style="flex: 1;"><label>Método</label><select id="cc-metodo"><option value="Efectivo">Efectivo</option><option value="QR">QR</option><option value="Transferencia">Transferencia</option></select></div>
+                    <div class="input-group" style="flex: 1;"><label>Descripción</label><input type="text" id="cc-descripcion" maxlength="180" placeholder="Ej. cambio de aceite"></div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="submit" class="btn-primary" style="flex: 1; margin-top: 0;"><i class="fa-solid fa-floppy-disk"></i> Guardar movimiento</button>
+                    <button type="button" class="btn-outline" style="flex: 1; margin-top: 0;" onclick="registrarAporteDiarioAdmin()"><i class="fa-solid fa-bolt"></i> Aporte Bs. 50</button>
+                </div>
+            </form>
+        </div>
+
+        <h3 style="font-size: .9rem; font-weight: 900; margin: 16px 0 9px;"><i class="fa-solid fa-truck"></i> Saldos por camioneta</h3>
+        <div id="cc-resumen" class="cc-grid"><div class="loading-text">Cargando caja chica...</div></div>
+
+        <h3 style="font-size: .9rem; font-weight: 900; margin: 16px 0 9px;"><i class="fa-solid fa-clock-rotate-left"></i> Últimos movimientos</h3>
+        <div id="cc-movimientos" class="form-card"><div class="loading-text">Cargando movimientos...</div></div>
+    </div>
 </main>
 
 <nav class="bottom-nav">
@@ -1390,6 +1535,7 @@
     <div class="nav-item" onclick="switchScreen('productos', this)"><i class="fa-solid fa-boxes-stacked"></i><span>Productos</span></div>
     <div class="nav-item" onclick="switchScreen('clientes', this)"><i class="fa-solid fa-users"></i><span>Clientes</span></div>
     <div class="nav-item" onclick="switchScreen('pedidos', this)"><i class="fa-solid fa-clipboard-list"></i><span>Pedidos</span></div>
+    <div class="nav-item" onclick="switchScreen('solicitudes', this)"><i class="fa-solid fa-clipboard-check"></i><span>Solicitudes</span></div>
     <div class="nav-item" onclick="switchScreen('rutas', this)"><i class="fa-solid fa-route"></i><span>Rutas</span></div>
     <div class="nav-item" onclick="switchScreen('fabrica', this)"><i class="fa-solid fa-industry"></i><span>Fábrica</span></div>
     <div class="nav-item" onclick="switchScreen('flota', this)"><i class="fa-solid fa-truck-fast"></i><span>Flota</span></div>
@@ -1399,6 +1545,7 @@
     <div class="nav-item" onclick="switchScreen('reportes', this)"><i class="fa-solid fa-chart-bar"></i><span>Reportes</span></div>
     <div class="nav-item" onclick="switchScreen('finanzas', this)"><i class="fa-solid fa-wallet"></i><span>Finanzas</span></div>
     <div class="nav-item" onclick="switchScreen('gastos', this)"><i class="fa-solid fa-receipt"></i><span>Gastos</span></div>
+    <div class="nav-item" onclick="switchScreen('cajachica', this)"><i class="fa-solid fa-coins"></i><span>Caja Chica</span></div>
 </nav>
 
 <div id="historialModal" class="modal-overlay">
@@ -1690,9 +1837,17 @@
                 <div class="input-group"><label>Dirección</label><input type="text" id="prestamo-direccion" placeholder="Dirección o referencia"></div>
                 <div class="input-group"><label>Link de mapa</label><input type="url" id="prestamo-maps" placeholder="https://maps.google.com/..."></div>
                 <input type="hidden" id="prestamo-lat"><input type="hidden" id="prestamo-lng">
+                <div class="input-group">
+                    <label>Tipo de préstamo *</label>
+                    <select id="prestamo-tipo-prestamo" onchange="prestamoTipoCambio()">
+                        <option value="Con devolucion">Con devolución (fecha de recuperación)</option>
+                        <option value="Por consumo">Por consumo (contrato indefinido, sin fecha)</option>
+                    </select>
+                    <small id="prestamo-tipo-prestamo-help">El equipo se presta con una fecha de recuperación definida.</small>
+                </div>
                 <div class="prestamo-form-grid">
                     <div class="input-group"><label>Fecha del préstamo</label><input type="date" id="prestamo-fecha" required></div>
-                    <div class="input-group"><label>Compromiso de devolución</label><input type="date" id="prestamo-compromiso"></div>
+                    <div class="input-group" id="prestamo-compromiso-wrap"><label>Compromiso de devolución</label><input type="date" id="prestamo-compromiso"></div>
                 </div>
                 <button type="button" class="prestamos-action-btn" onclick="usarUbicacionPrestamo()"><i class="fa-solid fa-location-crosshairs"></i> Usar mi ubicación actual</button>
             </div>
@@ -1709,6 +1864,22 @@
                     <input type="file" id="prestamo-foto" accept="image/*,application/pdf" onchange="subirArchivoPrestamo(this,'prestamo-foto-url')">
                     <input type="hidden" id="prestamo-foto-url">
                     <small id="prestamo-foto-estado">Se guardará en el bucket "prestamos".</small>
+                </div>
+                <div class="form-title" style="margin-top: 6px;"><i class="fa-solid fa-id-card"></i> Documentos del responsable</div>
+                <div class="input-group">
+                    <label>NIT</label>
+                    <input type="file" id="prestamo-nit-file" accept="image/*,application/pdf" onchange="subirArchivoPrestamo(this,'prestamo-nit-url')">
+                    <input type="hidden" id="prestamo-nit-url">
+                </div>
+                <div class="input-group">
+                    <label>Licencia de funcionamiento</label>
+                    <input type="file" id="prestamo-licencia-file" accept="image/*,application/pdf" onchange="subirArchivoPrestamo(this,'prestamo-licencia-url')">
+                    <input type="hidden" id="prestamo-licencia-url">
+                </div>
+                <div class="input-group">
+                    <label>Carnet de identidad del responsable</label>
+                    <input type="file" id="prestamo-ci-file" accept="image/*,application/pdf" onchange="subirArchivoPrestamo(this,'prestamo-ci-url')">
+                    <input type="hidden" id="prestamo-ci-url">
                 </div>
                 <div class="input-group"><label>Observaciones</label><textarea id="prestamo-observaciones" placeholder="Condiciones, accesorios, notas..."></textarea></div>
             </div>
@@ -1789,6 +1960,15 @@
                 <div class="input-group"><label>Serie</label><input type="text" id="bebedero-serie" placeholder="Serie del fabricante"></div>
                 <div class="input-group"><label>Marca</label><input type="text" id="bebedero-marca"></div>
                 <div class="input-group"><label>Modelo</label><input type="text" id="bebedero-modelo"></div>
+                <div class="input-group">
+                    <label>Categoría / tipo</label>
+                    <select id="bebedero-categoria">
+                        <option value="Dispenser normal">Dispenser normal</option>
+                        <option value="Dispenser de mesa">Dispenser de mesa</option>
+                        <option value="Dispenser de pie">Dispenser de pie</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
                 <div class="input-group"><label>Color</label><input type="text" id="bebedero-color"></div>
                 <div class="input-group"><label>Valor unitario (Bs)</label><input type="number" min="0" step="0.01" id="bebedero-valor" placeholder="0"></div>
                 <div class="input-group"><label>Fecha de compra</label><input type="date" id="bebedero-fecha-compra"></div>
@@ -1841,6 +2021,9 @@
             <select id="adjunto-tipo">
                 <option value="Foto equipo">Foto del equipo</option>
                 <option value="Poliza">Póliza</option>
+                <option value="NIT">NIT</option>
+                <option value="Licencia de funcionamiento">Licencia de funcionamiento</option>
+                <option value="CI responsable">Carnet del responsable</option>
                 <option value="Firma">Firma</option>
                 <option value="Otro">Otro</option>
             </select>
@@ -1974,6 +2157,8 @@ async function switchScreen(name, el) {
     if (name === 'mapa') initMapa();
     if (name === 'finanzas') fetchCaja();
     if (name === 'gastos') fetchGastosAdmin();
+    if (name === 'solicitudes') cargarSolicitudesAdmin();
+    if (name === 'cajachica') cargarCajaChicaAdmin();
     if (name === 'clientes') { cargarClientesDirectorio(); llenarSelectRutas(); }
     if (name === 'pedidos') { llenarSelectClientesPedido(); cargarPedidos(); }
     if (name === 'reportes') cargarReportes();
@@ -4903,9 +5088,12 @@ function equiposChipsPrestamo(p) {
 function prestamoCard(p, modo) {
     const pendientes = Number(p.pendientes || 0);
     const vencidoClase = p.vencido ? ' vencido' : '';
-    const compromiso = p.fecha_compromiso
-        ? `<span><i class="fa-regular fa-calendar-check"></i> Compromiso: ${fechaPrestamoCorta(p.fecha_compromiso)}</span>`
-        : '<span><i class="fa-regular fa-calendar"></i> Sin fecha de compromiso</span>';
+    const porConsumo = p.tipo_prestamo === 'Por consumo';
+    const compromiso = porConsumo
+        ? '<span><i class="fa-solid fa-infinity"></i> Por consumo · sin fecha</span>'
+        : (p.fecha_compromiso
+            ? `<span><i class="fa-regular fa-calendar-check"></i> Compromiso: ${fechaPrestamoCorta(p.fecha_compromiso)}</span>`
+            : '<span><i class="fa-regular fa-calendar"></i> Sin fecha de compromiso</span>');
     const atraso = p.vencido && Number(p.dias_atraso) > 0
         ? `<span style="color:var(--danger);font-weight:900;"><i class="fa-solid fa-triangle-exclamation"></i> ${p.dias_atraso} día(s) de atraso</span>`
         : '';
@@ -5005,6 +5193,7 @@ function renderBebederosAdmin() {
                 </div>
                 <div class="prestamo-card-meta">
                     <span><i class="fa-solid fa-money-bill-wave"></i> ${fmtBs(b.valor_unitario || 0)}</span>
+                    <span><i class="fa-solid fa-faucet-drip"></i> ${esc(b.categoria || 'Dispenser normal')}</span>
                     <span><i class="fa-solid fa-rotate"></i> ${Number(b.veces_prestado || 0)} préstamo(s)</span>
                     ${b.descripcion ? `<span><i class="fa-solid fa-circle-info"></i> ${esc(b.descripcion)}</span>` : ''}
                 </div>
@@ -5119,11 +5308,31 @@ async function cargarPrestamosAdmin() {
         const primeroConError = [abiertos, aprobar, bebederos, historial, contabilidad].find(r => r.error);
         if (primeroConError) throw primeroConError.error;
 
+        let catMap = {};
+        let tipoMap = {};
+        try {
+            const [{ data: cats }, { data: tipos }] = await Promise.all([
+                supabaseClient.from('bebederos').select('id,categoria'),
+                supabaseClient.from('prestamos').select('id,tipo_prestamo').limit(500)
+            ]);
+            (cats || []).forEach(b => { catMap[b.id] = b.categoria; });
+            (tipos || []).forEach(p => { tipoMap[p.id] = p.tipo_prestamo; });
+        } catch (e) { /* migración v3 pendiente */ }
+
+        const conTipo = (lista) => (lista || []).map(p => ({
+            ...p,
+            tipo_prestamo: tipoMap[p.id] || p.tipo_prestamo || 'Con devolucion'
+        }));
+        const conCategoria = (lista) => (lista || []).map(b => ({
+            ...b,
+            categoria: catMap[b.id] || b.categoria || 'Dispenser normal'
+        }));
+
         prestamosAdminData = {
-            abiertos: abiertos.data || [],
-            aprobar: aprobar.data || [],
-            bebederos: bebederos.data || [],
-            historial: historial.data || [],
+            abiertos: conTipo(abiertos.data),
+            aprobar: conTipo(aprobar.data),
+            bebederos: conCategoria(bebederos.data),
+            historial: conTipo(historial.data),
             contabilidad: contabilidad.data || [],
             instalado: true,
             error: ''
@@ -5178,8 +5387,14 @@ async function abrirModalNuevoPrestamo() {
     setValPrestamo('prestamo-fecha', hoyISO());
     setValPrestamo('prestamo-compromiso', haceDiasPrestamo(7));
     setValPrestamo('prestamo-foto-url', '');
+    setValPrestamo('prestamo-nit-url', '');
+    setValPrestamo('prestamo-licencia-url', '');
+    setValPrestamo('prestamo-ci-url', '');
     setValPrestamo('prestamo-lat', '');
     setValPrestamo('prestamo-lng', '');
+    const tipoPrestamoSel = document.getElementById('prestamo-tipo-prestamo');
+    if (tipoPrestamoSel) tipoPrestamoSel.value = 'Con devolucion';
+    prestamoTipoCambio();
     const estadoFoto = document.getElementById('prestamo-foto-estado');
     if (estadoFoto) estadoFoto.textContent = 'Se guardará en el bucket "prestamos".';
 
@@ -5225,6 +5440,48 @@ function prestamoClienteCambio() {
     }
 }
 
+function prestamoTipoCambio() {
+    const tipo = valPrestamo('prestamo-tipo-prestamo') || 'Con devolucion';
+    const esConsumo = tipo === 'Por consumo';
+    const wrap = document.getElementById('prestamo-compromiso-wrap');
+    const input = document.getElementById('prestamo-compromiso');
+    const help = document.getElementById('prestamo-tipo-prestamo-help');
+    if (wrap) wrap.style.opacity = esConsumo ? '.45' : '1';
+    if (input) {
+        input.disabled = esConsumo;
+        if (esConsumo) input.value = '';
+        else if (!input.value) input.value = haceDiasPrestamo(7);
+    }
+    if (help) {
+        help.textContent = esConsumo
+            ? 'Sin fecha de recuperación: contrato indefinido. El equipo queda en poder del cliente.'
+            : 'El equipo se presta con una fecha de recuperación definida.';
+    }
+}
+
+async function adjuntarDocumentosPrestamoAdmin(prestamoId) {
+    if (!prestamoId) return;
+    const docs = [
+        ['NIT', 'NIT del responsable', valPrestamo('prestamo-nit-url')],
+        ['Licencia de funcionamiento', 'Licencia de funcionamiento', valPrestamo('prestamo-licencia-url')],
+        ['CI responsable', 'Carnet de identidad del responsable', valPrestamo('prestamo-ci-url')]
+    ].filter(([, , url]) => !!url);
+
+    for (const [tipo, nombre, url] of docs) {
+        try {
+            const { error } = await supabaseClient.rpc('rpc_agregar_adjunto_prestamo', {
+                p_prestamo_id: prestamoId,
+                p_tipo: tipo,
+                p_nombre: nombre,
+                p_url: url
+            });
+            if (error) throw error;
+        } catch (e) {
+            console.warn('No se pudo adjuntar ' + tipo + ':', e?.message || e);
+        }
+    }
+}
+
 async function cargarBebederosDisponiblesPrestamo() {
     try {
         const { data, error } = await supabaseClient
@@ -5235,6 +5492,17 @@ async function cargarBebederosDisponiblesPrestamo() {
             .order('codigo', { ascending: true });
         if (error) throw error;
         bebederoDisponiblesPrestamo = data || [];
+
+        // La vista no expone la categoría hasta recrearla: se completa aparte.
+        try {
+            const { data: cats } = await supabaseClient.from('bebederos').select('id,categoria');
+            const catMap = {};
+            (cats || []).forEach(b => { catMap[b.id] = b.categoria; });
+            bebederoDisponiblesPrestamo = bebederoDisponiblesPrestamo.map(b => ({
+                ...b,
+                categoria: catMap[b.id] || b.categoria || 'Dispenser normal'
+            }));
+        } catch (e) { /* migración v3 pendiente */ }
     } catch (e) {
         bebederoDisponiblesPrestamo = [];
         console.warn('No se pudieron cargar los bebederos disponibles:', e?.message || e);
@@ -5249,7 +5517,7 @@ function renderBebederosDisponiblesSelect() {
     const disponibles = bebederoDisponiblesPrestamo.filter(b => !usados.has(String(b.id)));
     const anterior = sel.value;
     sel.innerHTML = '<option value="">— Seleccione un bebedero —</option>' + disponibles.map(b =>
-        `<option value="${b.id}">${esc(b.codigo)}${b.marca ? ' · ' + esc(b.marca) : ''}${b.serie ? ' · Serie ' + esc(b.serie) : ''}</option>`
+        `<option value="${b.id}">${esc(b.codigo)} · ${esc(b.categoria || 'Dispenser normal')}${b.marca ? ' · ' + esc(b.marca) : ''}${b.serie ? ' · Serie ' + esc(b.serie) : ''}</option>`
     ).join('');
     if (disponibles.some(b => String(b.id) === String(anterior))) sel.value = anterior;
 }
@@ -5297,8 +5565,9 @@ function agregarBebederoDraft() {
         bebedero_id: b.id,
         codigo: b.codigo,
         serie: b.serie || '',
+        categoria: b.categoria || 'Dispenser normal',
         valor_unitario: Number(b.valor_unitario || 0),
-        descripcion: `Bebedero ${b.codigo}`
+        descripcion: `Bebedero ${b.codigo} · ${b.categoria || 'Dispenser normal'}`
     });
     renderPrestamoDraft();
 }
@@ -5319,7 +5588,9 @@ function renderPrestamoDraft() {
     } else {
         cont.innerHTML = prestamoDraftItems.map((it, i) => {
             const esBebedero = it.tipo_equipo === 'Bebedero';
-            const titulo = esBebedero ? `Bebedero ${esc(it.codigo || '')}` : esc(it.descripcion || 'Botellón');
+            const titulo = esBebedero
+                ? `Bebedero ${esc(it.codigo || '')}${it.categoria ? ' · ' + esc(it.categoria) : ''}`
+                : esc(it.descripcion || 'Botellón');
             const detalle = esBebedero
                 ? `${it.serie ? 'Serie ' + esc(it.serie) + ' · ' : ''}1 unidad · ${fmtBs(it.valor_unitario)}`
                 : `${it.cantidad} unidad(es)${it.producto_nombre ? ' · ' + esc(it.producto_nombre) : ''} · ${fmtBs(it.valor_unitario)} c/u`;
@@ -5359,6 +5630,12 @@ async function guardarPrestamoAdmin(e) {
         const fotoUrl = valPrestamo('prestamo-foto-url');
         const lat = parseFloat(valPrestamo('prestamo-lat'));
         const lng = parseFloat(valPrestamo('prestamo-lng'));
+        const tipoPrestamo = valPrestamo('prestamo-tipo-prestamo') || 'Con devolucion';
+        const fechaCompromiso = tipoPrestamo === 'Por consumo' ? null : (valPrestamo('prestamo-compromiso') || null);
+
+        if (tipoPrestamo === 'Con devolucion' && !fechaCompromiso) {
+            return alert('Indique la fecha de recuperación para un préstamo con devolución.');
+        }
 
         const payload = {
             p_cliente_id: valPrestamo('prestamo-cliente') || null,
@@ -5374,7 +5651,7 @@ async function guardarPrestamoAdmin(e) {
             p_longitud: Number.isFinite(lng) ? lng : null,
             p_url_maps: valPrestamo('prestamo-maps') || null,
             p_fecha_prestamo: valPrestamo('prestamo-fecha') || hoyISO(),
-            p_fecha_compromiso: valPrestamo('prestamo-compromiso') || null,
+            p_fecha_compromiso: fechaCompromiso,
             p_poliza_numero: valPrestamo('prestamo-poliza') || null,
             p_poliza_aseguradora: valPrestamo('prestamo-aseguradora') || null,
             p_poliza_vigencia_hasta: valPrestamo('prestamo-poliza-vigencia') || null,
@@ -5401,6 +5678,20 @@ async function guardarPrestamoAdmin(e) {
 
         const { data, error } = await supabaseClient.rpc('rpc_registrar_prestamo', payload);
         if (error) throw error;
+
+        if (data?.id && tipoPrestamo === 'Por consumo') {
+            const { error: tipoError } = await supabaseClient.rpc('rpc_actualizar_tipo_prestamo', {
+                p_prestamo_id: data.id,
+                p_tipo_prestamo: tipoPrestamo,
+                p_fecha_compromiso: null,
+                p_usuario: 'Administración'
+            });
+            if (tipoError) console.warn('No se pudo guardar el tipo de préstamo:', tipoError.message);
+        }
+
+        if (data?.id) {
+            await adjuntarDocumentosPrestamoAdmin(data.id);
+        }
 
         cerrarModal('prestamoModal');
         prestamoDraftItems = [];
@@ -5469,6 +5760,10 @@ async function abrirDetallePrestamo(id) {
     try {
         const { data, error } = await supabaseClient.from('v_prestamo_detalle').select('*').eq('id', id).single();
         if (error) throw error;
+        try {
+            const { data: extra } = await supabaseClient.from('prestamos').select('tipo_prestamo').eq('id', id).maybeSingle();
+            data.tipo_prestamo = extra?.tipo_prestamo || data.tipo_prestamo || 'Con devolucion';
+        } catch (e) { data.tipo_prestamo = data.tipo_prestamo || 'Con devolucion'; }
         prestamoDetalleActual = data;
         renderDetallePrestamo(data);
     } catch (e) {
@@ -5491,6 +5786,7 @@ function renderDetallePrestamo(p) {
     const detalle = [
         ['Estado', p.estado || '—'],
         ['Aprobación', p.estado_aprobacion || '—'],
+        ['Tipo de préstamo', p.tipo_prestamo === 'Por consumo' ? 'Por consumo (indefinido)' : 'Con devolución'],
         ['Prestatario', p.prestatario_nombre || '—'],
         ['Tipo', p.prestatario_tipo || '—'],
         ['Responsable', p.responsable_nombre || '—'],
@@ -5500,7 +5796,7 @@ function renderDetallePrestamo(p) {
         ['Ubicación', p.ubicacion || '—'],
         ['Dirección', p.direccion || '—'],
         ['Fecha préstamo', fechaPrestamoCorta(p.fecha_prestamo)],
-        ['Compromiso', fechaPrestamoCorta(p.fecha_compromiso)],
+        ['Compromiso', p.tipo_prestamo === 'Por consumo' ? 'Indefinido' : fechaPrestamoCorta(p.fecha_compromiso)],
         ['Póliza', p.poliza_numero || '—'],
         ['Aseguradora', p.poliza_aseguradora || '—'],
         ['Registrado por', p.registrado_por || '—'],
@@ -5838,6 +6134,7 @@ function abrirModalBebedero(id = null) {
             setValPrestamo('bebedero-serie', b.serie || '');
             setValPrestamo('bebedero-marca', b.marca || '');
             setValPrestamo('bebedero-modelo', b.modelo || '');
+            setValPrestamo('bebedero-categoria', b.categoria || 'Dispenser normal');
             setValPrestamo('bebedero-descripcion', b.descripcion || '');
             setValPrestamo('bebedero-color', b.color || '');
             setValPrestamo('bebedero-valor', b.valor_unitario || 0);
@@ -5876,7 +6173,8 @@ async function guardarBebedero(e) {
             p_fecha_compra: valPrestamo('bebedero-fecha-compra') || null,
             p_proveedor: valPrestamo('bebedero-proveedor') || null,
             p_observaciones: valPrestamo('bebedero-observaciones') || null,
-            p_usuario: 'Administración'
+            p_usuario: 'Administración',
+            p_categoria: valPrestamo('bebedero-categoria') || 'Dispenser normal'
         });
         if (error) throw error;
         cerrarModal('bebederoModal');
@@ -5917,6 +6215,343 @@ async function eliminarBebedero(id) {
         alert('Bebedero eliminado.');
     } catch (e) {
         alert('No se pudo eliminar: ' + (e?.message || e));
+    }
+}
+
+// ============================================
+// SOLICITUDES DE PRODUCTO (ADMIN)
+// ============================================
+let solicitudesAdminData = { lista: [], instalado: true, error: '', tab: 'pendientes' };
+
+function estadoSolicitudPill(estado) {
+    const map = {
+        Pendiente: 'pendiente', Aprobada: 'aprobada', Despachada: 'despachada',
+        Rechazada: 'rechazada', Cancelada: 'cancelada'
+    };
+    return `<span class="ops-pill ${map[estado] || 'cancelada'}">${esc(estado || '—')}</span>`;
+}
+
+async function cargarSolicitudesAdmin() {
+    const cont = document.getElementById('lista-solicitudes-admin');
+    if (!cont) return;
+    cont.innerHTML = '<div class="loading-text">Cargando solicitudes...</div>';
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('v_solicitudes_producto')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(200);
+        if (error) throw error;
+        solicitudesAdminData = { lista: data || [], instalado: true, error: '', tab: solicitudesAdminData.tab || 'pendientes' };
+    } catch (e) {
+        const msg = e?.message || String(e);
+        const noInstalado = /does not exist|no existe|42P01|Could not find the table|schema cache/i.test(msg);
+        solicitudesAdminData = { lista: [], instalado: !noInstalado, error: msg, tab: solicitudesAdminData.tab || 'pendientes' };
+        if (!noInstalado) console.error('Error al cargar solicitudes:', e);
+    }
+    renderSolicitudesAdmin();
+}
+
+function cambiarTabSolicitudes(tab, el) {
+    solicitudesAdminData.tab = tab;
+    document.querySelectorAll('#solicitudes-tabs .prestamos-tab').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderSolicitudesAdmin();
+}
+
+function renderSolicitudesAdmin() {
+    const cont = document.getElementById('lista-solicitudes-admin');
+    if (!cont) return;
+
+    if (!solicitudesAdminData.instalado) {
+        cont.innerHTML = `<div class="prestamo-empty" style="grid-column:1/-1;"><i class="fa-solid fa-database"></i>El módulo de solicitudes aún no está instalado en Supabase.<br>Ejecuta <code>modulo_solicitudes_producto.sql</code> en el SQL Editor.</div>`;
+        return;
+    }
+
+    const lista = solicitudesAdminData.lista || [];
+    const pendientes = lista.filter(s => s.estado === 'Pendiente');
+    const aprobadas = lista.filter(s => s.estado === 'Aprobada');
+    const hoy = new Date().toDateString();
+    const despachadasHoy = lista.filter(s => s.estado === 'Despachada' && new Date(s.resuelto_at || s.created_at).toDateString() === hoy);
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('sol-kpi-pendientes', pendientes.length);
+    set('sol-kpi-aprobadas', aprobadas.length);
+    set('sol-kpi-despachadas', despachadasHoy.length);
+    set('solicitudes-count', `${pendientes.length} pendiente${pendientes.length === 1 ? '' : 's'}`);
+
+    const filtradas = solicitudesAdminData.tab === 'pendientes'
+        ? lista.filter(s => ['Pendiente','Aprobada'].includes(s.estado))
+        : lista;
+
+    if (!filtradas.length) {
+        cont.innerHTML = `<div class="prestamo-empty" style="grid-column:1/-1;"><i class="fa-solid fa-circle-check"></i>${solicitudesAdminData.tab === 'pendientes' ? 'No hay solicitudes pendientes.' : 'Todavía no hay solicitudes registradas.'}</div>`;
+        return;
+    }
+
+    cont.innerHTML = filtradas.map(s => {
+        const items = Array.isArray(s.items) ? s.items : [];
+        const itemsHtml = items.map(i => `
+            <div class="ops-item">
+                <span>${esc(i.producto_nombre || 'Producto')}${i.producto_unidad ? ` <small>(${esc(i.producto_unidad)})</small>` : ''}</span>
+                <span>${Number(i.cantidad || 0)}${Number(i.cantidad_despachada || 0) ? ` <small>· desp. ${Number(i.cantidad_despachada)}</small>` : ''}</span>
+            </div>`).join('') || '<div class="prestamo-help">Sin productos.</div>';
+
+        const acciones = [];
+        if (s.estado === 'Pendiente') {
+            acciones.push(`<button type="button" class="prestamo-btn success" onclick="resolverSolicitudProducto('${s.id}','Aprobada')"><i class="fa-solid fa-check"></i> Aprobar</button>`);
+            acciones.push(`<button type="button" class="prestamo-btn danger" onclick="resolverSolicitudProducto('${s.id}','Rechazada')"><i class="fa-solid fa-xmark"></i> Rechazar</button>`);
+        } else if (s.estado === 'Aprobada') {
+            acciones.push(`<button type="button" class="prestamo-btn primary" onclick="resolverSolicitudProducto('${s.id}','Despachada')"><i class="fa-solid fa-truck-ramp-box"></i> Despachar a camioneta</button>`);
+        }
+
+        return `
+            <div class="ops-card">
+                <div class="ops-card-head">
+                    <div>
+                        <div class="ops-card-title"><i class="fa-solid fa-clipboard-check"></i> ${esc(s.numero || 'SOLICITUD')}</div>
+                        <div class="ops-card-sub">${esc(s.flota_nombre || 'Sin camioneta')} · ${esc(s.chofer_nombre || s.solicitado_por || 'Chofer')}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">
+                        ${estadoSolicitudPill(s.estado)}
+                        ${s.prioridad === 'Urgente' ? '<span class="ops-pill urgente"><i class="fa-solid fa-bolt"></i> Urgente</span>' : ''}
+                    </div>
+                </div>
+                <div class="ops-meta">
+                    <span><i class="fa-regular fa-calendar"></i> ${fechaPrestamoCorta(s.created_at)}</span>
+                    <span><i class="fa-solid fa-boxes-stacked"></i> ${Number(s.total_unidades || 0)} unidad(es)</span>
+                </div>
+                <div class="ops-items">${itemsHtml}</div>
+                ${s.notas ? `<div class="prestamo-help"><i class="fa-solid fa-note-sticky"></i> ${esc(s.notas)}</div>` : ''}
+                ${s.respuesta ? `<div class="prestamo-help"><i class="fa-solid fa-reply"></i> ${esc(s.respuesta)}</div>` : ''}
+                ${acciones.length ? `<div class="ops-actions">${acciones.join('')}</div>` : ''}
+            </div>`;
+    }).join('');
+}
+
+async function resolverSolicitudProducto(id, estado) {
+    const solicitud = (solicitudesAdminData.lista || []).find(s => String(s.id) === String(id));
+    const numero = solicitud?.numero || 'la solicitud';
+
+    if (estado === 'Despachada') {
+        if (!confirm(`¿Despachar ${numero}? El stock se cargará a la camioneta ${solicitud?.flota_nombre || ''}.`)) return;
+    } else if (estado === 'Rechazada') {
+        const motivo = prompt('Motivo del rechazo:');
+        if (motivo === null) return;
+        if (!motivo.trim()) return alert('Escribe el motivo del rechazo.');
+        var respuesta = motivo.trim();
+    } else if (!confirm('¿Aprobar esta solicitud?')) {
+        return;
+    }
+
+    try {
+        const { data, error } = await supabaseClient.rpc('rpc_resolver_solicitud_producto', {
+            p_solicitud_id: id,
+            p_estado: estado,
+            p_respuesta: typeof respuesta !== 'undefined' ? respuesta : null,
+            p_usuario: 'Administración',
+            p_items: null
+        });
+        if (error) throw error;
+        await cargarSolicitudesAdmin();
+        if (estado === 'Despachada') {
+            alert(`Solicitud despachada. Unidades cargadas: ${data?.unidades_despachadas ?? 0}.`);
+        } else {
+            alert(`Solicitud ${estado.toLowerCase()}.`);
+        }
+        if (typeof fetchFlota === 'function') fetchFlota();
+    } catch (e) {
+        alert('No se pudo actualizar la solicitud: ' + (e?.message || e));
+    }
+}
+
+// ============================================
+// CAJA CHICA (ADMIN)
+// ============================================
+let cajaChicaAdminData = { resumen: [], movimientos: [], instalado: true, error: '' };
+
+const CATEGORIAS_CAJA_CHICA = [
+    'Aporte diario', 'Cambio de aceite', 'Repuestos', 'Mantenimiento preventivo',
+    'Mantenimiento correctivo', 'Bateria', 'Llantas', 'Accesorios', 'Otros'
+];
+
+function llenarSelectCajaChicaAdmin() {
+    const sel = document.getElementById('cc-flota');
+    if (!sel) return;
+    const anterior = sel.value;
+    const flotas = flotaGlobalTodas || [];
+    sel.innerHTML = '<option value="">— Seleccione camioneta —</option>' + flotas.map(f =>
+        `<option value="${f.id}">${esc(f.nombre)}${f.choferes?.nombre ? ' · ' + esc(f.choferes.nombre) : ''}</option>`
+    ).join('');
+    if (flotas.some(f => String(f.id) === String(anterior))) sel.value = anterior;
+}
+
+async function cargarCajaChicaAdmin() {
+    llenarSelectCajaChicaAdmin();
+    const fechaInput = document.getElementById('cc-fecha');
+    if (fechaInput && !fechaInput.value) fechaInput.value = hoyISO();
+    if (!flotaGlobalTodas.length) {
+        try { await fetchFlota(); llenarSelectCajaChicaAdmin(); } catch (e) {}
+    }
+
+    try {
+        const [resumen, movimientos] = await Promise.all([
+            supabaseClient.from('v_caja_chica_resumen').select('*').order('flota_nombre'),
+            supabaseClient.from('v_caja_chica_detalle').select('*').order('created_at', { ascending: false }).limit(100)
+        ]);
+        const primero = [resumen, movimientos].find(r => r.error);
+        if (primero) throw primero.error;
+        cajaChicaAdminData = {
+            resumen: resumen.data || [],
+            movimientos: movimientos.data || [],
+            instalado: true, error: ''
+        };
+    } catch (e) {
+        const msg = e?.message || String(e);
+        const noInstalado = /does not exist|no existe|42P01|Could not find the table|schema view|schema cache/i.test(msg);
+        cajaChicaAdminData = { resumen: [], movimientos: [], instalado: !noInstalado, error: msg };
+        if (!noInstalado) console.error('Error al cargar caja chica:', e);
+    }
+    renderCajaChicaAdmin();
+}
+
+function renderCajaChicaAdmin() {
+    const resumenCont = document.getElementById('cc-resumen');
+    const movCont = document.getElementById('cc-movimientos');
+    if (!resumenCont || !movCont) return;
+
+    if (!cajaChicaAdminData.instalado) {
+        resumenCont.innerHTML = `<div class="prestamo-empty" style="grid-column:1/-1;"><i class="fa-solid fa-database"></i>El módulo de caja chica aún no está instalado.<br>Ejecuta <code>modulo_caja_chica.sql</code> en el SQL Editor.</div>`;
+        movCont.innerHTML = '';
+        return;
+    }
+
+    const resumen = cajaChicaAdminData.resumen || [];
+    const totalSaldo = resumen.reduce((s, r) => s + Number(r.saldo || 0), 0);
+    const totalAportesHoy = resumen.reduce((s, r) => s + Number(r.aportes_hoy || 0), 0);
+    const totalEgresosHoy = resumen.reduce((s, r) => s + Number(r.egresos_hoy || 0), 0);
+
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('cc-saldo-total', fmtBs(totalSaldo));
+    set('cc-aportes-hoy', fmtBs(totalAportesHoy));
+    set('cc-egresos-hoy', fmtBs(totalEgresosHoy));
+    set('cc-count', `${resumen.length} fondo${resumen.length === 1 ? '' : 's'}`);
+
+    if (!resumen.length) {
+        resumenCont.innerHTML = '<div class="prestamo-empty" style="grid-column:1/-1;"><i class="fa-solid fa-truck"></i>No hay camionetas registradas.</div>';
+    } else {
+        resumenCont.innerHTML = resumen.map(r => `
+            <div class="cc-card">
+                <div class="cc-card-head">
+                    <div>
+                        <div class="cc-card-name"><i class="fa-solid fa-truck"></i> ${esc(r.flota_nombre || 'Camioneta')}</div>
+                        <div class="cc-card-driver">${esc(r.chofer_nombre || 'Sin chofer asignado')}</div>
+                    </div>
+                    <span class="ops-pill ${Number(r.saldo || 0) < 0 ? 'rechazada' : 'despachada'}">${Number(r.saldo || 0) < 0 ? 'En déficit' : 'Disponible'}</span>
+                </div>
+                <div class="cc-balance"><small>Saldo disponible</small>${fmtBs(r.saldo || 0)}</div>
+                <div class="cc-mini"><span>Aportes hoy</span><strong>+ ${fmtBs(r.aportes_hoy || 0)}</strong></div>
+                <div class="cc-mini"><span>Egresos hoy</span><strong>− ${fmtBs(r.egresos_hoy || 0)}</strong></div>
+                <div class="cc-actions">
+                    <button type="button" class="prestamo-btn success" onclick="aporteDiarioAdmin('${r.flota_id}')"><i class="fa-solid fa-bolt"></i> Aporte Bs. 50</button>
+                </div>
+            </div>`).join('');
+    }
+
+    const movimientos = (cajaChicaAdminData.movimientos || []).slice(0, 20);
+    if (!movimientos.length) {
+        movCont.innerHTML = '<div class="prestamo-help">Todavía no hay movimientos de caja chica.</div>';
+        return;
+    }
+    movCont.innerHTML = movimientos.map(m => `
+        <div class="cc-mov">
+            <div class="cc-mov-info">
+                <div class="cc-mov-title">${esc(m.categoria || m.tipo)} · ${esc(m.flota_nombre || 'Camioneta')}</div>
+                <div class="cc-mov-sub">${fechaPrestamoCorta(m.fecha || m.created_at)} · ${esc(m.registrado_por || '—')}${m.descripcion ? ' · ' + esc(m.descripcion) : ''}</div>
+            </div>
+            <div class="cc-mov-monto ${m.tipo === 'Aporte' ? 'ingreso' : 'egreso'}">
+                ${m.tipo === 'Aporte' ? '+' : '−'} ${fmtBs(m.monto || 0)}
+            </div>
+            <button type="button" class="prestamo-btn danger" title="Eliminar movimiento" onclick="eliminarCajaChicaAdmin('${m.id}')"><i class="fa-solid fa-trash"></i></button>
+        </div>`).join('');
+}
+
+function cajaChicaTipoCambio() {
+    const tipo = document.getElementById('cc-tipo')?.value || 'Aporte';
+    const cat = document.getElementById('cc-categoria');
+    const monto = document.getElementById('cc-monto');
+    if (cat) cat.value = tipo === 'Aporte' ? 'Aporte diario' : 'Cambio de aceite';
+    if (monto && tipo === 'Aporte') monto.value = 50;
+}
+
+async function registrarCajaChicaAdmin(e) {
+    e.preventDefault();
+    const flotaId = document.getElementById('cc-flota')?.value;
+    const tipo = document.getElementById('cc-tipo')?.value || 'Aporte';
+    const monto = Number(document.getElementById('cc-monto')?.value || 0);
+    let categoria = document.getElementById('cc-categoria')?.value || 'Aporte diario';
+    if (!flotaId) return alert('Seleccione la camioneta.');
+    if (!monto || monto <= 0) return alert('Ingrese un monto válido.');
+    if (tipo === 'Aporte') categoria = 'Aporte diario';
+    if (tipo === 'Egreso' && categoria === 'Aporte diario') return alert('Seleccione la categoría del egreso.');
+
+    try {
+        const { error } = await supabaseClient.rpc('rpc_registrar_caja_chica', {
+            p_flota_id: flotaId,
+            p_chofer_id: null,
+            p_tipo: tipo,
+            p_monto: monto,
+            p_categoria: categoria,
+            p_descripcion: document.getElementById('cc-descripcion')?.value || null,
+            p_fecha: document.getElementById('cc-fecha')?.value || hoyISO(),
+            p_metodo_pago: document.getElementById('cc-metodo')?.value || 'Efectivo',
+            p_registrado_por: 'Administración'
+        });
+        if (error) throw error;
+        document.getElementById('cc-descripcion').value = '';
+        await cargarCajaChicaAdmin();
+        alert('Movimiento de caja chica registrado.');
+    } catch (err) {
+        alert('No se pudo registrar el movimiento: ' + (err?.message || err));
+    }
+}
+
+async function aporteDiarioAdmin(flotaId) {
+    if (!flotaId) return alert('Seleccione la camioneta.');
+    if (!confirm('¿Registrar el aporte diario de Bs. 50 para esta camioneta?')) return;
+    try {
+        const { data, error } = await supabaseClient.rpc('rpc_aporte_diario_caja_chica', {
+            p_flota_id: flotaId,
+            p_fecha: hoyISO(),
+            p_monto: 50,
+            p_registrado_por: 'Administración'
+        });
+        if (error) throw error;
+        await cargarCajaChicaAdmin();
+        alert(data?.ya_existia ? 'El aporte de hoy ya estaba registrado.' : 'Aporte diario de Bs. 50 registrado.');
+    } catch (e) {
+        alert('No se pudo registrar el aporte: ' + (e?.message || e));
+    }
+}
+
+async function registrarAporteDiarioAdmin() {
+    const flotaId = document.getElementById('cc-flota')?.value;
+    if (!flotaId) return alert('Seleccione la camioneta.');
+    await aporteDiarioAdmin(flotaId);
+}
+
+async function eliminarCajaChicaAdmin(id) {
+    if (!confirm('¿Eliminar este movimiento de caja chica?')) return;
+    try {
+        const { error } = await supabaseClient.rpc('rpc_eliminar_caja_chica', {
+            p_movimiento_id: id,
+            p_usuario: 'Administración'
+        });
+        if (error) throw error;
+        await cargarCajaChicaAdmin();
+    } catch (e) {
+        alert('No se pudo eliminar el movimiento: ' + (e?.message || e));
     }
 }
 
